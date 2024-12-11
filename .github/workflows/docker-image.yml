@@ -27,7 +27,7 @@ jobs:
         options: --privileged
 
     env:
-      BUILD_CONF: docker-compose-build.yml
+      BUILD_CONF: docker-compose-android.yml
       BUILD_IMAGE: android_builder
       DOCKER_TLS_CERTDIR: /certs
       FF_NETWORK_PER_BUILD: true
@@ -61,7 +61,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      BUILD_CONF: docker-compose-build.yml
+      BUILD_CONF: docker-compose-ios.yml
       BUILD_IMAGE: ios_preparer
 
     steps:
