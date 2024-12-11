@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import './App.css';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 function App() {
 
@@ -12,6 +11,22 @@ function App() {
     camera.position.z = 4.5;
     camera.position.y = 1.5;
 
+    const pointsUI = document.getElementById("points")
+    let points = 0
+
+    const randomRangeNum = (max, min) => {
+      return Math.floor(Math.random() * (max - min + 1) + min)
+    }
+    const moveObstacle = (arr, speed, maxX, minX, maxZ, minZ) => {
+      arr.forEach(e => {
+        e.position.z += speed;
+        if (e.position.z > camera.position.z) {
+          e.position.x = randomRangeNum(maxX, minX)
+          e.position.z = randomRangeNum(maxZ, minZ)
+        }
+      });
+    }
+
     // Renderer setup
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -19,7 +34,7 @@ function App() {
 
 
     // Orbit control 
-    const controls = new OrbitControls(camera, renderer.domElement);
+    // const controls = new OrbitControls(camera, renderer.domElement);
 
     // Grid Helper
     const gridHelper = new THREE.GridHelper(30, 30)
@@ -27,10 +42,6 @@ function App() {
     //ajouter une grille pour voir où se situe l'objet
     scene.add(gridHelper)
 
-    // Cube setup
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0xffff42 });
-    const cube = new THREE.Mesh(geometry, material);
 
     // Ground
     const ground = new THREE.Mesh(
@@ -45,12 +56,28 @@ function App() {
       new THREE.MeshBasicMaterial({ color: 0xffff42 })
     )
 
+    const powerups = []
+    for (let i = 0; i < 10; i++) {
+      const powerup = new THREE.Mesh(
+        new THREE.TorusGeometry(1, 0.4, 16, 50),
+        new THREE.MeshBasicMaterial({ color: 0xffdd08 })
+      )
+      powerup.scale.set(0.1, 0.1, 0.1)
+      powerup.name = "powerup" + i + 1
+      powerup.position.x = randomRangeNum(8, -8)
+      powerup.position.z = randomRangeNum(-5, -10)
+      powerups.push(powerup)
+      scene.add(powerup)
+    }
+
+
     scene.add(player);
     scene.add(ground)
 
+
     // Animation loop
     function animate() {
-      controls.update();
+      moveObstacle(powerups, 0.1, 8, -8, -5, -10)
       renderer.render(scene, camera);
     }
 
@@ -85,7 +112,11 @@ function App() {
   }, []); // Empty dependency array ensures this effect runs only once when the component mounts
 
   return (
-    <></>
+    <>
+      <div className="absolute m-0 text-white top-3 left-3">
+        <h1>Points: <span id="pointsUI">00</span></h1>
+      </div>
+    </>
   );
 }
 
