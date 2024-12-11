@@ -21,5 +21,3 @@ networks:
     network:
         driver: "bridge"
 
-volumes:
-
