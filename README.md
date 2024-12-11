@@ -18,7 +18,7 @@
 ### Groupe 4 :
 - Elias
 - Théo
-- WahtTheRatDoing
+- WhatTheRatDoing
 
 ## Quick setup — if you’ve done this kind of thing before
 ```
