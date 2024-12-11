@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "Building Android APK..."
           mkdir apk_build
-          docker-compose -f $BUILD_CONF run jeuxreact
+          docker-compose -f $BUILD_CONF run capacitor_builder
 
       - name: Upload Android APK artifact
         uses: actions/upload-artifact@v3
