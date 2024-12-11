@@ -87,7 +87,7 @@ jobs:
         run: |
           echo "Building iOS App..."
           mkdir ios_build
-          docker-compose -f $BUILD_CONF run jeuxreact
+          docker-compose -f $BUILD_CONF run capacitor_builder
 
       - name: Upload iOS App artifact
         uses: actions/upload-artifact@v3
