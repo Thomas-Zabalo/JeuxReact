@@ -305,23 +305,23 @@ export default class App {
     ctx.fillText(`Niveau: ${level}`, 10, 50);
   }
 
+
   drawField() {
-    const { ctx, canvas, fieldImage } = this;
-    if (fieldImage.complete && fieldImage.width > 0) {
-      ctx.drawImage(fieldImage, 0, 0, canvas.width, canvas.height);
-    } else {
-      ctx.fillStyle = "#2e7d32";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "white";
-      ctx.lineWidth = 2;
-      for (let i = 0; i < canvas.width; i += 100) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, canvas.height);
-        ctx.stroke();
-      }
+    const { ctx, canvas } = this;
+    if (!this.fieldPattern) {
+      const grassImage = new Image();
+      grassImage.src = process.env.PUBLIC_URL + "/Assets/grass.png"; // Assure un chemin correct
+      grassImage.onload = () => {
+        this.fieldPattern = ctx.createPattern(grassImage, "repeat");
+        this.drawField(); // Redessine après chargement
+      };
+      return;
     }
+    ctx.fillStyle = this.fieldPattern;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
+
+
 
   drawStartScreen() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
