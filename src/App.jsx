@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import './App.css';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 function App() {
 
@@ -15,6 +16,16 @@ function App() {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
+
+    // Orbit control 
+    const controls = new OrbitControls(camera, renderer.domElement);
+
+    // Grid Helper
+    const gridHelper = new THREE.GridHelper(30, 30)
+
+    //ajouter une grille pour voir où se situe l'objet
+    scene.add(gridHelper)
 
     // Cube setup
     const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -34,14 +45,12 @@ function App() {
       new THREE.MeshBasicMaterial({ color: 0xffff42 })
     )
 
-
     scene.add(player);
     scene.add(ground)
 
     // Animation loop
     function animate() {
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+      controls.update();
       renderer.render(scene, camera);
     }
 
@@ -60,6 +69,12 @@ function App() {
       }
       else if (e.key === "q" || e.key === "Q" || e.key === "ArrowLeft") {
         player.position.x -= 0.1;
+      }
+      else if (e.key === "z" || e.key === "Z" || e.key === "ArrowUp") {
+        player.position.z -= 0.1;
+      }
+      else if (e.key === "S" || e.key === "S" || e.key === "ArrowDown") {
+        player.position.z += 0.1;
       }
     })
 
