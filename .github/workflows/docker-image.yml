@@ -78,7 +78,7 @@ jobs:
           npm run build
           npx cap sync ios
 
-        - name: Install Docker Compose
+      - name: Install Docker Compose
         run: |
           brew install docker-compose
           docker-compose --version
