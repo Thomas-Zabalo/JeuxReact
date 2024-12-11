@@ -24,24 +24,22 @@ git push -u origin main
 
 ## Composé un groupe de deux ou trois personnes pour créer un jeu pour le web :
 ### Groupe 1 :
--
--
--
+- Evan
+- Thomas Cerquiera
 
 ### Groupe 2 :
--
--
--
+- Lucas
+- Clement
+- Lisa
 
 ### Groupe 3 :
-- 
--
--
+- Ogene
+- Mohammed
+- Thomas Zabalo
 
 ### Groupe 4 :
-- 
--
--
+- Elias
+- Théo
 
 Chacun des groupes créer une branche à part pour son jeu pour ne pas avoir des conflits mais aussi pensez à faire 
 ```
