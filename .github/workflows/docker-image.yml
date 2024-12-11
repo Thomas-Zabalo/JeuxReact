@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "Building Android APK..."
           mkdir apk_build
-          docker-compose -f $BUILD_CONF run capacitor_builder
+          docker-compose -f $BUILD_CONF run jeuxreact
 
       - name: Upload Android APK artifact
         uses: actions/upload-artifact@v3
@@ -78,13 +78,10 @@ jobs:
           npm run build
           npx cap sync ios
 
-      - name: Check Docker and Docker Compose version
+      - name: Install Docker Compose
         run: |
-          docker --version
+          brew install docker-compose
           docker-compose --version
-
-      - name: Set permissions for Docker socket
-        run: sudo chmod 666 /var/run/docker.sock
 
       - name: Build iOS App
         run: |
