@@ -78,10 +78,9 @@ jobs:
           npm run build
           npx cap sync ios
 
-      - name: Install Docker Compose
-        run: |
-          brew install docker-compose
-          docker-compose --version
+      # Docker Compose est déjà installé sur macOS dans GitHub Actions, pas besoin de l'installer manuellement
+      - name: Check Docker version
+        run: docker --version
 
       - name: Build iOS App
         run: |
