@@ -35,9 +35,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Log in to container registry
-        run: echo "${{ secrets.CI_REGISTRY_PASSWORD }}" | docker login ${{ secrets.CI_REGISTRY }} -u "${{ secrets.CI_REGISTRY_USER }}" --password-stdin
-
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y git docker-compose
 
