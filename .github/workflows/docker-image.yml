@@ -28,7 +28,7 @@ jobs:
 
     env:
       BUILD_CONF: docker-compose-build.yml
-      BUILD_IMAGE: capacitor_builder
+      BUILD_IMAGE: android_builder
       DOCKER_TLS_CERTDIR: /certs
       FF_NETWORK_PER_BUILD: true
 
@@ -62,7 +62,7 @@ jobs:
 
     env:
       BUILD_CONF: docker-compose-build.yml
-      BUILD_IMAGE: capacitor_builder
+      BUILD_IMAGE: ios_preparer
 
     steps:
       - name: Checkout code
