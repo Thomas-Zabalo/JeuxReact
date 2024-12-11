@@ -78,10 +78,13 @@ jobs:
           npm run build
           npx cap sync ios
 
-      - name: Install Docker Compose
+      - name: Check Docker and Docker Compose version
         run: |
-          brew install docker-compose
+          docker --version
           docker-compose --version
+
+      - name: Set permissions for Docker socket
+        run: sudo chmod 666 /var/run/docker.sock
 
       - name: Build iOS App
         run: |
