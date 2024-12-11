@@ -8,7 +8,8 @@ on:
   pull_request:
     paths:
       - .dockerignore
-      - build.sh
+      - build-android.sh
+      - build-ios.sh
       - build.Dockerfile
       - docker-compose-build.yml
       - android/**/*
@@ -79,7 +80,7 @@ jobs:
         run: |
           echo "Building iOS App..."
           mkdir ios_build
-          docker-compose -f $BUILD_CONF run capacitor_builder
+          docker compose -f $BUILD_CONF run capacitor_builder
 
       - name: Upload iOS App artifact
         uses: actions/upload-artifact@v3
