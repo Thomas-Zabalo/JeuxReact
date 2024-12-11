@@ -261,6 +261,21 @@ export default class App {
     }
   }
 
+  drawField() {
+    const { ctx, canvas } = this;
+    if (!this.fieldPattern) {
+      const grassImage = new Image();
+      grassImage.src = process.env.PUBLIC_URL + "/Assets/grass.png"; // Assure un chemin correct
+      grassImage.onload = () => {
+        this.fieldPattern = ctx.createPattern(grassImage, "repeat");
+        this.drawField(); // Redessine après chargement
+      };
+      return;
+    }
+    ctx.fillStyle = this.fieldPattern;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
   drawEnemies() {
     const { ctx, enemies } = this;
     enemies.forEach((enemy) => {
@@ -298,83 +313,61 @@ export default class App {
 
   drawScore() {
     const { ctx, score } = this;
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.fillText(`Score: ${score}`, 10, 20);
-    const level = this.getLevel();
-    ctx.fillText(`Niveau: ${level}`, 10, 50);
+    ctx.fillStyle = "white";
+    ctx.font = "24px Arial";
+    ctx.fillText(`Score: ${score}`, 10, 30);
   }
-
-
-  drawField() {
-    const { ctx, canvas } = this;
-    if (!this.fieldPattern) {
-      const grassImage = new Image();
-      grassImage.src = process.env.PUBLIC_URL + "/Assets/grass.png"; // Assure un chemin correct
-      grassImage.onload = () => {
-        this.fieldPattern = ctx.createPattern(grassImage, "repeat");
-        this.drawField(); // Redessine après chargement
-      };
-      return;
-    }
-    ctx.fillStyle = this.fieldPattern;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
-
 
   drawStartScreen() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawField();
-    this.ctx.fillStyle = "black";
-    this.ctx.font = "30px Arial";
-    this.ctx.fillText(
-        "Appuyez sur Enter pour commencer",
-        this.canvas.width / 2 - 180,
-        this.canvas.height / 2
-    );
-  }
+    const { ctx } = this;
+    ctx.backgroundImage = process.env.PUBLIC_URL + "/Assets/stade.png";
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-  drawGameOverScreen() {
-    this.ctx.fillStyle = "rgba(0,0,0,0.5)";
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.fillStyle = "white";
-    this.ctx.font = "30px Arial";
-    this.ctx.fillText(
-        "Game Over!",
-        this.canvas.width / 2 - 70,
-        this.canvas.height / 2
-    );
-    this.ctx.font = "20px Arial";
-    this.ctx.fillText(
-        "Appuyez sur 'r' pour rejouer",
-        this.canvas.width / 2 - 100,
-        this.canvas.height / 2 + 40
-    );
+    ctx.fillStyle = "white";
+    ctx.font = "30px Arial";
+    ctx.fillText("Appuyez sur 'Entrée' pour commencer", this.canvas.width / 2 - 180, this.canvas.height / 2);
+
+    ctx.font = "20px Arial";
+    ctx.fillText("Contrôles : Z = haut, S = bas, Q = gauche, D = droite", this.canvas.width / 2 - 180, this.canvas.height / 2 + 40);
+    ctx.fillText("But : Atteindre la zone verte sans toucher les ennemis", this.canvas.width / 2 - 180, this.canvas.height / 2 + 70);
   }
 
   gameLoop(timestamp) {
-    if (!this.lastTime) this.lastTime = timestamp;
     const deltaTime = timestamp - this.lastTime;
     this.lastTime = timestamp;
 
     if (this.gameOver) {
-      this.drawGameOverScreen();
+      this.drawGameOver();
       return;
     }
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawField();
 
     this.updatePlayer(deltaTime);
     this.updateEnemies();
     this.checkWin();
 
-    this.drawTryZone();
+    this.drawField();
+    this.drawScore();
     this.drawPlayer();
     this.drawEnemies();
-    this.drawScore();
+    this.drawTryZone();
+    requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
+  }
 
-    requestAnimationFrame((ts) => this.gameLoop(ts));
+  drawGameOver() {
+    const { ctx } = this;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.fillStyle = "white";
+    ctx.font = "30px Arial";
+    ctx.fillText("Game Over!", this.canvas.width / 2 - 90, this.canvas.height / 2);
+
+    ctx.font = "20px Arial";
+    ctx.fillText("Appuyez sur 'R' pour recommencer", this.canvas.width / 2 - 130, this.canvas.height / 2 + 40);
   }
 }
+
+const app = new App();
+app.init();
