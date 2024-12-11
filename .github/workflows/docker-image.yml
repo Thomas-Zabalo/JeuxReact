@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "Building Android APK..."
           mkdir apk_build
-          docker-compose -f $BUILD_CONF run jeuxreact
+          docker-compose -f $BUILD_CONF run $BUILD_IMAGE
 
       - name: Upload Android APK artifact
         uses: actions/upload-artifact@v3
@@ -68,17 +68,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Log in to container registry
-        run: echo "${{ secrets.CI_REGISTRY_PASSWORD }}" | docker login ${{ secrets.CI_REGISTRY }} -u "${{ secrets.CI_REGISTRY_USER }}" --password-stdin
-
       - name: Install dependencies
-        run: brew install docker-compose
+        run: |
+          brew install cocoapods
+          npm install
+
+      - name: Sync Capacitor files
+        run: |
+          npm run build
+          npx cap sync ios
 
       - name: Build iOS App
         run: |
           echo "Building iOS App..."
           mkdir ios_build
-          docker-compose -f $BUILD_CONF run jeuxreact
+          docker-compose -f $BUILD_CONF run $BUILD_IMAGE
 
       - name: Upload iOS App artifact
         uses: actions/upload-artifact@v3
