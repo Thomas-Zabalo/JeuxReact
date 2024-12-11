@@ -1,0 +1,41 @@
+image: docker
+services:
+    - docker:dind
+variables:
+    BUILD_CONF: docker-compose-build.yml
+    BUILD_IMAGE: capacitor_builder
+    DOCKER_TLS_CERTDIR: /certs
+    FF_NETWORK_PER_BUILD: true
+
+stages:
+    - build
+
+before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u "$CI_REGISTRY_USER" --password-stdin
+    - apk add --no-cache git
+after_script:
+    - docker logout
+
+build_android:
+    stage: build
+    only:
+        refs:
+            - main
+            - capacitor
+        changes:
+            - .dockerignore
+            - .gitlab-ci.yml
+            - build.sh
+            - build.Dockerfile
+            - docker-compose-build.yml
+            - android/**/*
+            - src/**/*
+    script:
+        - echo "Build Android APK"
+        - apk add --no-cache docker-compose
+        # BUILD TOOLS
+        - mkdir apk_build
+        - docker-compose -f $BUILD_CONF run $BUILD_IMAGE
+    artifacts:
+        paths:
+            - apk_build/debug/app-debug.apk
