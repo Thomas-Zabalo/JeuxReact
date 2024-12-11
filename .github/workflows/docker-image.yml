@@ -1,0 +1,91 @@
+name: Build Android and iOS
+
+on:
+  push:
+    branches:
+      - main
+      - capacitor
+  pull_request:
+    paths:
+      - .dockerignore
+      - .gitlab-ci.yml
+      - build.sh
+      - build.Dockerfile
+      - docker-compose-build.yml
+      - android/**/*
+      - ios/**/*
+      - src/**/*
+
+jobs:
+  build_android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:dind
+        options: --privileged
+
+    env:
+      BUILD_CONF: docker-compose-build.yml
+      BUILD_IMAGE: capacitor_builder
+      DOCKER_TLS_CERTDIR: /certs
+      FF_NETWORK_PER_BUILD: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to container registry
+        run: echo "${{ secrets.CI_REGISTRY_PASSWORD }}" | docker login ${{ secrets.CI_REGISTRY }} -u "${{ secrets.CI_REGISTRY_USER }}" --password-stdin
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y git docker-compose
+
+      - name: Build Android APK
+        run: |
+          echo "Building Android APK..."
+          mkdir apk_build
+          docker-compose -f $BUILD_CONF run $BUILD_IMAGE
+
+      - name: Upload Android APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug.apk
+          path: apk_build/debug/app-debug.apk
+
+      - name: Log out from container registry
+        run: docker logout
+
+  build_ios:
+    name: Build iOS App
+    runs-on: macos-latest
+
+    env:
+      BUILD_CONF: docker-compose-build.yml
+      BUILD_IMAGE: capacitor_builder
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to container registry
+        run: echo "${{ secrets.CI_REGISTRY_PASSWORD }}" | docker login ${{ secrets.CI_REGISTRY }} -u "${{ secrets.CI_REGISTRY_USER }}" --password-stdin
+
+      - name: Install dependencies
+        run: brew install docker-compose
+
+      - name: Build iOS App
+        run: |
+          echo "Building iOS App..."
+          mkdir ios_build
+          docker-compose -f $BUILD_CONF run $BUILD_IMAGE
+
+      - name: Upload iOS App artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-app-build
+          path: ios_build/**
+
+      - name: Log out from container registry
+        run: docker logout
