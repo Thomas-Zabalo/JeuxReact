@@ -24,7 +24,7 @@ git push -u origin main
 
 ## Composé un groupe de deux ou trois personnes pour créer un jeu pour le web :
 ### Groupe 1 :
-- 
+-
 -
 -
 
