@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "Building Android APK..."
           mkdir apk_build
-          docker-compose -f $BUILD_CONF run capacitor_builder
+          docker-compose -f docker-compose-android.yml up --build
 
       - name: Upload Android APK artifact
         uses: actions/upload-artifact@v3
@@ -53,6 +53,8 @@ jobs:
 
       - name: Log out from container registry
         run: docker logout
+
+
 
   build_ios:
     name: Build iOS App
@@ -71,6 +73,9 @@ jobs:
           brew install cocoapods
           npm install
 
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y git docker-compose
+
       - name: Sync Capacitor files
         run: |
           npm run build
@@ -80,7 +85,7 @@ jobs:
         run: |
           echo "Building iOS App..."
           mkdir ios_build
-          docker compose -f $BUILD_CONF run capacitor_builder
+          docker-compose -f docker-compose-ios.yml up --build
 
       - name: Upload iOS App artifact
         uses: actions/upload-artifact@v3
