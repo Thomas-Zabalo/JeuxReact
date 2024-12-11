@@ -8,7 +8,6 @@ on:
   pull_request:
     paths:
       - .dockerignore
-      - .gitlab-ci.yml
       - build.sh
       - build.Dockerfile
       - docker-compose-build.yml
@@ -46,7 +45,7 @@ jobs:
         run: |
           echo "Building Android APK..."
           mkdir apk_build
-          docker-compose -f $BUILD_CONF run $BUILD_IMAGE
+          docker-compose -f $BUILD_CONF run jeuxreact
 
       - name: Upload Android APK artifact
         uses: actions/upload-artifact@v3
@@ -79,7 +78,7 @@ jobs:
         run: |
           echo "Building iOS App..."
           mkdir ios_build
-          docker-compose -f $BUILD_CONF run $BUILD_IMAGE
+          docker-compose -f $BUILD_CONF run jeuxreact
 
       - name: Upload iOS App artifact
         uses: actions/upload-artifact@v3

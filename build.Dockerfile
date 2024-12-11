@@ -72,7 +72,7 @@ WORKDIR /workdir
 COPY . ./
 RUN npm install -g npx
 RUN npm install capp
-RUN chmod +x ./build.sh
+RUN chmod +x ./build-android.sh
 
 # Lancer le build
-CMD ./build.sh
+CMD ./build-android.sh
