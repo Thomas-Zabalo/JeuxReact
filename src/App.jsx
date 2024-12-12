@@ -2,42 +2,18 @@ import React, { useEffect } from 'react';
 import './App.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import * as CANNON from 'cannon-es'
+import * as CANNON from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
 function App() {
 
   useEffect(() => {
-
-
     // Scene setup
     const scene = new THREE.Scene();
     const world = new CANNON.World({
-      gravity: new CANNON.Vec3(0, -9.82, 0)
+      gravity: new CANNON.Vec3(0, -9.82, 0),
     });
-
-    const cannonDebugger = new CannonDebugger(scene, world, {
-      color: "#AEE2FF",
-      scale: 1
-    })
-
-    const loader = new GLTFLoader();
-
-    loader.load('/models/scene.gltf', function (gltf) {
-      console.log('Model loaded:', gltf);
-      const model = gltf.scene;
-      model.scale.set(0.1, 0.1, 0.1); // Réduisez la taille du modèle si nécessaire
-      model.position.set(0, 0, 0);
-
-      scene.add(model);
-
-    }, undefined, function (error) {
-
-      console.error(error);
-
-    });
-
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 4.5;
@@ -48,83 +24,93 @@ function App() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-
     // Orbit control 
     const controls = new OrbitControls(camera, renderer.domElement);
 
-
-    const pointsUI = document.getElementById("points")
-    let points = 0
+    const pointsUI = document.getElementById('points');
+    let points = 0;
     let gameOver = false;
 
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(5, 10, 7.5);
+    scene.add(directionalLight);
+
+    const cannonDebugger = new CannonDebugger(scene, world, {
+      color: '#AEE2FF',
+      scale: 1,
+    });
+
+    const loader = new FBXLoader();
+    let playerModel = null; // Nouvelle variable pour le modèle du joueur
+    let playerMixer = null; // Mixer d'animations du joueur
+    const clock = new THREE.Clock(); // Ajout du THREE.Clock()
+
+    loader.load('/models/FastRun.fbx', function (fbx) {
+      if (fbx.animations.length > 0) {
+        fbx.scale.set(15, 15, 15); // Vous pouvez ajuster la taille selon vos besoins
+        fbx.rotation.y = Math.PI; // Ajuster la rotation si nécessaire
+        scene.add(fbx);
+
+        // Créez un mixer pour l'animation
+        playerMixer = new THREE.AnimationMixer(fbx);
+        const action = playerMixer.clipAction(fbx.animations[0]);
+        action.play();
+
+        // Utilisation de ce modèle comme joueur
+        playerModel = fbx; // Référencez le modèle FBX en tant que player
+      }
+    }, (xhr) => {
+      console.log(`FBX file loaded: ${(xhr.loaded / xhr.total) * 100}%`);
+    }, (error) => {
+      console.error('Error loading FBX file:', error);
+    });
+
+    // Créer le CANNON.Body pour le joueur avec un shape plus adapté au modèle FBX
+    const playerBody = new CANNON.Body({
+      mass: 1,
+      shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.5)), // Ajustez selon la taille du modèle
+      fixedRotation: true,
+    });
+
+    playerBody.position.set(0, 1, 0); // Placez-le au bon endroit dans la scène
+    world.addBody(playerBody);
+
+
+
     const randomRangeNum = (max, min) => {
-      return Math.floor(Math.random() * (max - min + 1) + min)
-    }
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    };
 
     const moveObstacles = (arr, speed, maxX, minX, maxZ, minZ) => {
       arr.forEach((e) => {
         e.body.position.z += speed;
         if (e.body.position.z > camera.position.z) {
-          e.body.position.x = randomRangeNum(maxX, minX)
-          e.body.position.z = randomRangeNum(maxZ, minZ)
+          e.body.position.x = randomRangeNum(maxX, minX);
+          e.body.position.z = randomRangeNum(maxZ, minZ);
         }
-        e.mesh.position.copy(e.body.position)
-        e.mesh.quaternion.copy(e.body.quaternion)
+        e.mesh.position.copy(e.body.position);
+        e.mesh.quaternion.copy(e.body.quaternion);
       });
-    }
-
+    };
 
     // Ground
-
     const groundBody = new CANNON.Body({
       shape: new CANNON.Box(new CANNON.Vec3(15, 0.5, 15)),
-    })
-    groundBody.position.y = -1
+    });
+    groundBody.position.y = -1;
     world.addBody(groundBody);
 
     const ground = new THREE.Mesh(
       new THREE.BoxGeometry(30, 1, 30),
       new THREE.MeshBasicMaterial({ color: 0x91785d })
-    )
-    ground.position.y = -1
+    );
+    ground.position.y = -1;
     scene.add(ground);
 
-
-
-    // Player
-    const playerBody = new CANNON.Body({
-      mass: 1,
-      shape: new CANNON.Box(new CANNON.Vec3(0.25, 0.25, 0.25)),
-      fixedRotation: true
-    })
-    playerBody.position.y = 1
-    world.addBody(playerBody)
-
-    const player = new THREE.Mesh(
-      new THREE.BoxGeometry(0.5, 0.5, 0.5),
-      new THREE.MeshBasicMaterial({ color: 0xf00000 })
-    )
-    scene.add(player);
-
-    playerBody.addEventListener("collide", (e) => {
-      powerups.forEach((el) => {
-        if (e.body === el.body) {
-          el.body.position.x = randomRangeNum(8, -8);
-          el.body.position.z = randomRangeNum(-5, -10);
-          el.mesh.position.copy(el.body.position);
-          el.mesh.quaternion.copy(el.body.quaternion);
-          points += 1;
-          pointsUI.textContent = points.toString();
-        }
-      })
-      enemies.forEach((el) => {
-        if (e.body === el.body) {
-          gameOver = true
-        }
-      })
-    })
-
-    //Enemies
     // Ennemis
     const enemies = [];
     for (let i = 0; i < 3; i++) {
@@ -135,7 +121,7 @@ function App() {
         new THREE.BoxGeometry(1, 1, 1),
         new THREE.MeshBasicMaterial({ color: 0x0000ff })
       );
-      enemy.position.y = 1
+      enemy.position.y = 1;
       enemy.position.x = posX;
       enemy.position.z = posZ;
       scene.add(enemy);
@@ -144,7 +130,7 @@ function App() {
         mass: 1,
         shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
       });
-      enemyBody.position.set(posX, 1, posZ); // Assurez-vous de donner une hauteur
+      enemyBody.position.set(posX, 1, posZ);
       world.addBody(enemyBody);
 
       const enemyObject = {
@@ -166,7 +152,7 @@ function App() {
         new THREE.MeshBasicMaterial({ color: 0xffff00 })
       );
       powerup.scale.set(0.1, 0.1, 0.1);
-      powerup.position.set(posX, 1, posZ); // Fixez la position à une hauteur raisonnable
+      powerup.position.set(posX, 1, posZ);
       scene.add(powerup);
 
       const powerupBody = new CANNON.Body({
@@ -183,19 +169,12 @@ function App() {
       powerups.push(powerupObject);
     }
 
-
-
-
-
-
     // Animation loop
     function animate() {
-
       requestAnimationFrame(animate);
-
       if (!gameOver) {
-        // moveObstacles(powerups, 0.1, 8, -8, -5, -10)
-        // moveObstacles(enemies, 0.2, 8, -8, -5, -10)
+        moveObstacles(powerups, 0.1, 8, -8, -5, -10)
+        moveObstacles(enemies, 0.2, 8, -8, -5, -10)
       }
       else {
         pointsUI.textContent = "GAME OVER";
@@ -212,17 +191,26 @@ function App() {
         })
 
         if (playerBody.position.z > camera.position.z) {
-          scene.remove(player)
+          scene.remove(playerModel)
           world.removeBody(playerBody)
         }
+      }
+      if (playerModel) {
+        // Appliquez une rotation continue sur l'axe Y du modèle
+        playerModel.rotation.y = Math.PI;
+        // Si vous avez des animations sur le modèle, mettez-les à jour
+        if (playerMixer) {
+          playerMixer.update(clock.getDelta()); // Si vous avez des animations, mettez-les à jour
+        }
+
+        // Mettez à jour la position du modèle avec la physique du joueur
+        playerModel.position.copy(playerBody.position);
+        playerModel.quaternion.copy(playerBody.quaternion);
       }
 
       controls.update()
 
       world.fixedStep();
-
-      player.position.copy(playerBody.position)
-      player.quaternion.copy(playerBody.quaternion)
 
       cannonDebugger.update()
 
@@ -233,28 +221,26 @@ function App() {
     animate();
 
     // Event listener
-    window.addEventListener("resize", () => {
+    window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight)
-    })
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
 
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "d" || e.key === "D" || e.key === "ArrowRight") {
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
         playerBody.position.x += 0.1;
       }
-      if (e.key === "q" || e.key === "Q" || e.key === "ArrowLeft") {
+      if (e.key === 'q' || e.key === 'Q' || e.key === 'ArrowLeft') {
         playerBody.position.x -= 0.1;
       }
-      if (e.key === "r" || e.key === "R") {
-        playerBody.position.z = 0
-        playerBody.position.x = 0
-        playerBody.position.y = 0
+      if (e.key === 'r' || e.key === 'R') {
+        playerBody.position.set(0, 1, 0); // Réinitialiser la position
       }
-      if (e.key === " ") {
-        playerBody.position.y = 2
+      if (e.key === ' ') {
+        playerBody.position.y = 2; // Faire sauter le joueur
       }
-    })
+    });
 
     // Cleanup function to remove the renderer on component unmount
     return () => {
