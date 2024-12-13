@@ -32,6 +32,21 @@ export default class App {
     this.fieldImage = new Image();
     this.fieldImage.src = "field.png";
 
+    // Charger l'image du poteau de rugby
+    this.goalpostImage = new Image();
+    this.goalpostImage.src = 'assets/goalpost.png';
+
+    // Poteaux de rugby
+    this.goalPosts = [
+      { x: this.tryZone.x, y: this.tryZone.y + 300, width: 150, height: 150 },
+    ];
+
+// Vérifier lorsque l'image est chargée
+    this.goalpostImage.onload = () => {
+      this.startGame();
+    };
+
+
     this.player = {
       x: 100,
       y: this.canvas.height / 2,
@@ -452,6 +467,14 @@ export default class App {
     ctx.stroke();
   }
 
+  drawGoalPosts() {
+    const { ctx } = this;
+    this.goalPosts.forEach((post) => {
+      ctx.drawImage(this.goalpostImage, post.x, post.y, post.width, post.height);
+    });
+  }
+
+
   drawScore() {
     const { ctx, score } = this;
 
@@ -615,6 +638,8 @@ export default class App {
     this.drawPlayer();
     this.drawEnemies();
     this.drawScore();
+    this.drawGoalPosts(); // Dessiner les poteaux
+
 
     requestAnimationFrame((ts) => this.gameLoop(ts));
   }
