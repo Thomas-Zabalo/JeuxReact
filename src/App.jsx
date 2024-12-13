@@ -33,18 +33,21 @@ function App() {
 
     const controls = new OrbitControls(camera, renderer.domElement);
 
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1, 1, 1).normalize();
-    scene.add(light);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
 
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(5, 10, 7.5);
+    scene.add(directionalLight);
 
     const loader = new GLTFLoader();
     let model;
 
     loader.load(
-      '/models/science_fiction_tramtrain_bridge.glb', // Chemin vers le fichier GLTF/GLB
+      '/models/bridge/scene.gltf', // Chemin vers le fichier GLTF/GLB
       (gltf) => {
         model = gltf.scene;
+        model.rotation.y= Math.PI / 2;
         scene.add(model);
       },
       undefined,
