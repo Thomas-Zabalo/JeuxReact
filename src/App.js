@@ -3,18 +3,16 @@ export default class App {
     this.canvas = document.getElementById("gameCanvas");
     this.ctx = this.canvas.getContext("2d");
 
-    // Le canvas prend la taille de la fenêtre
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
 
     this.fieldImage = new Image();
-    this.fieldImage.src = "field.png"; // Mettre l'image du terrain si disponible
+    this.fieldImage.src = "field.png";
 
-    // Joueur
     this.player = {
       x: 100,
       y: this.canvas.height / 2,
-      width: 80, // Taille affichée
+      width: 80,
       height: 80,
       speed: 5,
       vx: 0,
@@ -28,16 +26,14 @@ export default class App {
       facingRight: true,
     };
 
-    // Chargement des frames du joueur
     for (let i = 0; i < this.player.frameCount; i++) {
       const img = new Image();
       img.src = process.env.PUBLIC_URL + `/Assets/runner_sprite${i + 1}.png`;
       this.player.frames.push(img);
     }
 
-    // Chargement des frames ennemies
     this.enemyFrames = [];
-    const enemyFrameCount = 24; // mechant_0 à mechant_23 inclus
+    const enemyFrameCount = 24;
     for (let i = 0; i < enemyFrameCount; i++) {
       const img = new Image();
       img.src = process.env.PUBLIC_URL + `/Assets/mechant_${i}.png`;
@@ -46,7 +42,6 @@ export default class App {
 
     this.enemies = [];
 
-    // Zone d'essai
     this.tryZone = {
       x: this.canvas.width - 100,
       y: 0,
@@ -61,9 +56,12 @@ export default class App {
     this.gameStarted = false;
     this.score = 0;
 
-    // Interval spawn
     this.enemySpawnInterval = null;
     this.lastTime = 0;
+
+    this.startSound = new Audio(process.env.PUBLIC_URL + '/Assets/start_game.mp3');
+    this.startSound.volume = 0.5;
+    this.startSound.load();
   }
 
   resizeCanvas() {
@@ -83,12 +81,18 @@ export default class App {
       }
       if (this.gameOver && e.key === "r") {
         this.resetAll();
-        this.startGame();
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawStartScreen();
+        this.startSound.currentTime = 0;
+        this.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
       }
     });
 
     document.addEventListener("keyup", (e) => (this.keys[e.key] = false));
+
     this.drawStartScreen();
+    this.startSound.currentTime = 0;
+    this.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
   }
 
   getLevel() {
@@ -101,29 +105,13 @@ export default class App {
     const level = this.getLevel();
     switch (level) {
       case "Facile":
-        return {
-          enemySpeedBase: 2,
-          spawnInterval: 2000,
-          enemiesPerSpawn: 1,
-        };
+        return { enemySpeedBase: 2, spawnInterval: 2000, enemiesPerSpawn: 1 };
       case "Intermédiaire":
-        return {
-          enemySpeedBase: 3,
-          spawnInterval: 1700,
-          enemiesPerSpawn: 2,
-        };
+        return { enemySpeedBase: 3, spawnInterval: 1700, enemiesPerSpawn: 2 };
       case "Difficile":
-        return {
-          enemySpeedBase: 4,
-          spawnInterval: 1200,
-          enemiesPerSpawn: 3,
-        };
+        return { enemySpeedBase: 4, spawnInterval: 1200, enemiesPerSpawn: 3 };
       default:
-        return {
-          enemySpeedBase: 2,
-          spawnInterval: 2000,
-          enemiesPerSpawn: 1,
-        };
+        return { enemySpeedBase: 2, spawnInterval: 2000, enemiesPerSpawn: 1 };
     }
   }
 
@@ -137,10 +125,7 @@ export default class App {
   setupSpawnInterval() {
     if (this.enemySpawnInterval) clearInterval(this.enemySpawnInterval);
     const { spawnInterval } = this.getDifficultyParameters();
-    this.enemySpawnInterval = setInterval(
-        () => this.createEnemies(),
-        spawnInterval
-    );
+    this.enemySpawnInterval = setInterval(() => this.createEnemies(), spawnInterval);
   }
 
   resetGame() {
@@ -156,6 +141,11 @@ export default class App {
   resetAll() {
     this.score = 0;
     this.resetGame();
+    this.gameOver = false;
+    this.gameStarted = false;
+    this.enemies = [];
+    this.startSound.currentTime = 0;
+    this.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
   }
 
   updatePlayer(deltaTime) {
@@ -183,21 +173,18 @@ export default class App {
     player.x += player.vx;
     player.y += player.vy;
 
-    // collisions bords
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
     if (player.y < 0) player.y = 0;
     if (player.y + player.height > canvas.height)
       player.y = canvas.height - player.height;
 
-    // Direction du regard joueur
     if (player.vx > 0) {
       player.facingRight = true;
     } else if (player.vx < 0) {
       player.facingRight = false;
     }
 
-    // animation joueur
     if (Math.abs(player.vx) > 0.1 || Math.abs(player.vy) > 0.1) {
       player.currentFrame += 10 * (deltaTime / 1000);
       if (player.currentFrame >= player.frameCount) player.currentFrame = 0;
@@ -239,20 +226,16 @@ export default class App {
       enemy.x += Math.cos(angle) * enemy.speed;
       enemy.y += Math.sin(angle) * enemy.speed;
 
-      // Détermine le sens de l'ennemi
       enemy.facingRight = dx > 0;
 
-      // Animation de l'ennemi
       enemy.currentFrame += 10 * (deltaTime / 1000);
       if (enemy.currentFrame >= enemy.frameCount) enemy.currentFrame = 0;
 
-      // Retirer l'ennemi s'il sort par la gauche
       if (enemy.x + enemy.width < 0) {
         enemies.splice(i, 1);
         continue;
       }
 
-      // Collision rectangulaire (ancienne hitbox)
       const rectCollision = (
           player.x < enemy.x + enemy.width &&
           player.x + player.width > enemy.x &&
@@ -261,11 +244,9 @@ export default class App {
       );
 
       if (rectCollision) {
-        // Le joueur devient rouge, mais ne meurt pas
         rectCollisionOccurred = true;
       }
 
-      // Collision basée sur la distance (nouvelle hitbox)
       const playerCenterX = player.x + player.width / 2;
       const playerCenterY = player.y + player.height / 2;
       const enemyCenterX = enemy.x + enemy.width / 2;
@@ -275,24 +256,21 @@ export default class App {
       const distY = playerCenterY - enemyCenterY;
       const distance = Math.sqrt(distX * distX + distY * distY);
 
-      // Rayons plus petits pour la détection létale
       const playerRadius = (player.width / 2) * 0.4;
       const enemyRadius = (enemy.width / 2) * 0.4;
 
       if (distance < playerRadius + enemyRadius) {
-        // Collision fatale
         this.gameOver = true;
         clearInterval(this.enemySpawnInterval);
         break;
       }
     }
 
-    // Si pas gameOver, on ajuste la couleur du joueur
     if (!this.gameOver) {
       if (rectCollisionOccurred) {
-        player.color = "red"; // Le joueur est touché par la hitbox rectangulaire
+        player.color = "red";
       } else {
-        player.color = "blue"; // Aucune collision => joueur normal
+        player.color = "blue";
       }
     }
   }
@@ -317,7 +295,6 @@ export default class App {
 
     ctx.save();
     if (!player.facingRight) {
-      // Flip horizontal
       ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
       ctx.scale(-1, 1);
       if (frame && frame.complete && frame.naturalWidth !== 0) {
@@ -336,8 +313,6 @@ export default class App {
     }
     ctx.restore();
 
-    // Si le joueur doit être rouge (touché par la hitbox rectangulaire),
-    // on dessine un calque rouge semi-transparent par-dessus le sprite
     if (player.color === "red") {
       ctx.save();
       ctx.fillStyle = "rgba(255,0,0,0.3)";
@@ -369,7 +344,6 @@ export default class App {
 
       ctx.save();
       if (!enemy.facingRight) {
-        // Ennemi regarde à gauche
         if (frame && frame.complete && frame.width > 0) {
           ctx.drawImage(frame, enemy.x, enemy.y, enemy.width, enemy.height);
         } else {
@@ -377,7 +351,6 @@ export default class App {
           ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
         }
       } else {
-        // Ennemi regarde à droite => flip horizontal
         ctx.translate(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
         ctx.scale(-1, 1);
         if (frame && frame.complete && frame.width > 0) {
@@ -414,19 +387,17 @@ export default class App {
   }
 
   drawStartScreen() {
-    const { ctx, canvas } = this;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Charger et dessiner une image en arrière-plan avec transparence
+    const { ctx, canvas } = this;
     const backgroundImage = new Image();
     backgroundImage.src = process.env.PUBLIC_URL + "/Assets/stade.png";
 
     backgroundImage.onload = () => {
-      // Ajouter une transparence sur l'image
       ctx.globalAlpha = 0.5;
       ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-      ctx.globalAlpha = 1; // Réinitialiser la transparence
+      ctx.globalAlpha = 1;
 
-      // Dessiner la popup
       this.drawPopup();
     };
   }
@@ -480,7 +451,7 @@ export default class App {
 
     ctx.font = "20px Arial";
     ctx.fillText(
-        "Appuyez sur 'R' pour recommencer",
+        "Appuyez sur 'R' pour revenir au menu",
         this.canvas.width / 2 - 130,
         this.canvas.height / 2 + 40
     );
@@ -513,3 +484,11 @@ export default class App {
 
 const app = new App();
 app.init();
+
+// Écouter DOMContentLoaded (au lieu de load) pour rejouer le son après chargement du DOM
+document.addEventListener('DOMContentLoaded', () => {
+  app.ctx.clearRect(0, 0, app.canvas.width, app.canvas.height);
+  app.drawStartScreen();
+  app.startSound.currentTime = 0;
+  app.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
+});
