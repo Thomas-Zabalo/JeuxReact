@@ -57,10 +57,7 @@ export default class App {
             ];
         }
 
-        // Vérifier lorsque l'image est chargée
-        this.goalpostImage.onload = () => {
-            this.startGame();
-        };
+       
 
         this.resizeCanvas();
         window.addEventListener("resize", () => this.resizeCanvas());
@@ -139,6 +136,7 @@ export default class App {
     }
 
     init() {
+        this.drawStartScreen();
         document.addEventListener("keydown", (e) => {
             this.keys[e.key] = true;
             if (!this.gameStarted && e.key === "Enter") {
@@ -152,10 +150,9 @@ export default class App {
                 this.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
             }
         });
-
         document.addEventListener("keyup", (e) => (this.keys[e.key] = false));
 
-        this.drawStartScreen();
+
         this.startSound.currentTime = 0;
         this.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
     }
