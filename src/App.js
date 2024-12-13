@@ -150,6 +150,7 @@ export default class App {
     this.player.vy = 0;
     this.enemies.length = 0;
     this.gameOver = false;
+    this.player.color = "blue";
   }
 
   resetAll() {
@@ -218,7 +219,7 @@ export default class App {
         frames: this.enemyFrames,
         currentFrame: 0,
         frameCount: 24,
-        facingRight: false, // Par défaut, ils viennent de la droite, donc on suppose qu'ils regardent à gauche au départ
+        facingRight: false,
       };
       this.enemies.push(enemy);
     }
@@ -226,7 +227,11 @@ export default class App {
 
   updateEnemies(deltaTime) {
     const { player, enemies } = this;
-    enemies.forEach((enemy, index) => {
+    let rectCollisionOccurred = false;
+
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const enemy = enemies[i];
+
       const dx = player.x - enemy.x;
       const dy = player.y - enemy.y;
       const angle = Math.atan2(dy, dx);
@@ -234,8 +239,7 @@ export default class App {
       enemy.x += Math.cos(angle) * enemy.speed;
       enemy.y += Math.sin(angle) * enemy.speed;
 
-      // Détermine le sens de l'ennemi (s'il regarde vers la droite ou la gauche)
-      // Si dx > 0, alors le joueur est à droite de l'ennemi => enemy.facingRight = true
+      // Détermine le sens de l'ennemi
       enemy.facingRight = dx > 0;
 
       // Animation de l'ennemi
@@ -244,20 +248,53 @@ export default class App {
 
       // Retirer l'ennemi s'il sort par la gauche
       if (enemy.x + enemy.width < 0) {
-        enemies.splice(index, 1);
+        enemies.splice(i, 1);
+        continue;
       }
 
-      // Collision avec le joueur
-      if (
+      // Collision rectangulaire (ancienne hitbox)
+      const rectCollision = (
           player.x < enemy.x + enemy.width &&
           player.x + player.width > enemy.x &&
           player.y < enemy.y + enemy.height &&
           player.y + player.height > enemy.y
-      ) {
+      );
+
+      if (rectCollision) {
+        // Le joueur devient rouge, mais ne meurt pas
+        rectCollisionOccurred = true;
+      }
+
+      // Collision basée sur la distance (nouvelle hitbox)
+      const playerCenterX = player.x + player.width / 2;
+      const playerCenterY = player.y + player.height / 2;
+      const enemyCenterX = enemy.x + enemy.width / 2;
+      const enemyCenterY = enemy.y + enemy.height / 2;
+
+      const distX = playerCenterX - enemyCenterX;
+      const distY = playerCenterY - enemyCenterY;
+      const distance = Math.sqrt(distX * distX + distY * distY);
+
+      // Rayons plus petits pour la détection létale
+      const playerRadius = (player.width / 2) * 0.4;
+      const enemyRadius = (enemy.width / 2) * 0.4;
+
+      if (distance < playerRadius + enemyRadius) {
+        // Collision fatale
         this.gameOver = true;
         clearInterval(this.enemySpawnInterval);
+        break;
       }
-    });
+    }
+
+    // Si pas gameOver, on ajuste la couleur du joueur
+    if (!this.gameOver) {
+      if (rectCollisionOccurred) {
+        player.color = "red"; // Le joueur est touché par la hitbox rectangulaire
+      } else {
+        player.color = "blue"; // Aucune collision => joueur normal
+      }
+    }
   }
 
   checkWin() {
@@ -278,20 +315,34 @@ export default class App {
     const frameIndex = Math.floor(player.currentFrame);
     const frame = player.frames[frameIndex];
 
-    if (frame && frame.complete && frame.naturalWidth !== 0) {
-      ctx.save();
-      if (!player.facingRight) {
-        // Flip horizontal
-        ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
-        ctx.scale(-1, 1);
+    ctx.save();
+    if (!player.facingRight) {
+      // Flip horizontal
+      ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+      ctx.scale(-1, 1);
+      if (frame && frame.complete && frame.naturalWidth !== 0) {
         ctx.drawImage(frame, -player.width / 2, -player.height / 2, player.width, player.height);
       } else {
-        ctx.drawImage(frame, player.x, player.y, player.width, player.height);
+        ctx.fillStyle = player.color;
+        ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
       }
-      ctx.restore();
     } else {
-      ctx.fillStyle = player.color;
+      if (frame && frame.complete && frame.naturalWidth !== 0) {
+        ctx.drawImage(frame, player.x, player.y, player.width, player.height);
+      } else {
+        ctx.fillStyle = player.color;
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+      }
+    }
+    ctx.restore();
+
+    // Si le joueur doit être rouge (touché par la hitbox rectangulaire),
+    // on dessine un calque rouge semi-transparent par-dessus le sprite
+    if (player.color === "red") {
+      ctx.save();
+      ctx.fillStyle = "rgba(255,0,0,0.3)";
       ctx.fillRect(player.x, player.y, player.width, player.height);
+      ctx.restore();
     }
   }
 
@@ -318,7 +369,7 @@ export default class App {
 
       ctx.save();
       if (!enemy.facingRight) {
-        // Ennemi regarde à gauche => normal
+        // Ennemi regarde à gauche
         if (frame && frame.complete && frame.width > 0) {
           ctx.drawImage(frame, enemy.x, enemy.y, enemy.width, enemy.height);
         } else {
@@ -383,15 +434,13 @@ export default class App {
   drawPopup() {
     const { ctx, canvas } = this;
 
-    // Dimensions et style de la popup
     const popupWidth = 400;
     const popupHeight = 200;
     const popupX = (canvas.width - popupWidth) / 2;
     const popupY = (canvas.height - popupHeight) / 2;
     const borderRadius = 50;
 
-    // Dessiner le fond de la popup avec bordures arrondies
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)"; // Fond semi-transparent
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
     ctx.beginPath();
     ctx.moveTo(popupX + borderRadius, popupY);
     ctx.lineTo(popupX + popupWidth - borderRadius, popupY);
@@ -405,20 +454,16 @@ export default class App {
     ctx.closePath();
     ctx.fill();
 
-    // Dessiner les bordures de la popup
     ctx.strokeStyle = "white";
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Ajouter du texte dans la popup
     ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
     ctx.textAlign = "center";
 
-    // Texte principal
     ctx.font = "21px 'Roboto', sans-serif";
     ctx.fillText("Appuyez sur ENTRÉE pour commencer", canvas.width / 2, popupY + (popupHeight / 2) - 30);
 
-    // Instructions
     ctx.font = "15px 'Roboto', sans-serif";
     ctx.fillText("Contrôles : Z = haut, S = bas, Q = gauche, D = droite", canvas.width / 2, popupY + (popupHeight / 2) + 10);
     ctx.fillText("But : Atteindre la zone verte sans toucher les ennemis", canvas.width / 2, popupY + (popupHeight / 2) + 40);
