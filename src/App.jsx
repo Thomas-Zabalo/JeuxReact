@@ -3,6 +3,8 @@ import './App.css';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import CannonDebugger from 'cannon-es-debugger';
+
 
 function App() {
   const [points, setPoints] = useState(0);
@@ -18,13 +20,19 @@ function App() {
   const playerMeshRef = useRef();
   const pointBodiesRef = useRef([]);
   const pointMeshesRef = useRef([]);
+  const enemyBodiesRef = useRef([]);
+  const enemyMeshesRef = useRef([]);
   const clockRef = useRef(new THREE.Clock());
 
+
   useEffect(() => {
+
     // --- Chargement du meilleur score depuis le localStorage ---
     const storedBestScore = localStorage.getItem('bestScore');
     if (storedBestScore) {
-      setBestScore(parseInt(storedBestScore)); // Récupérer le meilleur score enregistré
+      setBestScore(parseInt(storedBestScore, 10));
+    } else {
+      localStorage.setItem('bestScore', 0);
     }
 
     // --- Setup Three.js Scene and Cannon.js World ---
@@ -36,6 +44,10 @@ function App() {
 
     const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -10, 0) });
     worldRef.current = world;
+
+    const cannonDebugger = new CannonDebugger(scene, world, {
+      color: 0xff0000, // Optional: Color for the wireframes
+    });
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -118,8 +130,29 @@ function App() {
       pointMeshesRef.current.push(pointMesh);
     }
 
+    // --- Ennemis ---
+    function spawnEnemy() {
+      const lanes = [-1, 0, 1];
+      const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
+      const spawnZ = playerBody.position.z - 30;
+      const enemyShape = new CANNON.Sphere(0.4);
+      const enemyBody = new CANNON.Body({ mass: 0, shape: enemyShape });
+      enemyBody.position.set(randomLane, 0.6, spawnZ);
+      world.addBody(enemyBody);
+      enemyBodiesRef.current.push(enemyBody);
+
+      const enemyGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+      const enemyMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+      const enemyMesh = new THREE.Mesh(enemyGeometry, enemyMat);
+      enemyMesh.position.copy(enemyBody.position);
+      scene.add(enemyMesh);
+      enemyMeshesRef.current.push(enemyMesh);
+    }
+
     let pointSpawnTimer = 0;
-    const pointSpawnInterval = 0.5; // seconds
+    let enemySpawnTimer = 0;
+    const pointSpawnInterval = 0.5;
+    const enemySpawnInterval = 1.5;
 
     // --- Input Handling ---
     let currentLane = 0;
@@ -180,18 +213,45 @@ function App() {
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
+    
+    console.log("Point collected, new points:", points);
 
     // --- Game Over Check ---
+    // --- Vérifier la fin de jeu ---
     function checkGameOver() {
-      // If player falls off track or goes out of lane bounds
-      if (playerBody.position.y < -2 || playerBody.position.x < -1.5 || playerBody.position.x > 1.5) {
+
+      if (
+        playerBody.position.y < -2 ||
+        playerBody.position.x < -1.5 ||
+        playerBody.position.x > 1.5
+      ) {
         setGameOver(true);
         setStartGame(false);
+
+        // Update best score
+        console.log("Point collected, new points:", points);
+
         if (points > bestScore) {
           setBestScore(points);
-          localStorage.setItem('bestScore', points); // Sauvegarder le meilleur score
+          localStorage.setItem('bestScore', points);
         }
       }
+
+      // Collision avec les ennemis
+      enemyBodiesRef.current.forEach((enemyBody) => {
+        const dist = playerBody.position.vsub(enemyBody.position).length();
+        if (dist < 0.6) {
+          setGameOver(true);
+          setStartGame(false);
+          console.log("Point collected, new points:", points);
+          // Update best score
+          if (points > bestScore) {
+            setBestScore(points);
+            console.log(bestScore)
+            localStorage.setItem('bestScore', points);
+          }
+        }
+      });
     }
 
     // --- Animation Loop ---
@@ -208,6 +268,12 @@ function App() {
         if (pointSpawnTimer > pointSpawnInterval) {
           spawnPoint();
           pointSpawnTimer = 0;
+        }
+
+        enemySpawnTimer += delta;
+        if (enemySpawnTimer > enemySpawnInterval) {
+          spawnEnemy();
+          enemySpawnTimer = 0;
         }
 
         // Update physics
@@ -244,7 +310,7 @@ function App() {
         checkGameOver();
       }
 
-      // cannonDebugger.update();
+      cannonDebugger.update();
       renderer.render(scene, camera);
     }
 
