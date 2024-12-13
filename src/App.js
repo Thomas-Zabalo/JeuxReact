@@ -10,7 +10,7 @@ export default class App {
 
         this.isMobile = window.innerWidth < 600;
 
-// Définir la tryZone selon le mode (mobile ou PC)
+        // Définir la tryZone selon le mode (mobile ou PC)
         this.tryZone = this.isMobile
             ? {
                 x: 0,
@@ -34,7 +34,7 @@ export default class App {
         this.fieldImage = new Image();
         this.fieldImage.src = "field.png";
 
-// Charger l'image du poteau de rugby en fonction du mode
+        // Charger l'image du poteau de rugby en fonction du mode
         this.goalpostImage = new Image();
         if (this.isMobile) {
             // Sur mobile, on utilise potovertical.png
@@ -44,7 +44,7 @@ export default class App {
             this.goalpostImage.src = 'Assets/goalpost.png';
         }
 
-// Positionner les poteaux différemment selon le mode
+        // Positionner les poteaux différemment selon le mode
         if (this.isMobile) {
             // Sur mobile, on place le poteau en haut, centré horizontalement dans la tryZone
             this.goalPosts = [
@@ -57,19 +57,16 @@ export default class App {
             ];
         }
 
-// Vérifier lorsque l'image est chargée
+        // Vérifier lorsque l'image est chargée
         this.goalpostImage.onload = () => {
             this.startGame();
         };
-
-        // Définir la tryZone selon le mode (mobile ou PC)
 
         this.resizeCanvas();
         window.addEventListener("resize", () => this.resizeCanvas());
 
         this.fieldImage = new Image();
         this.fieldImage.src = "field.png";
-
 
         this.player = {
             x: 100,
@@ -113,6 +110,12 @@ export default class App {
         this.startSound = new Audio(process.env.PUBLIC_URL + '/Assets/start_game.mp3');
         this.startSound.volume = 0.5;
         this.startSound.load();
+
+        // Musique de fond
+        this.backgroundMusic = new Audio(process.env.PUBLIC_URL + '/Assets/background_music.mp3');
+        this.backgroundMusic.loop = true;
+        this.backgroundMusic.volume = 0.3;
+        this.backgroundMusic.load();
     }
 
     resizeCanvas() {
@@ -181,6 +184,9 @@ export default class App {
         this.gameStarted = true;
         this.resetGame();
         this.setupSpawnInterval();
+        // Lecture de la musique de fond quand on entre dans le jeu
+        this.backgroundMusic.currentTime = 0;
+        this.backgroundMusic.play().catch(err => console.warn("Lecture de la musique de fond bloquée.", err));
         requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
     }
 
@@ -217,6 +223,9 @@ export default class App {
         this.enemies = [];
         this.startSound.currentTime = 0;
         this.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
+        // Arrêter la musique de fond lorsque l'on revient au menu
+        this.backgroundMusic.pause();
+        this.backgroundMusic.currentTime = 0;
     }
 
     updatePlayer(deltaTime) {
@@ -498,7 +507,6 @@ export default class App {
         });
     }
 
-
     drawScore() {
         const {ctx, score} = this;
 
@@ -641,7 +649,6 @@ export default class App {
         );
     }
 
-
     gameLoop(timestamp) {
         if (!this.lastTime) this.lastTime = timestamp;
         const deltaTime = timestamp - this.lastTime;
@@ -663,7 +670,6 @@ export default class App {
         this.drawEnemies();
         this.drawScore();
         this.drawGoalPosts(); // Dessiner les poteaux
-
 
         requestAnimationFrame((ts) => this.gameLoop(ts));
     }
