@@ -25,17 +25,23 @@ export default class App {
       frames: [],
       currentFrame: 0,
       frameCount: 22,
-      facingRight: true, // CHANGEMENT : indique la direction du regard
+      facingRight: true,
     };
 
-    // Charger les 22 images
+    // Chargement des frames du joueur
     for (let i = 0; i < this.player.frameCount; i++) {
       const img = new Image();
       img.src = process.env.PUBLIC_URL + `/Assets/runner_sprite${i + 1}.png`;
-      img.onload = () => console.log(`Image ${i + 1} chargée`);
-      img.onerror = () =>
-          console.error(`Erreur de chargement pour runner_sprite${i + 1}.png`);
       this.player.frames.push(img);
+    }
+
+    // Chargement des frames ennemies
+    this.enemyFrames = [];
+    const enemyFrameCount = 24; // mechant_0 à mechant_23 inclus
+    for (let i = 0; i < enemyFrameCount; i++) {
+      const img = new Image();
+      img.src = process.env.PUBLIC_URL + `/Assets/mechant_${i}.png`;
+      this.enemyFrames.push(img);
     }
 
     this.enemies = [];
@@ -183,7 +189,7 @@ export default class App {
     if (player.y + player.height > canvas.height)
       player.y = canvas.height - player.height;
 
-    // CHANGEMENT : détermination du sens du regard
+    // Direction du regard joueur
     if (player.vx > 0) {
       player.facingRight = true;
     } else if (player.vx < 0) {
@@ -204,19 +210,21 @@ export default class App {
     for (let i = 0; i < enemiesPerSpawn; i++) {
       const enemy = {
         x: this.canvas.width,
-        y: Math.random() * (this.canvas.height - 40),
-        width: 40,
-        height: 40,
+        y: Math.random() * (this.canvas.height - 80),
+        width: 80,
+        height: 80,
         color: "red",
         speed: enemySpeedBase + Math.random(),
-        sprite: new Image(),
+        frames: this.enemyFrames,
+        currentFrame: 0,
+        frameCount: 24,
+        facingRight: false, // Par défaut, ils viennent de la droite, donc on suppose qu'ils regardent à gauche au départ
       };
-      enemy.sprite.src = "enemy_sprite.png";
       this.enemies.push(enemy);
     }
   }
 
-  updateEnemies() {
+  updateEnemies(deltaTime) {
     const { player, enemies } = this;
     enemies.forEach((enemy, index) => {
       const dx = player.x - enemy.x;
@@ -226,10 +234,20 @@ export default class App {
       enemy.x += Math.cos(angle) * enemy.speed;
       enemy.y += Math.sin(angle) * enemy.speed;
 
+      // Détermine le sens de l'ennemi (s'il regarde vers la droite ou la gauche)
+      // Si dx > 0, alors le joueur est à droite de l'ennemi => enemy.facingRight = true
+      enemy.facingRight = dx > 0;
+
+      // Animation de l'ennemi
+      enemy.currentFrame += 10 * (deltaTime / 1000);
+      if (enemy.currentFrame >= enemy.frameCount) enemy.currentFrame = 0;
+
+      // Retirer l'ennemi s'il sort par la gauche
       if (enemy.x + enemy.width < 0) {
         enemies.splice(index, 1);
       }
 
+      // Collision avec le joueur
       if (
           player.x < enemy.x + enemy.width &&
           player.x + player.width > enemy.x &&
@@ -261,10 +279,9 @@ export default class App {
     const frame = player.frames[frameIndex];
 
     if (frame && frame.complete && frame.naturalWidth !== 0) {
-      // CHANGEMENT : si le joueur ne fait pas face à droite, on le flip horizontalement
       ctx.save();
       if (!player.facingRight) {
-        // On translate le contexte au centre du joueur, on scale -1 et on redessine
+        // Flip horizontal
         ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
         ctx.scale(-1, 1);
         ctx.drawImage(frame, -player.width / 2, -player.height / 2, player.width, player.height);
@@ -285,7 +302,7 @@ export default class App {
       grassImage.src = process.env.PUBLIC_URL + "/Assets/grass.png";
       grassImage.onload = () => {
         this.fieldPattern = ctx.createPattern(grassImage, "repeat");
-        this.drawField(); // Redessine après chargement
+        this.drawField();
       };
       return;
     }
@@ -296,22 +313,30 @@ export default class App {
   drawEnemies() {
     const { ctx, enemies } = this;
     enemies.forEach((enemy) => {
-      if (enemy.sprite.complete && enemy.sprite.width > 0) {
-        ctx.drawImage(
-            enemy.sprite,
-            0,
-            0,
-            40,
-            40,
-            enemy.x,
-            enemy.y,
-            enemy.width,
-            enemy.height
-        );
+      const frameIndex = Math.floor(enemy.currentFrame);
+      const frame = enemy.frames[frameIndex];
+
+      ctx.save();
+      if (!enemy.facingRight) {
+        // Ennemi regarde à gauche => normal
+        if (frame && frame.complete && frame.width > 0) {
+          ctx.drawImage(frame, enemy.x, enemy.y, enemy.width, enemy.height);
+        } else {
+          ctx.fillStyle = enemy.color;
+          ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+        }
       } else {
-        ctx.fillStyle = enemy.color;
-        ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+        // Ennemi regarde à droite => flip horizontal
+        ctx.translate(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
+        ctx.scale(-1, 1);
+        if (frame && frame.complete && frame.width > 0) {
+          ctx.drawImage(frame, -enemy.width / 2, -enemy.height / 2, enemy.width, enemy.height);
+        } else {
+          ctx.fillStyle = enemy.color;
+          ctx.fillRect(-enemy.width / 2, -enemy.height / 2, enemy.width, enemy.height);
+        }
       }
+      ctx.restore();
     });
   }
 
@@ -394,7 +419,7 @@ export default class App {
     this.drawField();
 
     this.updatePlayer(deltaTime);
-    this.updateEnemies();
+    this.updateEnemies(deltaTime);
     this.checkWin();
 
     this.drawTryZone();
