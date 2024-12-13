@@ -363,29 +363,65 @@ export default class App {
   }
 
   drawStartScreen() {
-    const { ctx } = this;
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    const { ctx, canvas } = this;
 
-    ctx.fillStyle = "white";
-    ctx.font = "30px Arial";
-    ctx.fillText(
-        "Appuyez sur 'Entrée' pour commencer",
-        this.canvas.width / 2 - 180,
-        this.canvas.height / 2
-    );
+    // Charger et dessiner une image en arrière-plan avec transparence
+    const backgroundImage = new Image();
+    backgroundImage.src = process.env.PUBLIC_URL + "/Assets/stade.png";
 
-    ctx.font = "20px Arial";
-    ctx.fillText(
-        "Contrôles : Z = haut, S = bas, Q = gauche, D = droite",
-        this.canvas.width / 2 - 180,
-        this.canvas.height / 2 + 40
-    );
-    ctx.fillText(
-        "But : Atteindre la zone verte sans toucher les ennemis",
-        this.canvas.width / 2 - 180,
-        this.canvas.height / 2 + 70
-    );
+    backgroundImage.onload = () => {
+      // Ajouter une transparence sur l'image
+      ctx.globalAlpha = 0.5;
+      ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+      ctx.globalAlpha = 1; // Réinitialiser la transparence
+
+      // Dessiner la popup
+      this.drawPopup();
+    };
+  }
+
+  drawPopup() {
+    const { ctx, canvas } = this;
+
+    // Dimensions et style de la popup
+    const popupWidth = 400;
+    const popupHeight = 200;
+    const popupX = (canvas.width - popupWidth) / 2;
+    const popupY = (canvas.height - popupHeight) / 2;
+    const borderRadius = 50;
+
+    // Dessiner le fond de la popup avec bordures arrondies
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)"; // Fond semi-transparent
+    ctx.beginPath();
+    ctx.moveTo(popupX + borderRadius, popupY);
+    ctx.lineTo(popupX + popupWidth - borderRadius, popupY);
+    ctx.quadraticCurveTo(popupX + popupWidth, popupY, popupX + popupWidth, popupY + borderRadius);
+    ctx.lineTo(popupX + popupWidth, popupY + popupHeight - borderRadius);
+    ctx.quadraticCurveTo(popupX + popupWidth, popupY + popupHeight, popupX + popupWidth - borderRadius, popupY + popupHeight);
+    ctx.lineTo(popupX + borderRadius, popupY + popupHeight);
+    ctx.quadraticCurveTo(popupX, popupY + popupHeight, popupX, popupY + popupHeight - borderRadius);
+    ctx.lineTo(popupX, popupY + borderRadius);
+    ctx.quadraticCurveTo(popupX, popupY, popupX + borderRadius, popupY);
+    ctx.closePath();
+    ctx.fill();
+
+    // Dessiner les bordures de la popup
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Ajouter du texte dans la popup
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.textAlign = "center";
+
+    // Texte principal
+    ctx.font = "21px 'Roboto', sans-serif";
+    ctx.fillText("Appuyez sur ENTRÉE pour commencer", canvas.width / 2, popupY + (popupHeight / 2) - 30);
+
+    // Instructions
+    ctx.font = "15px 'Roboto', sans-serif";
+    ctx.fillText("Contrôles : Z = haut, S = bas, Q = gauche, D = droite", canvas.width / 2, popupY + (popupHeight / 2) + 10);
+    ctx.fillText("But : Atteindre la zone verte sans toucher les ennemis", canvas.width / 2, popupY + (popupHeight / 2) + 40);
   }
 
   drawGameOver() {
