@@ -2,9 +2,9 @@ import k from "./kaplayCtx"
 import game from "./scenes/game";
 import mainMenu from "./scenes/mainMenu";
 
-k.loadSprite("chemical-bg","graphics/chemical-bg.png");
-k.loadSprite("platforms","graphics/platforms.png");
-k.loadSprite("sonic","graphics/sonic.png", {
+k.loadSprite("chemical-bg","/graphics/chemical-bg.png");
+k.loadSprite("platforms","/graphics/platforms.png");
+k.loadSprite("sonic","/graphics/sonic.png", {
     sliceX: 8,
     sliceY: 2,
     anims: {
@@ -18,7 +18,7 @@ k.loadSprite("sonic","graphics/sonic.png", {
 });
 
 
-k.loadSprite("ring","graphics/ring.png", {
+k.loadSprite("ring","/graphics/ring.png", {
     sliceX: 16,
     SliceY: 1,
     anims: {
@@ -27,7 +27,7 @@ k.loadSprite("ring","graphics/ring.png", {
         },
     },
 });
-k.loadSprite("motobug","graphics/motobug.png", {
+k.loadSprite("motobug","/graphics/motobug.png", {
     sliceX: 5,
     SliceY: 1,
     anims: {
@@ -37,14 +37,14 @@ k.loadSprite("motobug","graphics/motobug.png", {
     },
 });
 
-k.loadFont("mania","fonts/mania.ttf");
+k.loadFont("mania","/fonts/mania.ttf");
 
-k.loadSound("destroy","sounds/Destroy.wav");
-k.loadSound("hurt","sounds/Hurt.wav");
-k.loadSound("hyper-ring","sounds/HyperRing.wav");
-k.loadSound("jump","sounds/Jump.wav");
-k.loadSound("ring","sounds/Ring.wav");
-k.loadSound("city","sounds/city.wav");
+k.loadSound("destroy","/sounds/Destroy.wav");
+k.loadSound("hurt","/sounds/Hurt.wav");
+k.loadSound("hyper-ring","/sounds/HyperRing.wav");
+k.loadSound("jump","/sounds/Jump.wav");
+k.loadSound("ring","/sounds/Ring.wav");
+k.loadSound("city","/sounds/city.wav");
 
 k.scene("main-menu", mainMenu);
 
