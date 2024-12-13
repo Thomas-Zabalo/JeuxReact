@@ -38,7 +38,7 @@ export default class App {
 
     // Poteaux de rugby
     this.goalPosts = [
-      { x: this.tryZone.x, y: this.tryZone.y + 300, width: 150, height: 150 },
+      { x: this.tryZone.x, y: this.canvas.height/2, width: 150, height: 150 },
     ];
 
 // Vérifier lorsque l'image est chargée
@@ -491,7 +491,7 @@ export default class App {
     } else {
       // PC : score en haut à gauche (classique)
       ctx.textAlign = "left";
-      ctx.fillText(`Score : ${score}`, 10, 10);
+      ctx.fillText(`Score : ${score}`, 40, 10);
     }
 
     const level = this.getLevel();
