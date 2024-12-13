@@ -3,6 +3,29 @@ export default class App {
     this.canvas = document.getElementById("gameCanvas");
     this.ctx = this.canvas.getContext("2d");
 
+    document.body.style.margin = "0";
+    document.body.style.padding = "0";
+    document.body.style.overflow = "hidden";
+    this.canvas.style.display = "block";
+
+    this.isMobile = window.innerWidth < 600;
+
+    // Définir la tryZone selon le mode (mobile ou PC)
+    this.tryZone = this.isMobile ? {
+      x: 0,
+      y: 0,
+      width: 0, // défini plus tard
+      height: 100,
+      color: "green",
+    } : {
+      // PC : tryZone à droite comme dans la version classique
+      x: 0, // défini plus tard
+      y: 0,
+      width: 100,
+      height: 0,
+      color: "green",
+    };
+
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
 
@@ -41,21 +64,10 @@ export default class App {
     }
 
     this.enemies = [];
-
-    this.tryZone = {
-      x: this.canvas.width - 100,
-      y: 0,
-      width: 100,
-      height: this.canvas.height,
-      color: "green",
-    };
-
     this.keys = {};
-
     this.gameOver = false;
     this.gameStarted = false;
     this.score = 0;
-
     this.enemySpawnInterval = null;
     this.lastTime = 0;
 
@@ -67,8 +79,19 @@ export default class App {
   resizeCanvas() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-    if (this.tryZone) {
+    this.isMobile = window.innerWidth < 600;
+
+    if (this.isMobile) {
+      // Mobile : tryZone en haut
+      this.tryZone.x = 0;
+      this.tryZone.y = 0;
+      this.tryZone.width = this.canvas.width;
+      this.tryZone.height = 100;
+    } else {
+      // PC : tryZone à droite (classique)
       this.tryZone.x = this.canvas.width - 100;
+      this.tryZone.y = 0;
+      this.tryZone.width = 100;
       this.tryZone.height = this.canvas.height;
     }
   }
@@ -129,13 +152,22 @@ export default class App {
   }
 
   resetGame() {
-    this.player.x = 100;
-    this.player.y = this.canvas.height / 2;
-    this.player.vx = 0;
-    this.player.vy = 0;
     this.enemies.length = 0;
     this.gameOver = false;
     this.player.color = "blue";
+
+    if (this.isMobile) {
+      // Mobile : joueur part du bas
+      this.player.x = 100;
+      this.player.y = this.canvas.height - this.player.height;
+    } else {
+      // PC : joueur au milieu (classique)
+      this.player.x = 100;
+      this.player.y = this.canvas.height / 2;
+    }
+
+    this.player.vx = 0;
+    this.player.vy = 0;
   }
 
   resetAll() {
@@ -150,10 +182,10 @@ export default class App {
 
   updatePlayer(deltaTime) {
     const { player, keys, canvas } = this;
-
     let ax = 0;
     let ay = 0;
 
+    // Contrôles clavier
     if (keys["z"]) ay = -0.5;
     if (keys["s"]) ay = 0.5;
     if (keys["q"]) ax = -0.5;
@@ -195,19 +227,38 @@ export default class App {
 
   createEnemies() {
     const { enemiesPerSpawn, enemySpeedBase } = this.getDifficultyParameters();
+
     for (let i = 0; i < enemiesPerSpawn; i++) {
-      const enemy = {
-        x: this.canvas.width,
-        y: Math.random() * (this.canvas.height - 80),
-        width: 80,
-        height: 80,
-        color: "red",
-        speed: enemySpeedBase + Math.random(),
-        frames: this.enemyFrames,
-        currentFrame: 0,
-        frameCount: 24,
-        facingRight: false,
-      };
+      let enemy;
+      if (this.isMobile) {
+        // Mobile : ennemis du haut
+        enemy = {
+          x: Math.random() * this.canvas.width,
+          y: 0,
+          width: 80,
+          height: 80,
+          color: "red",
+          speed: enemySpeedBase + Math.random(),
+          frames: this.enemyFrames,
+          currentFrame: 0,
+          frameCount: 24,
+          facingRight: false,
+        };
+      } else {
+        // PC : ennemis de la droite (classique)
+        enemy = {
+          x: this.canvas.width,
+          y: Math.random() * (this.canvas.height - 80),
+          width: 80,
+          height: 80,
+          color: "red",
+          speed: enemySpeedBase + Math.random(),
+          frames: this.enemyFrames,
+          currentFrame: 0,
+          frameCount: 24,
+          facingRight: false,
+        };
+      }
       this.enemies.push(enemy);
     }
   }
@@ -231,7 +282,7 @@ export default class App {
       enemy.currentFrame += 10 * (deltaTime / 1000);
       if (enemy.currentFrame >= enemy.frameCount) enemy.currentFrame = 0;
 
-      if (enemy.x + enemy.width < 0) {
+      if (enemy.x + enemy.width < 0 || enemy.x > this.canvas.width || enemy.y > this.canvas.height) {
         enemies.splice(i, 1);
         continue;
       }
@@ -277,14 +328,29 @@ export default class App {
 
   checkWin() {
     const { player, tryZone } = this;
-    if (
-        player.x + player.width >= tryZone.x &&
-        player.y >= tryZone.y &&
-        player.y + player.height <= tryZone.y + tryZone.height
-    ) {
-      this.score++;
-      this.resetGame();
-      this.setupSpawnInterval();
+
+    if (this.isMobile) {
+      // Mobile : tryZone en haut
+      if (
+          player.y <= tryZone.height &&
+          player.x + player.width >= tryZone.x &&
+          player.x <= tryZone.x + tryZone.width
+      ) {
+        this.score++;
+        this.resetGame();
+        this.setupSpawnInterval();
+      }
+    } else {
+      // PC : tryZone à droite (classique)
+      if (
+          player.x + player.width >= tryZone.x &&
+          player.y >= tryZone.y &&
+          player.y + player.height <= tryZone.y + tryZone.height
+      ) {
+        this.score++;
+        this.resetGame();
+        this.setupSpawnInterval();
+      }
     }
   }
 
@@ -372,61 +438,83 @@ export default class App {
     ctx.strokeStyle = "white";
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.moveTo(tryZone.x, 0);
-    ctx.lineTo(tryZone.x, this.canvas.height);
+
+    if (this.isMobile) {
+      // Mobile : ligne en bas de la zone
+      ctx.moveTo(0, tryZone.height);
+      ctx.lineTo(this.canvas.width, tryZone.height);
+    } else {
+      // PC : ligne à gauche de la zone
+      ctx.moveTo(tryZone.x, 0);
+      ctx.lineTo(tryZone.x, this.canvas.height);
+    }
+
     ctx.stroke();
   }
 
   drawScore() {
     const { ctx, score } = this;
 
-    // Définir les styles de texte
-    ctx.fillStyle = "white"; // Couleur du texte
-    ctx.font = "bold 28px Arial"; // Police, taille et graisse du texte
-    ctx.textAlign = "left"; // Alignement du texte
-    ctx.textBaseline = "top"; // Baseline du texte pour un alignement précis
+    ctx.fillStyle = "white";
+    ctx.font = "bold 28px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 3;
 
-    // Affichage du score avec un effet de bordure (ombre) pour le rendre plus lisible
-    ctx.shadowColor = "black"; // Ombre du texte
-    ctx.shadowBlur = 3; // Intensité de l'ombre
-    ctx.fillText(`Score : ${score}`, 55, 20); // Position du score
+    if (this.isMobile) {
+      // Mobile : score sous la tryZone en haut
+      ctx.fillText(`Score : ${score}`, this.canvas.width / 2, this.tryZone.height + 10);
+    } else {
+      // PC : score en haut à gauche (classique)
+      ctx.textAlign = "left";
+      ctx.fillText(`Score : ${score}`, 10, 10);
+    }
 
-    // Déterminer le niveau et la couleur de fond associée
     const level = this.getLevel();
     let levelColor;
 
     switch (level) {
       case "Facile":
-        levelColor = "#87d9ff"; // Bleu pour le niveau Facile
+        levelColor = "#87d9ff";
         break;
       case "Intermédiaire":
-        levelColor = "#FF9800"; // Orange pour le niveau Intermédiaire
+        levelColor = "#FF9800";
         break;
       case "Difficile":
-        levelColor = "#F44336"; // Rouge pour le niveau Difficile
+        levelColor = "#F44336";
         break;
       default:
-        levelColor = "#9E9E9E"; // Gris par défaut si jamais il y a une erreur
+        levelColor = "#9E9E9E";
     }
-    // Mesurer la largeur du texte pour ajuster la taille du rectangle de fond
-    const levelTextWidth = ctx.measureText(`Niveau: ${level}`).width;
 
-    // Fond avec couleur un peu plus claire et opaque pour le niveau
-    ctx.fillStyle = levelColor;
-    ctx.globalAlpha = 0.8; // Ajout d'une transparence pour que le fond ne soit pas trop agressif
-    ctx.fillRect(10, 55, levelTextWidth + 20, 40); // Rectangle de fond ajusté à la taille du texte (ajout de padding)
-    ctx.globalAlpha = 1; // Réinitialiser la transparence à 100%
-
-    // Réinitialiser la couleur du texte
-    ctx.fillStyle = "white";
-    ctx.shadowColor = "transparent"; // Enlever l'ombre
-
-    // Changer l'alignement du texte pour centrer le texte
-    ctx.textAlign = "center"; // Centrer le texte horizontalement
-
-    // Affichage du niveau centré dans le rectangle
+    const levelText = `Niveau : ${level}`;
     ctx.font = "bold 24px Arial";
-    ctx.fillText(`Niveau : ${level}`, 10 + (levelTextWidth + 20) / 2, 65); // Position du niveau centré
+    ctx.fillStyle = levelColor;
+    ctx.globalAlpha = 0.8;
+    const levelTextWidth = ctx.measureText(levelText).width;
+
+    if (this.isMobile) {
+      const rectX = (this.canvas.width - levelTextWidth - 20) / 2;
+      const rectY = this.tryZone.height + 50;
+      ctx.fillRect(rectX, rectY, levelTextWidth + 20, 40);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "white";
+      ctx.shadowColor = "transparent";
+      ctx.textAlign = "center";
+      ctx.fillText(levelText, this.canvas.width / 2, rectY + 10);
+    } else {
+      // PC : niveau en dessous du score
+      ctx.globalAlpha = 0.8;
+      ctx.textAlign = "left";
+      const rectX = 10;
+      const rectY = 50;
+      ctx.fillRect(rectX, rectY, levelTextWidth + 20, 40);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "white";
+      ctx.shadowColor = "transparent";
+      ctx.fillText(levelText, rectX + 10, rectY + 10);
+    }
   }
 
   drawStartScreen() {
@@ -441,7 +529,7 @@ export default class App {
       ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
       ctx.globalAlpha = 1;
 
-      this.drawPopup();
+      this.drawPopup(); // On ne modifie pas le popup, on garde les textes d'origine
     };
   }
 
@@ -475,6 +563,7 @@ export default class App {
     ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
     ctx.textAlign = "center";
 
+    // Texte d'origine non modifié
     ctx.font = "21px 'Roboto', sans-serif";
     ctx.fillText("Appuyez sur ENTRÉE pour commencer", canvas.width / 2, popupY + (popupHeight / 2) - 30);
 
@@ -484,34 +573,39 @@ export default class App {
   }
 
   drawGameOver() {
-    const { ctx } = this;
+    const { ctx, canvas } = this;
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = "white";
     ctx.font = "30px Arial";
-    ctx.fillText("Game Over!", this.canvas.width / 2 - 90, this.canvas.height / 2);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // Centrer le "Game Over!" au milieu de l'écran
+    ctx.fillText("Game Over!", canvas.width / 2, canvas.height / 2);
 
     ctx.font = "20px Arial";
+    // Dessous du "Game Over!", on met le message de redémarrage un peu plus bas
     ctx.fillText(
         "Appuyez sur 'R' pour revenir au menu",
-        this.canvas.width / 2 - 130,
-        this.canvas.height / 2 + 40
+        canvas.width / 2,
+        (canvas.height / 2) + 40
     );
   }
+
 
   gameLoop(timestamp) {
     if (!this.lastTime) this.lastTime = timestamp;
     const deltaTime = timestamp - this.lastTime;
     this.lastTime = timestamp;
 
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawField();
     if (this.gameOver) {
       this.drawGameOver();
       return;
     }
-
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawField();
 
     this.updatePlayer(deltaTime);
     this.updateEnemies(deltaTime);
@@ -521,6 +615,7 @@ export default class App {
     this.drawPlayer();
     this.drawEnemies();
     this.drawScore();
+
     requestAnimationFrame((ts) => this.gameLoop(ts));
   }
 }
@@ -528,7 +623,6 @@ export default class App {
 const app = new App();
 app.init();
 
-// Écouter DOMContentLoaded (au lieu de load) pour rejouer le son après chargement du DOM
 document.addEventListener('DOMContentLoaded', () => {
   app.ctx.clearRect(0, 0, app.canvas.width, app.canvas.height);
   app.drawStartScreen();
