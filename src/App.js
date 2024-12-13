@@ -23,14 +23,14 @@ export default class App {
       friction: 0.9,
       color: "blue",
       frames: [],
-      currentFrame: 0,    // CHANGEMENT : Une seule variable pour l'index de frame
-      frameCount: 22,     // CHANGEMENT : On utilise 22 (pas 23)
+      currentFrame: 0,
+      frameCount: 22,
+      facingRight: true, // CHANGEMENT : indique la direction du regard
     };
 
     // Charger les 22 images
     for (let i = 0; i < this.player.frameCount; i++) {
       const img = new Image();
-      // Assurez-vous du bon chemin. Ici on suppose que les images sont dans public/Assets/
       img.src = process.env.PUBLIC_URL + `/Assets/runner_sprite${i + 1}.png`;
       img.onload = () => console.log(`Image ${i + 1} chargée`);
       img.onerror = () =>
@@ -86,7 +86,6 @@ export default class App {
   }
 
   getLevel() {
-    // Nouveau barème : <5 = Facile, 5-9 = Intermédiaire, >=10 = Difficile
     if (this.score < 5) return "Facile";
     else if (this.score < 10) return "Intermédiaire";
     else return "Difficile";
@@ -184,8 +183,14 @@ export default class App {
     if (player.y + player.height > canvas.height)
       player.y = canvas.height - player.height;
 
+    // CHANGEMENT : détermination du sens du regard
+    if (player.vx > 0) {
+      player.facingRight = true;
+    } else if (player.vx < 0) {
+      player.facingRight = false;
+    }
+
     // animation joueur
-    // CHANGEMENT : On incrémente currentFrame ici si le joueur bouge.
     if (Math.abs(player.vx) > 0.1 || Math.abs(player.vy) > 0.1) {
       player.currentFrame += 10 * (deltaTime / 1000);
       if (player.currentFrame >= player.frameCount) player.currentFrame = 0;
@@ -245,7 +250,6 @@ export default class App {
         player.y + player.height <= tryZone.y + tryZone.height
     ) {
       this.score++;
-      // Le niveau a peut-être changé, donc on met à jour la difficulté
       this.resetGame();
       this.setupSpawnInterval();
     }
@@ -257,7 +261,17 @@ export default class App {
     const frame = player.frames[frameIndex];
 
     if (frame && frame.complete && frame.naturalWidth !== 0) {
-      ctx.drawImage(frame, player.x, player.y, player.width, player.height);
+      // CHANGEMENT : si le joueur ne fait pas face à droite, on le flip horizontalement
+      ctx.save();
+      if (!player.facingRight) {
+        // On translate le contexte au centre du joueur, on scale -1 et on redessine
+        ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+        ctx.scale(-1, 1);
+        ctx.drawImage(frame, -player.width / 2, -player.height / 2, player.width, player.height);
+      } else {
+        ctx.drawImage(frame, player.x, player.y, player.width, player.height);
+      }
+      ctx.restore();
     } else {
       ctx.fillStyle = player.color;
       ctx.fillRect(player.x, player.y, player.width, player.height);
