@@ -20,7 +20,7 @@ export default class App {
                 color: "green",
             }
             : {
-                // PC : tryZone à droite comme dans la version classique
+                // PC : tryZone à droite
                 x: 0, // défini plus tard
                 y: 0,
                 width: 100,
@@ -37,27 +37,20 @@ export default class App {
         // Charger l'image du poteau de rugby en fonction du mode
         this.goalpostImage = new Image();
         if (this.isMobile) {
-            // Sur mobile, on utilise potovertical.png
             this.goalpostImage.src = 'Assets/potovertical.png';
         } else {
-            // Sur PC, on garde l'image classique
             this.goalpostImage.src = 'Assets/goalpost.png';
         }
 
-        // Positionner les poteaux différemment selon le mode
         if (this.isMobile) {
-            // Sur mobile, on place le poteau en haut, centré horizontalement dans la tryZone
             this.goalPosts = [
-                {x: (this.canvas.width / 2) - 75, y: - 45, width: 150, height: 150},
+                {x: (this.canvas.width / 2) - 75, y: -45, width: 150, height: 150},
             ];
         } else {
-            // Sur PC, on garde la position existante
             this.goalPosts = [
                 {x: this.tryZone.x, y: this.canvas.height / 2, width: 150, height: 150},
             ];
         }
-
-       
 
         this.resizeCanvas();
         window.addEventListener("resize", () => this.resizeCanvas());
@@ -121,13 +114,11 @@ export default class App {
         this.isMobile = window.innerWidth < 600;
 
         if (this.isMobile) {
-            // Mobile : tryZone en haut
             this.tryZone.x = 0;
             this.tryZone.y = 0;
             this.tryZone.width = this.canvas.width;
             this.tryZone.height = 100;
         } else {
-            // PC : tryZone à droite (classique)
             this.tryZone.x = this.canvas.width - 100;
             this.tryZone.y = 0;
             this.tryZone.width = 100;
@@ -136,7 +127,6 @@ export default class App {
     }
 
     init() {
-        this.drawStartScreen();
         document.addEventListener("keydown", (e) => {
             this.keys[e.key] = true;
             if (!this.gameStarted && e.key === "Enter") {
@@ -150,9 +140,10 @@ export default class App {
                 this.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
             }
         });
+
         document.addEventListener("keyup", (e) => (this.keys[e.key] = false));
 
-
+        this.drawStartScreen();
         this.startSound.currentTime = 0;
         this.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
     }
@@ -199,11 +190,9 @@ export default class App {
         this.player.color = "blue";
 
         if (this.isMobile) {
-            // Mobile : joueur part du bas
             this.player.x = 100;
             this.player.y = this.canvas.height - this.player.height;
         } else {
-            // PC : joueur au milieu (classique)
             this.player.x = 100;
             this.player.y = this.canvas.height / 2;
         }
@@ -276,7 +265,6 @@ export default class App {
         for (let i = 0; i < enemiesPerSpawn; i++) {
             let enemy;
             if (this.isMobile) {
-                // Mobile : ennemis du haut
                 enemy = {
                     x: Math.random() * this.canvas.width,
                     y: 0,
@@ -290,7 +278,6 @@ export default class App {
                     facingRight: false,
                 };
             } else {
-                // PC : ennemis de la droite (classique)
                 enemy = {
                     x: this.canvas.width,
                     y: Math.random() * (this.canvas.height - 80),
@@ -332,6 +319,7 @@ export default class App {
                 continue;
             }
 
+            // Collision rectangulaire
             const rectCollision = (
                 player.x < enemy.x + enemy.width &&
                 player.x + player.width > enemy.x &&
@@ -340,9 +328,11 @@ export default class App {
             );
 
             if (rectCollision) {
+                // Joueur en rouge pour signaler le danger
                 rectCollisionOccurred = true;
             }
 
+            // Collision circulaire plus précise
             const playerCenterX = player.x + player.width / 2;
             const playerCenterY = player.y + player.height / 2;
             const enemyCenterX = enemy.x + enemy.width / 2;
@@ -356,6 +346,7 @@ export default class App {
             const enemyRadius = (enemy.width / 2) * 0.4;
 
             if (distance < playerRadius + enemyRadius) {
+                // Collision circulaire détectée: Game Over immédiat
                 this.gameOver = true;
                 clearInterval(this.enemySpawnInterval);
                 break;
@@ -363,11 +354,8 @@ export default class App {
         }
 
         if (!this.gameOver) {
-            if (rectCollisionOccurred) {
-                player.color = "red";
-            } else {
-                player.color = "blue";
-            }
+            // Si collision rectangulaire, on affiche le rouge, sinon bleu
+            player.color = rectCollisionOccurred ? "red" : "blue";
         }
     }
 
@@ -375,7 +363,6 @@ export default class App {
         const {player, tryZone} = this;
 
         if (this.isMobile) {
-            // Mobile : tryZone en haut
             if (
                 player.y <= tryZone.height &&
                 player.x + player.width >= tryZone.x &&
@@ -386,7 +373,6 @@ export default class App {
                 this.setupSpawnInterval();
             }
         } else {
-            // PC : tryZone à droite (classique)
             if (
                 player.x + player.width >= tryZone.x &&
                 player.y >= tryZone.y &&
@@ -485,11 +471,9 @@ export default class App {
         ctx.beginPath();
 
         if (this.isMobile) {
-            // Mobile : ligne en bas de la zone
             ctx.moveTo(0, tryZone.height);
             ctx.lineTo(this.canvas.width, tryZone.height);
         } else {
-            // PC : ligne à gauche de la zone
             ctx.moveTo(tryZone.x, 0);
             ctx.lineTo(tryZone.x, this.canvas.height);
         }
@@ -515,10 +499,8 @@ export default class App {
         ctx.shadowBlur = 3;
 
         if (this.isMobile) {
-            // Mobile : score sous la tryZone en haut
             ctx.fillText(`Score : ${score}`, this.canvas.width / 2, this.tryZone.height + 10);
         } else {
-            // PC : score en haut à gauche (classique)
             ctx.textAlign = "left";
             ctx.fillText(`Score : ${score}`, 40, 10);
         }
@@ -556,7 +538,6 @@ export default class App {
             ctx.textAlign = "center";
             ctx.fillText(levelText, this.canvas.width / 2, rectY + 10);
         } else {
-            // PC : niveau en dessous du score
             ctx.globalAlpha = 0.8;
             ctx.textAlign = "left";
             const rectX = 10;
@@ -581,7 +562,7 @@ export default class App {
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
             ctx.globalAlpha = 1;
 
-            this.drawPopup(); // On ne modifie pas le popup, on garde les textes d'origine
+            this.drawPopup();
         };
     }
 
@@ -615,7 +596,6 @@ export default class App {
         ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
         ctx.textAlign = "center";
 
-        // Texte d'origine non modifié
         ctx.font = "21px 'Roboto', sans-serif";
         ctx.fillText("Appuyez sur ENTRÉE pour commencer", canvas.width / 2, popupY + (popupHeight / 2) - 30);
 
@@ -634,11 +614,9 @@ export default class App {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        // Centrer le "Game Over!" au milieu de l'écran
         ctx.fillText("Game Over!", canvas.width / 2, canvas.height / 2);
 
         ctx.font = "20px Arial";
-        // Dessous du "Game Over!", on met le message de redémarrage un peu plus bas
         ctx.fillText(
             "Appuyez sur 'R' pour revenir au menu",
             canvas.width / 2,
@@ -666,7 +644,7 @@ export default class App {
         this.drawPlayer();
         this.drawEnemies();
         this.drawScore();
-        this.drawGoalPosts(); // Dessiner les poteaux
+        this.drawGoalPosts();
 
         requestAnimationFrame((ts) => this.gameLoop(ts));
     }
