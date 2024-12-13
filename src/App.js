@@ -379,11 +379,54 @@ export default class App {
 
   drawScore() {
     const { ctx, score } = this;
-    ctx.fillStyle = "white";
-    ctx.font = "24px Arial";
-    ctx.fillText(`Score: ${score}`, 10, 30);
+
+    // Définir les styles de texte
+    ctx.fillStyle = "white"; // Couleur du texte
+    ctx.font = "bold 28px Arial"; // Police, taille et graisse du texte
+    ctx.textAlign = "left"; // Alignement du texte
+    ctx.textBaseline = "top"; // Baseline du texte pour un alignement précis
+
+    // Affichage du score avec un effet de bordure (ombre) pour le rendre plus lisible
+    ctx.shadowColor = "black"; // Ombre du texte
+    ctx.shadowBlur = 3; // Intensité de l'ombre
+    ctx.fillText(`Score : ${score}`, 55, 20); // Position du score
+
+    // Déterminer le niveau et la couleur de fond associée
     const level = this.getLevel();
-    ctx.fillText(`Niveau: ${level}`, 10, 50);
+    let levelColor;
+
+    switch (level) {
+      case "Facile":
+        levelColor = "#87d9ff"; // Bleu pour le niveau Facile
+        break;
+      case "Intermédiaire":
+        levelColor = "#FF9800"; // Orange pour le niveau Intermédiaire
+        break;
+      case "Difficile":
+        levelColor = "#F44336"; // Rouge pour le niveau Difficile
+        break;
+      default:
+        levelColor = "#9E9E9E"; // Gris par défaut si jamais il y a une erreur
+    }
+    // Mesurer la largeur du texte pour ajuster la taille du rectangle de fond
+    const levelTextWidth = ctx.measureText(`Niveau: ${level}`).width;
+
+    // Fond avec couleur un peu plus claire et opaque pour le niveau
+    ctx.fillStyle = levelColor;
+    ctx.globalAlpha = 0.8; // Ajout d'une transparence pour que le fond ne soit pas trop agressif
+    ctx.fillRect(10, 55, levelTextWidth + 20, 40); // Rectangle de fond ajusté à la taille du texte (ajout de padding)
+    ctx.globalAlpha = 1; // Réinitialiser la transparence à 100%
+
+    // Réinitialiser la couleur du texte
+    ctx.fillStyle = "white";
+    ctx.shadowColor = "transparent"; // Enlever l'ombre
+
+    // Changer l'alignement du texte pour centrer le texte
+    ctx.textAlign = "center"; // Centrer le texte horizontalement
+
+    // Affichage du niveau centré dans le rectangle
+    ctx.font = "bold 24px Arial";
+    ctx.fillText(`Niveau : ${level}`, 10 + (levelTextWidth + 20) / 2, 65); // Position du niveau centré
   }
 
   drawStartScreen() {
