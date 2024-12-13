@@ -62,7 +62,7 @@ function App() {
       (gltf) => {
         const model = gltf.scene;
         model.scale.set(0.5, 0.5, 0.5)
-        model.position.z = -40
+        model.position.z = -70
         model.position.y = -8
         model.rotation.y = Math.PI / 2
         scene.add(model);
@@ -88,6 +88,7 @@ function App() {
       fixedRotation: true
     });
     playerBody.position.y = 1;
+    playerBody.position.x = playerBody.position.x - 0.5 // POSITION OF PLAYER X 
     world.addBody(playerBody);
 
     const player = new THREE.Mesh(
@@ -108,7 +109,7 @@ function App() {
 
       world.fixedStep();
 
-      // playerBody.position.z -= 0.3;  // You can adjust this speed
+      playerBody.position.z -= 0.3;  // You can adjust this speed
 
       // If player reaches the threshold, teleport to the start position
       // if (playerBody.position.z < resetThreshold) {
@@ -150,13 +151,19 @@ function App() {
         playerBody.position.y = 0;
       }
       if (e.key === " ") {
-        playerBody.position.y += 2;
+        playerBody.position.y >= 2 ? playerBody.position.y = 1 : playerBody.position.y += 1;
       }
       if (playerBody.position.x > 1 && (e.key === "d" || e.key === "D" || e.key === "ArrowRight")) {
         playerBody.position.x = 1;
       }
       if (playerBody.position.x < -1 && (e.key === "q" || e.key === "Q" || e.key === "ArrowLeft")) {
         playerBody.position.x = -1;
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.key === " ") {
+        playerBody.position.y >= -2 ? playerBody.position.y = 1 : playerBody.position.y += 1;
       }
     });
 
