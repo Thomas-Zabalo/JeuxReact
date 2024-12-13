@@ -3,20 +3,19 @@ import './App.css';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 function App() {
 
   useEffect(() => {
-
-    const pointsUI = document.getElementById("points");
-    let points = 0;
-    let gameOver = false;
 
     // Scene setup
     const scene = new THREE.Scene();
     const world = new CANNON.World({
       gravity: new CANNON.Vec3(0, -9.82, 0)
     });
+
 
     // Renderer setup
     const renderer = new THREE.WebGLRenderer();
@@ -32,28 +31,51 @@ function App() {
     camera.position.z = 4.5;
     camera.position.y = 1.5;
 
-    const randomRangeNum = (max, min) => {
-      return Math.floor(Math.random() * (max - min + 1) + min);
-    };
+    const controls = new OrbitControls(camera, renderer.domElement);
 
-    const isPositionOccupied = (position, objects) => {
-      return objects.some(obj => {
-        const distance = position.clone().sub(obj.body.position).length();
-        return distance < 2; // Adjust this threshold based on object sizes
-      });
-    };
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(1, 1, 1).normalize();
+    scene.add(light);
 
-    const moveObstacles = (arr, speed, maxX, minX, maxZ, minZ) => {
-      arr.forEach((e) => {
-        e.body.position.z += speed;
-        if (e.body.position.z > camera.position.z) {
-          e.body.position.x = randomRangeNum(maxX, minX);
-          e.body.position.z = randomRangeNum(maxZ, minZ);
-        }
-        e.mesh.position.copy(e.body.position);
-        e.mesh.quaternion.copy(e.body.quaternion);
-      });
-    };
+
+    const loader = new GLTFLoader();
+    let model;
+
+    loader.load(
+      '/models/science_fiction_tramtrain_bridge.glb', // Chemin vers le fichier GLTF/GLB
+      (gltf) => {
+        model = gltf.scene;
+        scene.add(model);
+      },
+      undefined,
+      (error) => {
+        console.error('Une erreur est survenue:', error);
+      }
+    );
+
+
+    // const randomRangeNum = (max, min) => {
+    //   return Math.floor(Math.random() * (max - min + 1) + min);
+    // };
+
+    // const isPositionOccupied = (position, objects) => {
+    //   return objects.some(obj => {
+    //     const distance = position.clone().sub(obj.body.position).length();
+    //     return distance < 2; // Adjust this threshold based on object sizes
+    //   });
+    // };
+
+    // const moveObstacles = (arr, speed, maxX, minX, maxZ, minZ) => {
+    //   arr.forEach((e) => {
+    //     e.body.position.z += speed;
+    //     if (e.body.position.z > camera.position.z) {
+    //       e.body.position.x = randomRangeNum(maxX, minX);
+    //       e.body.position.z = randomRangeNum(maxZ, minZ);
+    //     }
+    //     e.mesh.position.copy(e.body.position);
+    //     e.mesh.quaternion.copy(e.body.quaternion);
+    //   });
+    // };
 
     // Ground
     const groundBody = new CANNON.Body({
@@ -69,9 +91,24 @@ function App() {
     ground.position.y = 0;
     scene.add(ground);
 
+    const wall1 = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 3, 300),
+      new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    )
+    wall1.position.y = 2;
+    wall1.position.x = 3
+    scene.add(wall1)
+
+    const wall2 = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 3, 300),
+      new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    )
+    wall2.position.y = 2;
+    wall2.position.x = -3
+    scene.add(wall2)
     // Player
     const playerBody = new CANNON.Body({
-      mass: 1,
+      mass: 0,
       shape: new CANNON.Box(new CANNON.Vec3(0.25, 0.25, 0.25)),
       fixedRotation: true
     });
@@ -85,119 +122,121 @@ function App() {
     scene.add(player);
 
     // Powerups
-    const powerups = [];
-    const enemies = [];
+    // const powerups = [];
+    // const enemies = [];
 
-    for (let i = 0; i < 10; i++) {
-      let posX, posZ, position;
+    // for (let i = 0; i < 10; i++) {
+    //   let posX, posZ, position;
 
-      do {
-        posX = randomRangeNum(1, -1);
-        posZ = randomRangeNum(-10, -40);
-        position = new THREE.Vector3(posX, 1, posZ);
-      } while (isPositionOccupied(position, powerups.concat(enemies)));  // Check against powerups and enemies
+    //   do {
+    //     posX = randomRangeNum(1, -1);
+    //     posZ = randomRangeNum(-10, -40);
+    //     position = new THREE.Vector3(posX, 1, posZ);
+    //   } while (isPositionOccupied(position, powerups.concat(enemies)));  // Check against powerups and enemies
 
-      const powerup = new THREE.Mesh(
-        new THREE.TorusGeometry(1, 0.4, 16, 50),
-        new THREE.MeshBasicMaterial({ color: 0xffff00 })
-      );
-      powerup.scale.set(0.1, 0.1, 0.1);
-      powerup.position.set(posX, 1, posZ);
-      scene.add(powerup);
+    //   const powerup = new THREE.Mesh(
+    //     new THREE.TorusGeometry(1, 0.4, 16, 50),
+    //     new THREE.MeshBasicMaterial({ color: 0xffff00 })
+    //   );
+    //   powerup.scale.set(0.1, 0.1, 0.1);
+    //   powerup.position.set(posX, 1, posZ);
+    //   scene.add(powerup);
 
-      const powerupBody = new CANNON.Body({
-        shape: new CANNON.Sphere(0.2),
-      });
-      powerupBody.position.set(posX, 1, posZ);
-      world.addBody(powerupBody);
+    //   const powerupBody = new CANNON.Body({
+    //     shape: new CANNON.Sphere(0.2),
+    //   });
+    //   powerupBody.position.set(posX, 1, posZ);
+    //   world.addBody(powerupBody);
 
-      const powerupObject = {
-        mesh: powerup,
-        body: powerupBody,
-      };
+    //   const powerupObject = {
+    //     mesh: powerup,
+    //     body: powerupBody,
+    //   };
 
-      powerups.push(powerupObject);
-    }
+    //   powerups.push(powerupObject);
+    // }
 
-    // Enemies
+    // // Enemies
 
-    for (let i = 0; i < 2; i++) {
-      let posX, posZ, position;
+    // for (let i = 0; i < 2; i++) {
+    //   let posX, posZ, position;
 
-      do {
-        posX = randomRangeNum(1, -1);
-        posZ = randomRangeNum(-5, -10);
-        position = new THREE.Vector3(posX, 1, posZ);
-      } while (isPositionOccupied(position, powerups.concat(enemies)));  // Check against powerups and enemies
+    //   do {
+    //     posX = randomRangeNum(1, -1);
+    //     posZ = randomRangeNum(-5, -10);
+    //     position = new THREE.Vector3(posX, 1, posZ);
+    //   } while (isPositionOccupied(position, powerups.concat(enemies)));  // Check against powerups and enemies
 
-      const enemy = new THREE.Mesh(
-        new THREE.BoxGeometry(1, 1, 1),
-        new THREE.MeshBasicMaterial({ color: 0x0000ff })
-      );
-      enemy.position.y = 1;
-      enemy.position.set(posX, 1, posZ);
-      scene.add(enemy);
+    //   const enemy = new THREE.Mesh(
+    //     new THREE.BoxGeometry(1, 1, 1),
+    //     new THREE.MeshBasicMaterial({ color: 0x0000ff })
+    //   );
+    //   enemy.position.y = 1;
+    //   enemy.position.set(posX, 1, posZ);
+    //   scene.add(enemy);
 
-      const enemyBody = new CANNON.Body({
-        mass: 1,
-        shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
-      });
-      enemyBody.position.set(posX, 1, posZ);
-      world.addBody(enemyBody);
+    //   const enemyBody = new CANNON.Body({
+    //     mass: 1,
+    //     shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
+    //   });
+    //   enemyBody.position.set(posX, 1, posZ);
+    //   world.addBody(enemyBody);
 
-      const enemyObject = {
-        mesh: enemy,
-        body: enemyBody,
-      };
+    //   const enemyObject = {
+    //     mesh: enemy,
+    //     body: enemyBody,
+    //   };
 
-      enemies.push(enemyObject);
-    }
+    //   enemies.push(enemyObject);
+    // }
 
-    // Listen for collisions after enemies and powerups have been initialized
-    playerBody.addEventListener("collide", (e) => {
-      powerups.forEach((el) => {
-        if (e.body === el.body) {
-          el.body.position.x = randomRangeNum(8, -8);
-          el.body.position.z = randomRangeNum(-10, -40);
-          el.mesh.position.copy(el.body.position);
-          el.mesh.quaternion.copy(el.body.quaternion);
-          points += 1;
-          pointsUI.textContent = points.toString();
-        }
-      });
-      enemies.forEach((el) => {
-        if (e.body === el.body) {
-          gameOver = true;
-        }
-      });
-    });
+    // // Listen for collisions after enemies and powerups have been initialized
+    // playerBody.addEventListener("collide", (e) => {
+    //   powerups.forEach((el) => {
+    //     if (e.body === el.body) {
+    //       el.body.position.x = randomRangeNum(8, -8);
+    //       el.body.position.z = randomRangeNum(-10, -40);
+    //       el.mesh.position.copy(el.body.position);
+    //       el.mesh.quaternion.copy(el.body.quaternion);
+    //       points += 1;
+    //       pointsUI.textContent = points.toString();
+    //     }
+    //   });
+    //   enemies.forEach((el) => {
+    //     if (e.body === el.body) {
+    //       gameOver = true;
+    //     }
+    //   });
+    // });
 
     // Animation loop
     function animate() {
       requestAnimationFrame(animate);
 
-      if (!gameOver) {
-        moveObstacles(powerups, 0.3, 1, -1, -10, -40);
-        moveObstacles(enemies, 0.3, 1, -1, -10, -40);
-      } else {
-        pointsUI.textContent = "GAME OVER";
-        playerBody.velocity.set(playerBody.position.x, 5, 5);
+      controls.update()
 
-        enemies.forEach((el) => {
-          scene.remove(el.mesh);
-          world.removeBody(el.body);
-        });
+      // if (!gameOver) {
+      //   moveObstacles(powerups, 0.3, 1, -1, -10, -40);
+      //   moveObstacles(enemies, 0.3, 1, -1, -10, -40);
+      // } else {
+      //   pointsUI.textContent = "GAME OVER";
+      //   playerBody.velocity.set(playerBody.position.x, 5, 5);
 
-        powerups.forEach((el) => {
-          scene.remove(el.mesh);
-          world.removeBody(el.body);
-        });
+      //   enemies.forEach((el) => {
+      //     scene.remove(el.mesh);
+      //     world.removeBody(el.body);
+      //   });
 
-        if (playerBody.position.z > camera.position.z) {
-          scene.remove(player);
-          world.removeBody(playerBody);
-        }
-      }
+      //   powerups.forEach((el) => {
+      //     scene.remove(el.mesh);
+      //     world.removeBody(el.body);
+      //   });
+
+      //   if (playerBody.position.z > camera.position.z) {
+      //     scene.remove(player);
+      //     world.removeBody(playerBody);
+      //   }
+      // }
 
       world.fixedStep();
 
