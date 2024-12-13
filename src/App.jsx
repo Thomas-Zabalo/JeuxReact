@@ -1,12 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
+import { useGamepads } from "react-gamepads";
+
 
 function App() {
+  const [gamepads, setGamepads] = useState({});
+  useGamepads((gamepads) => setGamepads(gamepads));
+  console.log(gamepads)
+
+  const gamepadDisplay = Object.keys(gamepads).map(gamepadId => {
+    console.log("displaying gamepad", gamepads[gamepadId]);
+    return (
+      <div>
+        <h2>{gamepads[gamepadId].id}</h2>
+        {gamepads[gamepadId].buttons &&
+          gamepads[gamepadId].buttons.map((button, index) => (
+            <div>
+              {index}: {button.pressed ? 'True' : 'False'}
+            </div>
+          ))}
+      </div>
+    );
+  });
+  
 
   useEffect(() => {
+  
 
     const pointsUI = document.getElementById("points");
     let points = 0;
@@ -126,7 +148,7 @@ function App() {
 
       do {
         posX = randomRangeNum(1, -1);
-        posZ = randomRangeNum(-5, -10);
+        posZ = randomRangeNum(-8, -10);
         position = new THREE.Vector3(posX, 1, posZ);
       } while (isPositionOccupied(position, powerups.concat(enemies)));  // Check against powerups and enemies
 
@@ -167,7 +189,10 @@ function App() {
       });
       enemies.forEach((el) => {
         if (e.body === el.body) {
-          gameOver = true;
+          const distance = playerBody.position.distanceTo(el.body.position);
+          if (distance < 1) {
+            gameOver = true;
+          }
         }
       });
     });
@@ -253,6 +278,7 @@ function App() {
       <div className="absolute m-0 text-white top-3 left-3">
         <h1>Points: <span id="points">00</span></h1>
       </div>
+      {gamepadDisplay}
     </>
   );
 }
