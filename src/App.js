@@ -21,20 +21,22 @@ export default class App {
       vy: 0,
       maxSpeed: 5,
       friction: 0.9,
-      color: "blue", // Couleur de secours
-      frames: [], // Tableau pour stocker les 23 images
-      frameIndex: 0, // Frame actuelle
-      frameCount: 23, // Nombre total d'images
+      color: "blue",
+      frames: [],
+      currentFrame: 0,    // CHANGEMENT : Une seule variable pour l'index de frame
+      frameCount: 22,     // CHANGEMENT : On utilise 22 (pas 23)
     };
-    // Charger les 23 images
-    for (let i = 0; i < 22; i++) {
+
+    // Charger les 22 images
+    for (let i = 0; i < this.player.frameCount; i++) {
       const img = new Image();
-      img.src = process.env.PUBLICURL + `./Assets/runner_sprite${i + 1}.png`; // Nom des fichiers
+      // Assurez-vous du bon chemin. Ici on suppose que les images sont dans public/Assets/
+      img.src = process.env.PUBLIC_URL + `/Assets/runner_sprite${i + 1}.png`;
       img.onload = () => console.log(`Image ${i + 1} chargée`);
-      img.onerror = () => console.error(`Erreur de chargement pour runner${i + 1}.png`);
+      img.onerror = () =>
+          console.error(`Erreur de chargement pour runner_sprite${i + 1}.png`);
       this.player.frames.push(img);
     }
-
 
     this.enemies = [];
 
@@ -130,7 +132,10 @@ export default class App {
   setupSpawnInterval() {
     if (this.enemySpawnInterval) clearInterval(this.enemySpawnInterval);
     const { spawnInterval } = this.getDifficultyParameters();
-    this.enemySpawnInterval = setInterval(() => this.createEnemies(), spawnInterval);
+    this.enemySpawnInterval = setInterval(
+        () => this.createEnemies(),
+        spawnInterval
+    );
   }
 
   resetGame() {
@@ -180,11 +185,12 @@ export default class App {
       player.y = canvas.height - player.height;
 
     // animation joueur
+    // CHANGEMENT : On incrémente currentFrame ici si le joueur bouge.
     if (Math.abs(player.vx) > 0.1 || Math.abs(player.vy) > 0.1) {
-      player.frame += 10 * (deltaTime / 1000);
-      if (player.frame >= player.frameCount) player.frame = 0;
+      player.currentFrame += 10 * (deltaTime / 1000);
+      if (player.currentFrame >= player.frameCount) player.currentFrame = 0;
     } else {
-      player.frame = 0;
+      player.currentFrame = 0;
     }
   }
 
@@ -245,22 +251,14 @@ export default class App {
     }
   }
 
-  drawPlayer(deltaTime) {
+  drawPlayer() {
     const { ctx, player } = this;
+    const frameIndex = Math.floor(player.currentFrame);
+    const frame = player.frames[frameIndex];
 
-    // Passer à la frame suivante
-    player.frameIndex += 10 * (deltaTime / 1000); // Ajuste la vitesse d'animation
-    if (player.frameIndex >= player.frameCount) {
-      player.frameIndex = 0; // Recommence à la première image
-    }
-
-    const frame = player.frames[Math.floor(player.frameIndex)]; // Obtenir la frame courante
-
-    // Vérifier si la frame existe et est chargée
     if (frame && frame.complete && frame.naturalWidth !== 0) {
       ctx.drawImage(frame, player.x, player.y, player.width, player.height);
     } else {
-      // Si l'image est manquante ou non chargée, dessiner un rectangle en secours
       ctx.fillStyle = player.color;
       ctx.fillRect(player.x, player.y, player.width, player.height);
     }
@@ -270,7 +268,7 @@ export default class App {
     const { ctx, canvas } = this;
     if (!this.fieldPattern) {
       const grassImage = new Image();
-      grassImage.src = process.env.PUBLIC_URL + "/Assets/grass.png"; // Assure un chemin correct
+      grassImage.src = process.env.PUBLIC_URL + "/Assets/grass.png";
       grassImage.onload = () => {
         this.fieldPattern = ctx.createPattern(grassImage, "repeat");
         this.drawField(); // Redessine après chargement
@@ -327,16 +325,28 @@ export default class App {
 
   drawStartScreen() {
     const { ctx } = this;
-    ctx.backgroundImage = process.env.PUBLIC_URL + "/Assets/stade.png";
+    ctx.fillStyle = "black";
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     ctx.fillStyle = "white";
     ctx.font = "30px Arial";
-    ctx.fillText("Appuyez sur 'Entrée' pour commencer", this.canvas.width / 2 - 180, this.canvas.height / 2);
+    ctx.fillText(
+        "Appuyez sur 'Entrée' pour commencer",
+        this.canvas.width / 2 - 180,
+        this.canvas.height / 2
+    );
 
     ctx.font = "20px Arial";
-    ctx.fillText("Contrôles : Z = haut, S = bas, Q = gauche, D = droite", this.canvas.width / 2 - 180, this.canvas.height / 2 + 40);
-    ctx.fillText("But : Atteindre la zone verte sans toucher les ennemis", this.canvas.width / 2 - 180, this.canvas.height / 2 + 70);
+    ctx.fillText(
+        "Contrôles : Z = haut, S = bas, Q = gauche, D = droite",
+        this.canvas.width / 2 - 180,
+        this.canvas.height / 2 + 40
+    );
+    ctx.fillText(
+        "But : Atteindre la zone verte sans toucher les ennemis",
+        this.canvas.width / 2 - 180,
+        this.canvas.height / 2 + 70
+    );
   }
 
   drawGameOver() {
@@ -349,8 +359,13 @@ export default class App {
     ctx.fillText("Game Over!", this.canvas.width / 2 - 90, this.canvas.height / 2);
 
     ctx.font = "20px Arial";
-    ctx.fillText("Appuyez sur 'R' pour recommencer", this.canvas.width / 2 - 130, this.canvas.height / 2 + 40);
+    ctx.fillText(
+        "Appuyez sur 'R' pour recommencer",
+        this.canvas.width / 2 - 130,
+        this.canvas.height / 2 + 40
+    );
   }
+
   gameLoop(timestamp) {
     if (!this.lastTime) this.lastTime = timestamp;
     const deltaTime = timestamp - this.lastTime;
@@ -369,13 +384,11 @@ export default class App {
     this.checkWin();
 
     this.drawTryZone();
-    this.drawPlayer(deltaTime); // Passe deltaTime pour gérer l'animation
+    this.drawPlayer();
     this.drawEnemies();
     this.drawScore();
     requestAnimationFrame((ts) => this.gameLoop(ts));
   }
-
-
 }
 
 const app = new App();
