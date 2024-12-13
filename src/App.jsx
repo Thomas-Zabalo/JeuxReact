@@ -1,14 +1,37 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
+
+
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { useGamepads } from "react-gamepads";
 
 function App() {
+  const [gamepads, setGamepads] = useState({});
+  useGamepads((gamepads) => setGamepads(gamepads));
+  console.log(gamepads)
+
+  const gamepadDisplay = Object.keys(gamepads).map(gamepadId => {
+    console.log("displaying gamepad", gamepads[gamepadId]);
+    return (
+      <div>
+        <h2>{gamepads[gamepadId].id}</h2>
+        {gamepads[gamepadId].buttons &&
+          gamepads[gamepadId].buttons.map((button, index) => (
+            <div>
+              {index}: {button.pressed ? 'True' : 'False'}
+            </div>
+          ))}
+      </div>
+    );
+  });
+  
 
   useEffect(() => {
+  
 
     // Scene setup
     const scene = new THREE.Scene();
@@ -295,6 +318,7 @@ function App() {
       <div className="absolute m-0 text-white top-3 left-3">
         <h1>Points: <span id="points">00</span></h1>
       </div>
+      {gamepadDisplay}
     </>
   );
 }
