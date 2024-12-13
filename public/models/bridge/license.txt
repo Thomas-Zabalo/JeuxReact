@@ -1,11 +1,11 @@
 Model Information:
-* title:	Bridge
-* source:	https://sketchfab.com/3d-models/bridge-346220b3831141a19bd8911bdbb823f4
-* author:	Maxim Samsonkin (https://sketchfab.com/Maximus159)
+* title:	Puente del General Serrador, Tenerife
+* source:	https://sketchfab.com/3d-models/puente-del-general-serrador-tenerife-3d5f3e6941b843f791f9e68fd0e9e6bf
+* author:	J. Víctor Febles (https://sketchfab.com/JVICTORFEBLESGLEZ)
 
 Model License:
 * license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 * requirements:	Author must be credited. Commercial use is allowed.
 
 If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
-This work is based on "Bridge" (https://sketchfab.com/3d-models/bridge-346220b3831141a19bd8911bdbb823f4) by Maxim Samsonkin (https://sketchfab.com/Maximus159) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+This work is based on "Puente del General Serrador, Tenerife" (https://sketchfab.com/3d-models/puente-del-general-serrador-tenerife-3d5f3e6941b843f791f9e68fd0e9e6bf) by J. Víctor Febles (https://sketchfab.com/JVICTORFEBLESGLEZ) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
