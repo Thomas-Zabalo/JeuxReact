@@ -3,6 +3,7 @@ import './App.css';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import CannonDebugger from 'cannon-es-debugger';
 
 
@@ -11,6 +12,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false);
   const [startGame, setStartGame] = useState(false);
   const [bestScore, setBestScore] = useState(0);
+  const pointsRef = useRef(0);
   const requestRef = useRef();
   const rendererRef = useRef();
   const worldRef = useRef();
@@ -30,7 +32,7 @@ function App() {
     // --- Chargement du meilleur score depuis le localStorage ---
     const storedBestScore = localStorage.getItem('bestScore');
     if (storedBestScore) {
-      setBestScore(parseInt(storedBestScore, 10));
+      setBestScore(parseInt(storedBestScore));
     } else {
       localStorage.setItem('bestScore', 0);
     }
@@ -115,20 +117,32 @@ function App() {
       const lanes = [-1, 0, 1];
       const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
       const spawnZ = playerBody.position.z - 30; // spawn far ahead
-      const pointShape = new CANNON.Sphere(0.2);
+
+      const pointShape = new CANNON.Sphere(0.2); // Shape remains a sphere
       const pointBody = new CANNON.Body({ mass: 0, shape: pointShape });
       pointBody.position.set(randomLane, 0.6, spawnZ);
 
       world.addBody(pointBody);
       pointBodiesRef.current.push(pointBody);
 
-      const pointGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-      const pointMat = new THREE.MeshStandardMaterial({ color: 0xffff00 });
-      const pointMesh = new THREE.Mesh(pointGeometry, pointMat);
-      pointMesh.position.copy(pointBody.position);
-      scene.add(pointMesh);
-      pointMeshesRef.current.push(pointMesh);
+      // Charger le modèle GLTF
+      const loader = new GLTFLoader();
+      loader.load(
+        '/models/coin.glb', // Remplacez par le chemin de votre modèle
+        (gltf) => {
+          const pointMesh = gltf.scene;
+          pointMesh.scale.set(0.05, 0.05, 0.05); // Échelle du modèle, ajustez selon le modèle
+          pointMesh.position.copy(pointBody.position);
+          scene.add(pointMesh);
+          pointMeshesRef.current.push(pointMesh);
+        },
+        undefined, // Optionnel : fonction de suivi du chargement
+        (error) => {
+          console.error('Erreur lors du chargement du modèle GLTF:', error);
+        }
+      );
     }
+
 
     // --- Ennemis ---
     function spawnEnemy() {
@@ -213,8 +227,7 @@ function App() {
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
-    
-    console.log("Point collected, new points:", points);
+
 
     // --- Game Over Check ---
     // --- Vérifier la fin de jeu ---
@@ -229,26 +242,22 @@ function App() {
         setStartGame(false);
 
         // Update best score
-        console.log("Point collected, new points:", points);
-
-        if (points > bestScore) {
-          setBestScore(points);
-          localStorage.setItem('bestScore', points);
+        if (pointsRef.current > bestScore) {
+          setBestScore(pointsRef.current);
+          localStorage.setItem("bestScore", pointsRef.current);
         }
       }
 
       // Collision avec les ennemis
       enemyBodiesRef.current.forEach((enemyBody) => {
         const dist = playerBody.position.vsub(enemyBody.position).length();
-        if (dist < 0.6) {
+        if (dist < 0.5) {
           setGameOver(true);
           setStartGame(false);
-          console.log("Point collected, new points:", points);
           // Update best score
-          if (points > bestScore) {
-            setBestScore(points);
-            console.log(bestScore)
-            localStorage.setItem('bestScore', points);
+          if (pointsRef.current > bestScore) {
+            setBestScore(pointsRef.current);
+            localStorage.setItem("bestScore", pointsRef.current);
           }
         }
       });
@@ -296,7 +305,11 @@ function App() {
           const dist = playerBody.position.vsub(pBody.position).length();
           if (dist < 0.5) {
             // Collect point
-            setPoints((prev) => prev + 1);
+            setPoints((prev) => {
+              const newPoints = prev + 1;
+              pointsRef.current = newPoints; // Synchroniser le ref avec les points actuels
+              return newPoints;
+            });
             // Remove the point from world and scene
             world.removeBody(pBody);
             scene.remove(pMesh);
@@ -310,7 +323,7 @@ function App() {
         checkGameOver();
       }
 
-      cannonDebugger.update();
+      // cannonDebugger.update();
       renderer.render(scene, camera);
     }
 
