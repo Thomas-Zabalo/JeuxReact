@@ -321,6 +321,8 @@ export default class App {
     ctx.fillStyle = "white";
     ctx.font = "24px Arial";
     ctx.fillText(`Score: ${score}`, 10, 30);
+    const level = this.getLevel();
+    ctx.fillText(`Niveau: ${level}`, 10, 50);
   }
 
   drawStartScreen() {
