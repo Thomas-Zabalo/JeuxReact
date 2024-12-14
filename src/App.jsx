@@ -269,48 +269,65 @@ function App() {
       const delta = clockRef.current.getDelta();
 
       if (startGame && !gameOver) {
-        // Move the player forward
-        playerBody.position.z -= 10 * delta; // speed
+        // Définir une vitesse de base
+        const baseSpeed = 10;
 
-        // Spawn points at intervals
+        // Multiplier la vitesse en fonction des points du joueur
+        const speedIncreasePerPoint = 0.2;
+        const speed = baseSpeed + pointsRef.current * speedIncreasePerPoint;
+
+        // Appliquer la nouvelle vitesse
+        playerBody.position.z -= speed * delta;
+
+        // Ajuster l'intervalle de spawn en fonction des points
+        const minSpawnInterval = 0.2; // L'intervalle minimum entre les spawns (plus petit = plus fréquent)
+        const maxSpawnInterval = 0.5; // L'intervalle de spawn de base
+        const spawnInterval = maxSpawnInterval - (pointsRef.current * 0.01); // Réduit l'intervalle en fonction des points
+
+        // Assurez-vous que l'intervalle de spawn ne soit pas trop court (vous pouvez ajuster ce seuil)
+        const spawnIntervalAdjusted = Math.max(minSpawnInterval, spawnInterval);
+
+        // Spawn des points à intervalles ajustés
         pointSpawnTimer += delta;
-        if (pointSpawnTimer > pointSpawnInterval) {
+        if (pointSpawnTimer > spawnIntervalAdjusted) {
           spawnPoint();
           pointSpawnTimer = 0;
         }
 
+        // Spawn des ennemis à intervalles ajustés
+        const enemySpawnIntervalAdjusted = spawnIntervalAdjusted * 1.5; // Les ennemis apparaissent plus lentement que les points
         enemySpawnTimer += delta;
-        if (enemySpawnTimer > enemySpawnInterval) {
+        if (enemySpawnTimer > enemySpawnIntervalAdjusted) {
           spawnEnemy();
           enemySpawnTimer = 0;
         }
 
-        // Update physics
+        // Mise à jour de la physique
         world.fixedStep();
 
-        // Update player mesh
+        // Mise à jour du mesh du joueur
         playerMesh.position.copy(playerBody.position);
         playerMesh.quaternion.copy(playerBody.quaternion);
 
-        // Update camera
+        // Mise à jour de la caméra
         camera.position.x = playerMesh.position.x;
         camera.position.y = playerMesh.position.y + 1.5;
         camera.position.z = playerMesh.position.z + 5;
         camera.lookAt(playerMesh.position.x, playerMesh.position.y, playerMesh.position.z);
 
-        // Check point collisions
+        // Vérification des collisions avec les points
         for (let i = 0; i < pointBodiesRef.current.length; i++) {
           const pBody = pointBodiesRef.current[i];
           const pMesh = pointMeshesRef.current[i];
           const dist = playerBody.position.vsub(pBody.position).length();
           if (dist < 0.5) {
-            // Collect point
+            // Collecte de points
             setPoints((prev) => {
               const newPoints = prev + 1;
               pointsRef.current = newPoints; // Synchroniser le ref avec les points actuels
               return newPoints;
             });
-            // Remove the point from world and scene
+            // Retirer le point du monde et de la scène
             world.removeBody(pBody);
             scene.remove(pMesh);
             pointBodiesRef.current.splice(i, 1);
@@ -319,13 +336,14 @@ function App() {
           }
         }
 
-        // Check Game Over
+        // Vérification de la fin de la partie
         checkGameOver();
       }
 
       cannonDebugger.update();
       renderer.render(scene, camera);
     }
+
 
     animate();
 

@@ -1,4 +1,4 @@
-FROM macos:macos-latest
+FROM macos-latest
 
 # Installer CocoaPods et autres dépendances iOS
 RUN brew install cocoapods
