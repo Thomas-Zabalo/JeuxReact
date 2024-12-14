@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Variables d'environnement pour le build iOS
 ARG NODEJS_VERSION=20
@@ -28,7 +28,7 @@ RUN apt-get update -q && \
     && rm -rf /var/lib/apt/lists/*
 
 # Installer Capacitor et les outils nécessaires pour iOS
-RUN npm install -g @capacitor/cli@${CAPACITOR_VERSION}
+RUN npm install -g @capacitor/cli
 
 WORKDIR /workdir
 
