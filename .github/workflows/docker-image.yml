@@ -1,4 +1,4 @@
-name: Build Android APK with Docker Compose
+name: Build Android APK and iOS IPA with Docker Compose
 
 on:
   push:
@@ -10,7 +10,8 @@ on:
       - build-android.sh
       - build-ios.sh
       - build.Dockerfile
-      - docker-compose-build.yml
+      - docker-compose-android.yml
+      - docker-compose-ios.yml
       - android/**/*
       - ios/**/*
       - src/**/*
@@ -37,7 +38,7 @@ jobs:
           echo "Building Android APK..."
           rm -rf apk_build
           mkdir apk_build
-          docker-compose -f docker-compose-build.yml up --build
+          docker-compose -f docker-compose-android.yml up --build
 
       - name: Upload Android APK artifact
         uses: actions/upload-artifact@v4
@@ -45,3 +46,31 @@ jobs:
           name: app-debug.apk
           path: apk_build/debug/app-debug.apk  
 
+  build-ios:
+    name: Build iOS IPA
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:19.03.12-dind
+        options: --privileged
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y git docker-compose
+
+      - name: Build iOS IPA
+        run: |
+          echo "Building iOS IPA..."
+          rm -rf ipa_build
+          mkdir ipa_build
+          docker-compose -f docker-compose-ios.yml up --build
+
+      - name: Upload iOS IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.ipa
+          path: ipa_build/ios/app-debug.ipa
