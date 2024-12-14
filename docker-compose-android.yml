@@ -1,12 +1,12 @@
 version: "3.8"
 
 services:
-    capacitor_builder:
+    capacitor_builder_android:
         build:
             context: "."
-            dockerfile: "./build.Dockerfile"
-        image: "capacitor_builder"
-        container_name: "capacitor_builder"
+            dockerfile: "./build-android.Dockerfile"
+        image: "capacitor_builder_android"
+        container_name: "capacitor_builder_android"
         privileged: false
         stdin_open: true
         tty: true

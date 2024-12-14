@@ -1,13 +1,14 @@
 version: "3.8"
 
 services:
-    jeuxreact:
+    reactapp:
         build:
             context: "."
             dockerfile: "./Dockerfile"
         image: "jeuxreact"
-        container_name: "jeuxreact"
+        container_name: "reactapp"
         privileged: false
+        restart: "always"
         stdin_open: true
         tty: true
         ports:
