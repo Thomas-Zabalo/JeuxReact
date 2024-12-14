@@ -27,9 +27,6 @@ RUN apt-get update -q && \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Installer Capacitor et les outils nécessaires pour iOS
-RUN npm install -g @capacitor/cli
-
 WORKDIR /workdir
 
 # Copier le projet et installer les dépendances
