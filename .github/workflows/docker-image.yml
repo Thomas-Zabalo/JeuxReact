@@ -1,100 +1,44 @@
-name: Build Android and iOS
+name: Build Android APK with Docker Compose
 
 on:
   push:
     branches:
       - main
-      - capacitor
   pull_request:
-    paths:
-      - .dockerignore
-      - build-android.sh
-      - build-ios.sh
-      - build.Dockerfile
-      - docker-compose-build.yml
-      - android/**/*
-      - ios/**/*
-      - src/**/*
+    branches:
+      - main
 
 jobs:
-  build_android:
+  build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
 
     services:
       docker:
         image: docker:dind
-        options: --privileged
-
-    env:
-      BUILD_CONF: docker-compose-build.yml
-      BUILD_IMAGE: capacitor_builder
-      DOCKER_TLS_CERTDIR: /certs
-      FF_NETWORK_PER_BUILD: true
+        options: --privileged  # Docker-in-Docker required for building Docker images inside CI
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y git docker-compose
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       - name: Build Android APK
         run: |
           echo "Building Android APK..."
           mkdir apk_build
-          docker-compose -f docker-compose-build.yml up --build
+          docker-compose -f docker-compose-build.yml up --build  # Builds APK using the docker-compose
 
       - name: Upload Android APK artifact
         uses: actions/upload-artifact@v3
         with:
           name: app-debug.apk
-          path: apk_build/debug/app-debug.apk
+          path: apk_build/debug/app-debug.apk  
 
-      - name: Log out from container registry
-        run: docker logout
-
-
-
-  # build_ios:
-  #   name: Build iOS App
-  #   runs-on: macos-latest
-
-  #   env:
-  #     BUILD_CONF: docker-compose-ios.yml
-  #     BUILD_IMAGE: ios_preparer
-
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-
-  #     - name: Install dependencies
-  #       run: |
-  #         brew install cocoapods
-  #         npm install
-
-  #     - name: Sync Capacitor files
-  #       run: |
-  #         npm run build
-  #         npx cap sync ios
-
-  #     - name: Install Docker Compose
-  #       run: |
-  #         brew install docker-compose
-  #         docker-compose --version
-
-
-  #     - name: Build iOS App
-  #       run: |
-  #         echo "Building iOS App..."
-  #         mkdir ios_build
-  #         docker-compose -f docker-compose-ios.yml up --build
-
-  #     - name: Upload iOS App artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: ios-app-build
-  #         path: ios_build/**
-
-  #     - name: Log out from container registry
-  #       run: docker logout
+      - name: Docker LogOut
+        run: |
+          docker logout

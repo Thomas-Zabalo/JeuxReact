@@ -1,10 +1,6 @@
 import React from 'react'
 
 function Footer() {
-    const navigation = [
-        { name: 'Accueil', href: '#' },
-        { name: 'Jeux', href: '#' }
-    ]
     return (
         <footer class="bg-white rounded-lg shadow">
             <div class="w-full mx-auto max-w-screen-xl p-4 flex items-center justify-center">

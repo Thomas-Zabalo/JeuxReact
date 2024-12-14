@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
 ARG JAVA_VERSION=17
 ARG NODEJS_VERSION=20
@@ -72,7 +72,7 @@ WORKDIR /workdir
 COPY . ./
 RUN npm install -g npx
 RUN npm install capp
-RUN chmod +x ./build-android.sh
+RUN chmod +x ./build.sh
 
 # Lancer le build
-CMD ./build-android.sh
+CMD ./build.sh

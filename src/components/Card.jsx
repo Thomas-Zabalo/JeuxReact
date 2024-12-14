@@ -86,7 +86,7 @@ function Card() {
 
             {/* Exemple 2 */}
             <section className='md:hidden'>
-                <ul role="list" className="divide-y divide-gray-100">
+                <ul className="divide-y divide-gray-100">
                     {dataCard.map((project) => (
                         <li key={project.email} className="flex justify-between gap-x-6 py-5">
                             <div className="flex min-w-0 gap-x-4">
