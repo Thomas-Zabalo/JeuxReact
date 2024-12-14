@@ -13,7 +13,6 @@ RUN apt-get update -q && \
     curl \
     git \
     build-essential \
-    nodejs \
     python3 \
     openjdk-17-jre \
     openjdk-17-jdk \
@@ -26,6 +25,18 @@ RUN apt-get update -q && \
     libssl-dev \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Installer Node.js
+RUN curl -sL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x | bash - \
+    && apt-get update -q && apt-get install -qy nodejs
+ENV NPM_CONFIG_PREFIX=${HOME}/.npm-global
+ENV PATH=$PATH:${HOME}/.npm-global/bin
+
+# Nettoyer
+RUN apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/*
 
 WORKDIR /workdir
 
