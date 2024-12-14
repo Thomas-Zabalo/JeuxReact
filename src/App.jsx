@@ -323,7 +323,7 @@ function App() {
         checkGameOver();
       }
 
-      // cannonDebugger.update();
+      cannonDebugger.update();
       renderer.render(scene, camera);
     }
 
