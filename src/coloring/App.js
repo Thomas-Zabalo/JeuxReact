@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import './App.css';
+import React, { useState, useRef, useEffect } from 'react';
+import { Button, Drawer } from "flowbite-react";
 
 const App = () => {
   const canvasRef = useRef(null);
@@ -9,6 +9,10 @@ const App = () => {
   const [brushOpacity, setBrushOpacity] = useState(1);
   const [paths, setPaths] = useState([]);
   const [image, setImage] = useState(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 600, height: 600 });
+
+  const [isOpen, setIsOpen] = useState(true);
+  const handleClose = () => setIsOpen(false);
 
   const drawings = [
     { id: 1, name: 'Boule de Noel 2 lutins', src: '/assets/bouledenoel-2lutin.webp' },
@@ -20,59 +24,98 @@ const App = () => {
   const getContext = () => {
     const canvas = canvasRef.current;
     if (!canvas) return {};
-    const context = canvas.getContext("2d");
-    if (!context) return {};
+    const context = canvas.getContext('2d', { willReadFrequently: true });
     return { canvas, context };
-  }
+  };
+
+
+  // Resize canvas based on the viewport
+  const resizeCanvas = () => {
+    const width = Math.min(window.innerWidth * 0.8, 900);
+    const height = Math.min(window.innerHeight * 0.7, 700);
+    setCanvasSize({ width, height });
+
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      if (context) context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
+  useEffect(() => {
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, []);
 
   const handleDrawingSelection = (src) => {
     const { canvas, context } = getContext();
     if (!canvas || !context) return;
 
     context.clearRect(0, 0, canvas.width, canvas.height);
-    console.log(src);
     const img = new Image();
     img.src = src;
     img.onload = () => {
       context.drawImage(img, 0, 0, canvas.width, canvas.height);
       setImage(img);
     };
-  }
+  };
+
+  const getEventPosition = (event) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+
+    if (event.touches) {
+      return {
+        x: event.touches[0].clientX - rect.left,
+        y: event.touches[0].clientY - rect.top,
+      };
+    } else {
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+    }
+  };
 
   const startDrawing = (event) => {
+    event.preventDefault();
     const { canvas, context } = getContext();
     if (!canvas || !context) return;
+
+    const pos = getEventPosition(event);
     setPaths([...paths, context.getImageData(0, 0, canvas.width, canvas.height)]);
 
-    const rect = canvas.getBoundingClientRect();
     context.beginPath();
-    context.moveTo(
-      event.clientX - rect.left,
-      event.clientY - rect.top
-    );
+    context.moveTo(pos.x, pos.y);
     setIsDrawing(true);
   };
 
   const draw = (event) => {
     if (!isDrawing) return;
+    event.preventDefault();
     const { canvas, context } = getContext();
     if (!canvas || !context) return;
 
-    const rect = canvas.getBoundingClientRect();
-    context.lineTo(
-      event.clientX - rect.left,
-      event.clientY - rect.top
-    );
+    const pos = getEventPosition(event);
+    context.lineTo(pos.x, pos.y);
     context.strokeStyle = brushColor;
     context.lineWidth = brushSize;
     context.lineCap = "round";
     context.globalAlpha = brushOpacity;
     context.stroke();
-
-    console.log("brush", brushColor, brushSize)
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (event) => {
+    event?.preventDefault();
+    const { canvas, context } = getContext();
+    if (!canvas || !context) return;
+    setPaths((prevPaths) => [
+      ...prevPaths,
+      context.getImageData(0, 0, canvas.width, canvas.height),
+    ]);
     setIsDrawing(false);
   };
 
@@ -86,13 +129,13 @@ const App = () => {
     const { canvas } = getContext();
     if (!canvas) return;
 
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext('2d', { willReadFrequently: true });
     const drawingData = context.getImageData(0, 0, canvas.width, canvas.height);
 
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
-    const tempContext = tempCanvas.getContext('2d');
+    const tempContext = tempCanvas.getContext('2d', { willReadFrequently: true });
 
     if (image) {
       tempContext.drawImage(image, 0, 0, canvas.width, canvas.height);
@@ -118,191 +161,129 @@ const App = () => {
     setPaths(newPaths);
   };
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) return;
+
+    canvas.addEventListener("mousedown", startDrawing);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", stopDrawing);
+    canvas.addEventListener("mouseleave", stopDrawing);
+
+    canvas.addEventListener("touchstart", startDrawing);
+    canvas.addEventListener("touchmove", draw);
+    canvas.addEventListener("touchend", stopDrawing);
+
+    return () => {
+      canvas.removeEventListener("mousedown", startDrawing);
+      canvas.removeEventListener("mousemove", draw);
+      canvas.removeEventListener("mouseup", stopDrawing);
+      canvas.removeEventListener("mouseleave", stopDrawing);
+
+      canvas.removeEventListener("touchstart", startDrawing);
+      canvas.removeEventListener("touchmove", draw);
+      canvas.removeEventListener("touchend", stopDrawing);
+    };
+  }, [isDrawing]);
+
   return (
     <div className="app-container">
-      <header style={{
-        backgroundColor: "#f8f9fa",
-        padding: "20px",
-        textAlign: "center",
-        fontSize: "24px",
-        fontWeight: "bold",
-        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)"
-      }} className="app-header">
-        ColoriageApp
+      <header className="bg-gray-100 p-4 sm:p-5 text-center text-lg sm:text-2xl font-bold shadow-md">
+        <Button
+          gradientMonochrome="success"
+          onClick={() => setIsOpen(true)}
+          size="sm"
+        >
+          Settings
+        </Button>
       </header>
-      <div style={{ display: "flex", flexDirection: "row", padding: "20px", gap: "20px" }} className="app-content">
-        <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "10px" }} className="controls">
-          <label><strong>Select a drawing:</strong></label>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", padding: "30px" }}>
-            {drawings.map((drawing) => (
-              <button
-                key={drawing.id}
-                onClick={() => handleDrawingSelection(drawing.src)}
-                style={{
-                  padding: "5px",
-                  borderRadius: "5px",
-                  border: "none",
-                  backgroundColor: "white",
-                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
-                  display: "flex",
-                  // flexDirection: "column",
-                  alignItems: "center",
-                  cursor: "pointer"
-                }}
-              >
-                <img
-                  src={drawing.src}
-                  alt={drawing.name}
-                  style={{ width: "80px", height: "80px", objectFit: "cover", marginBottom: "5px" }}
-                />
-              </button>
-            ))}
-          </div>
-          <div
-            style={{
-              marginTop: "20px",
-              padding: "15px",
-              backgroundColor: "#f9f9f9",
-              borderRadius: "10px",
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "15px",
-            }}
-          >
-            <label style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ fontWeight: "bold", color: "#333" }}>Color:</span>
-              <input
-                type="color"
-                value={brushColor}
-                onChange={(e) => setBrushColor(e.target.value)}
-                style={{
-                  border: "none",
-                  width: "40px",
-                  height: "40px",
-                  cursor: "pointer",
-                  borderRadius: "10px",
-                }}
-              />
-            </label>
 
-            <label style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ fontWeight: "bold", color: "#333" }}>Size:</span>
-              <input
-                type="number"
-                min={1}
-                max={50}
-                value={brushSize}
-                onChange={(e) => setBrushSize(Number(e.target.value))}
-                style={{
-                  padding: "5px",
-                  border: "1px solid #ccc",
-                  borderRadius: "5px",
-                  width: "60px",
-                }}
-              />
-            </label>
+      <div className="flex flex-col md:flex-row p-4 sm:p-5 gap-4 sm:gap-5 app-content ">
+        <Drawer open={isOpen} onClose={handleClose}>
+          <Drawer.Header title="Settings" />
+          <Drawer.Items>
+            <div className="flex-1 flex flex-col gap-4 sm:gap-2.5 controls">
+              <label className="font-bold">Select a drawing:</label>
+              <div className="flex flex-wrap gap-2.5 p-4 sm:p-7">
+                {drawings.map((drawing) => (
+                  <button
+                    key={drawing.id}
+                    onClick={() => handleDrawingSelection(drawing.src)}
+                    className="p-1 rounded-md border-none bg-white shadow-lg flex items-center cursor-pointer"
+                  >
+                    <img
+                      src={drawing.src}
+                      alt={drawing.name}
+                      className="w-16 h-16 sm:w-20 sm:h-20 object-cover mb-1.5"
+                    />
+                  </button>
+                ))}
+              </div>
 
-            <label style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ fontWeight: "bold", color: "#333" }}>Opacity:</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={brushOpacity}
-                onChange={(e) => setBrushOpacity(Number(e.target.value))}
-                className="opacity-slider"
-              />
-            </label>
-          </div>
+              <div className="mt-4 p-4 bg-gray-100 rounded-lg shadow-md flex flex-col gap-4">
+                <label className="flex items-center gap-2.5">
+                  <span className="font-bold text-gray-800">Color:</span>
+                  <input
+                    type="color"
+                    value={brushColor}
+                    onChange={(e) => setBrushColor(e.target.value)}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg cursor-pointer border-none"
+                  />
+                </label>
 
-          <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-            <button
-              onClick={undoLastStroke}
-              style={{
-                padding: "10px",
-                backgroundColor: "#ffc107",
-                color: "#fff",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)"
-              }}
-            >
-              Undo Last Stroke
-            </button>
-            <button
-              onClick={clearCanvas}
-              style={{
-                padding: "10px 20px",
-                cursor: "pointer",
-                border: "none",
-                borderRadius: "5px",
-                backgroundColor: "#d90429",
-                color: "#fff",
-                fontSize: "14px",
-                fontWeight: "bold",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                transition: "transform 0.2s, box-shadow 0.2s",
-              }}
-              onMouseOver={(e) => {
-                e.target.style.transform = "scale(1.05)";
-                e.target.style.boxShadow = "0 6px 10px rgba(0, 0, 0, 0.2)";
-              }}
-              onMouseOut={(e) => {
-                e.target.style.transform = "scale(1)";
-                e.target.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-              }}
-            >
-              Clear Canvas
-            </button>
-            <button
-              onClick={saveCanvasAsJPG}
-              style={{
-                padding: "10px 20px",
-                cursor: "pointer",
-                border: "none",
-                borderRadius: "5px",
-                backgroundColor: "#003e1f",
-                color: "#fff",
-                fontSize: "14px",
-                fontWeight: "bold",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                marginLeft: "10px",
-                transition: "transform 0.2s, box-shadow 0.2s",
-              }}
-              onMouseOver={(e) => {
-                e.target.style.transform = "scale(1.05)";
-                e.target.style.boxShadow = "0 6px 10px rgba(0, 0, 0, 0.2)";
-              }}
-              onMouseOut={(e) => {
-                e.target.style.transform = "scale(1)";
-                e.target.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-              }}
-            >
-              Save as JPG
-            </button>
-          </div>
+                <label className="flex items-center gap-2.5">
+                  <span className="font-bold text-gray-800">Size:</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={brushSize}
+                    onChange={(e) => setBrushSize(Number(e.target.value))}
+                    className="p-1 border border-gray-300 rounded-md w-12 sm:w-15"
+                  />
+                </label>
+
+                <label className="flex items-center gap-2.5">
+                  <span className="font-bold text-gray-800">Opacity:</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={brushOpacity}
+                    onChange={(e) => setBrushOpacity(Number(e.target.value))}
+                    className="opacity-slider"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-4 flex flex-col sm:flex-row gap-2.5">
+                <Button gradientMonochrome="lime" onClick={undoLastStroke}>
+                  Undo Last Stroke
+                </Button>
+                <Button gradientMonochrome="failure" onClick={clearCanvas}>
+                  Clear Canvas
+                </Button>
+                <Button gradientMonochrome="success" onClick={saveCanvasAsJPG}>
+                  Save as JPG
+                </Button>
+              </div>
+            </div>
+          </Drawer.Items>
+        </Drawer>
+
+        <div className="flex justify-center items-center w-full sm:w-auto">
+          <canvas
+            ref={canvasRef}
+            width={canvasSize.width}
+            height={canvasSize.height}
+            className="shadow-lg rounded-lg max-w-full"
+          />
         </div>
-        <canvas
-          ref={canvasRef}
-          width={800}
-          height={600}
-          style={{
-            flex: "1",
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.3)",
-            borderRadius: "10px"
-          }}
-          onMouseDown={startDrawing}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-          onMouseMove={draw}
-          className="drawing-canvas"
-        />
       </div>
     </div>
+
   );
 };
 
