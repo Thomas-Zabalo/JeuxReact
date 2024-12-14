@@ -5,6 +5,15 @@ on:
     branches:
       - main
   pull_request:
+    paths:
+      - .dockerignore
+      - build-android.sh
+      - build-ios.sh
+      - build.Dockerfile
+      - docker-compose-build.yml
+      - android/**/*
+      - ios/**/*
+      - src/**/*
     branches:
       - main
 
@@ -13,13 +22,16 @@ jobs:
     name: Build Android APK
     runs-on: ubuntu-latest
 
-    env:
-        BUILD_CONF: docker-compose-build.yml
-        BUILD_IMAGE: capacitor_builder
     services:
       docker:
         image: docker:dind
         options: --privileged
+
+    env:
+      BUILD_CONF: docker-compose-build.yml
+      BUILD_IMAGE: capacitor_builder
+      DOCKER_TLS_CERTDIR: /certs
+      FF_NETWORK_PER_BUILD: true
 
     steps:
       - name: Checkout repository
@@ -34,7 +46,7 @@ jobs:
         run: |
           echo "Building Android APK..."
           mkdir apk_build
-          docker-compose -f $BUILD_CONFI run $BUILD_IMAGE  # Builds APK using the docker-compose
+          docker-compose -f $BUILD_CONFI up --build
 
       - name: Upload Android APK artifact
         uses: actions/upload-artifact@v4
