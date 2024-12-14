@@ -1,4 +1,4 @@
-FROM ubuntu:ubuntu-latest
+FROM ubuntu:latest
 
 ARG JAVA_VERSION=17
 ARG NODEJS_VERSION=20
