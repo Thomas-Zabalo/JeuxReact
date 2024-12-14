@@ -48,19 +48,19 @@ jobs:
 
   build-ios:
     name: Build iOS IPA
-    runs-on: ubuntu-latest
-
-    services:
-      docker:
-        image: docker:19.03.12-dind
-        options: --privileged
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y git docker-compose
+        run: brew install cocoapods
+
+      - name: Install CocoaPods and dependencies
+        run: |
+          sudo gem install cocoapods
+          pod install --project-directory=ios
 
       - name: Build iOS IPA
         run: |

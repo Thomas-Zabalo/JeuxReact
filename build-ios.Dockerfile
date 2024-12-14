@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:ubuntu-latest
 
 # Variables d'environnement pour le build iOS
 ARG NODEJS_VERSION=20
