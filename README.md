@@ -1,6 +1,6 @@
 # JeuxReact
 
-## Composé un groupe de deux ou trois personnes pour créer un jeu pour le web :
+## Composer un groupe de deux ou trois personnes pour créer un jeu pour le web :
 ### Groupe 1 :
 - Evan
 - Thomas Cerquiera
