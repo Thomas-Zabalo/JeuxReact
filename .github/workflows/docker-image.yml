@@ -3,7 +3,7 @@ name: Build Android APK with Docker Compose
 on:
   push:
     branches:
-      - main
+      - '*'
   pull_request:
     paths:
       - .dockerignore
@@ -35,6 +35,7 @@ jobs:
       - name: Build Android APK
         run: |
           echo "Building Android APK..."
+          rm -rf apk_build
           mkdir apk_build
           docker-compose -f docker-compose-build.yml up --build
 
