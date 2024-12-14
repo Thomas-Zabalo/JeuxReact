@@ -14,7 +14,7 @@ ARG GRADLE_VERSION=8.6
 ARG CAPACITOR_VERSION=6.2.0
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV LANG=en_US.UTF-8
+ENV LANG=fr_FR.UTF-8
 
 WORKDIR /tmp
 
@@ -36,7 +36,7 @@ RUN apt-get install -qy \
     openjdk-${JAVA_VERSION}-jdk
 
 # Définir la locale
-RUN locale-gen en_US.UTF-8 && update-locale
+RUN locale-gen fr_FR.UTF-8 && update-locale
 
 # Installer Gradle
 ENV GRADLE_HOME=/opt/gradle

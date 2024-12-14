@@ -5,7 +5,9 @@ ARG NODEJS_VERSION=20
 ARG CAPACITOR_VERSION=6.2.0
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV LANG=en_US.UTF-8
+ENV LANG=fr_FR.UTF-8
+
+WORKDIR /tmp
 
 # Installer les dépendances
 RUN apt-get update -q && \
@@ -42,10 +44,9 @@ WORKDIR /workdir
 
 # Copier le projet et installer les dépendances
 COPY . ./
-RUN npm install
+RUN npm install -g npx
+RUN npm install capp
+RUN chmod +x ./build-ios.sh
 
-# Synchroniser Capacitor et construire l'IPA
-RUN npx cap sync ios
-RUN npx cap open ios
-
-CMD ["npx", "cap", "sync", "ios", "&&", "xcodebuild", "-workspace", "ios/App.xcworkspace", "-scheme", "App", "-configuration", "Release", "-archivePath", "ios/build/App.xcarchive", "archive"]
+# Lancer le build
+CMD ./build-ios.sh
