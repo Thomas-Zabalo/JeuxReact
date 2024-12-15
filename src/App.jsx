@@ -19,7 +19,7 @@ function App() {
   const cameraRef = useRef();
   const sceneRef = useRef();
   const playerBodyRef = useRef();
-  const playerMeshRef = useRef();
+  const playerRef = useRef();
   const pointBodiesRef = useRef([]);
   const pointMeshesRef = useRef([]);
   const enemyBodiesRef = useRef([]);
@@ -44,7 +44,9 @@ function App() {
     // Fog: Pink fog with a light effect
     scene.fog = new THREE.Fog(0xffffff, 1, 150); // Light pink fog with near/far distances
 
-    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -10, 0) });
+    const world = new CANNON.World({
+      gravity: new CANNON.Vec3(0, -9.82, 0)
+    });
     worldRef.current = world;
 
     const cannonDebugger = new CannonDebugger(scene, world, {
@@ -74,17 +76,19 @@ function App() {
     scene.add(ambientLight);
 
     // --- Player Setup ---
-    const playerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-    const playerMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-    const playerMesh = new THREE.Mesh(playerGeometry, playerMaterial);
-    playerMesh.position.y = -1;
-    scene.add(playerMesh);
-    playerMeshRef.current = playerMesh;
+    const player = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.5, 0.5),
+      new THREE.MeshStandardMaterial({ color: 0xff0000 })
+    )
+    player.position.y = -1;
+    scene.add(player);
+    playerRef.current = player;
 
-    const playerShape = new CANNON.Box(new CANNON.Vec3(0.25, 0.25, 0.25));
+
     const playerBody = new CANNON.Body({
       mass: 1,
-      shape: playerShape,
+      shape: new CANNON.Box(new CANNON.Vec3(0.25, 0.25, 0.25)),
+      fixedRotation: true,
       position: new CANNON.Vec3(0, 1, 0),
       material: new CANNON.Material({ friction: 0.0, restitution: 0 })
     });
@@ -101,14 +105,14 @@ function App() {
     world.addBody(groundBody);
 
     // Ground Material with a shiny effect
-    const groundGeometry = new THREE.BoxGeometry(4, 0.2, 4000);
-    const groundMaterial = new THREE.MeshStandardMaterial({
-      color: 0xbee6fe,
-      roughness: 0.1, // Low roughness for more shine
-      metalness: 0.7, // Higher metalness for a shiny, reflective surface
-    });
-
-    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+    const groundMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(4, 0.2, 4000),
+      new THREE.MeshStandardMaterial({
+        color: 0xbee6fe,
+        roughness: 0.1, // Low roughness for more shine
+        metalness: 0.7, // Higher metalness for a shiny, reflective surface
+      })
+    );
     groundMesh.position.set(0, 0, -1000);
     scene.add(groundMesh);
 
@@ -165,8 +169,6 @@ function App() {
 
     let pointSpawnTimer = 0;
     let enemySpawnTimer = 0;
-    const pointSpawnInterval = 0.5;
-    const enemySpawnInterval = 1.5;
 
     // --- Input Handling ---
     let currentLane = 0;
@@ -211,11 +213,7 @@ function App() {
 
       // Jump (reduced impulse for a lower jump)
       if (e.key === " " && !jumpCooldown && Math.abs(playerBody.velocity.y) < 0.1) {
-        playerBody.applyImpulse(new CANNON.Vec3(0, 10, 0), playerBody.position);
-        jumpCooldown = true;
-        setTimeout(() => {
-          jumpCooldown = false;
-        }, 500);
+        playerBody.applyImpulse(new CANNON.Vec3(0, 5, 0), playerBody.position);
       }
     }
 
@@ -306,14 +304,14 @@ function App() {
         world.fixedStep();
 
         // Mise à jour du mesh du joueur
-        playerMesh.position.copy(playerBody.position);
-        playerMesh.quaternion.copy(playerBody.quaternion);
+        player.position.copy(playerBody.position);
+        player.quaternion.copy(playerBody.quaternion);
 
         // Mise à jour de la caméra
-        camera.position.x = playerMesh.position.x;
-        camera.position.y = playerMesh.position.y + 1.5;
-        camera.position.z = playerMesh.position.z + 5;
-        camera.lookAt(playerMesh.position.x, playerMesh.position.y, playerMesh.position.z);
+        camera.position.x = player.position.x;
+        camera.position.y = player.position.y + 1.5;
+        camera.position.z = player.position.z + 5;
+        camera.lookAt(player.position.x, player.position.y, player.position.z);
 
         // Vérification des collisions avec les points
         for (let i = 0; i < pointBodiesRef.current.length; i++) {
@@ -366,3 +364,38 @@ function App() {
 }
 
 export default App;
+
+
+// New app
+
+
+// import React from 'react';
+// import './App.css';
+// import GameUI from './components/GameUI';
+// import { useGameState } from './utils/useGameState';
+// import GameLogic from './components/GameLogic';
+
+// function App() {
+//   const { points, bestScore, gameOver, startGame, resetGame, setStartGame } = useGameState();
+
+//   return (
+//     <div className="App">
+//       <GameUI 
+//         points={points} 
+//         bestScore={bestScore} 
+//         gameOver={gameOver} 
+//         startGame={startGame} 
+//         resetGame={resetGame} 
+//         setStartGame={setStartGame} 
+//       />
+//       <GameLogic 
+//         points={points} 
+//         setStartGame={setStartGame} 
+//         gameOver={gameOver} 
+//         resetGame={resetGame} 
+//       />
+//     </div>
+//   );
+// }
+
+// export default App;
