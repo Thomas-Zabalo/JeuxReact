@@ -8,7 +8,8 @@ import Hero from './components/Hero';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 
 import ColoringApp from './projects/coloring/App';
-import FootballApp from'./projects/football/App'
+// import FootballApp from'./projects/football/App'
+import SubwaySurferApp from'./projects/SubwaySurfer/App'
 import Card from './components/Card'; 
 
 function App() {
@@ -45,7 +46,8 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/project/coloring-app" element={<ColoringApp />} />
-        <Route path="/project/football-app" element={<FootballApp />} />
+        {/* <Route path="/project/football-app" element={<FootballApp />} /> */}
+        <Route path="/project/SubwaySurfer-app" element={<SubwaySurferApp />} />
       </Routes>
 
       {isHomePage && <Footer />}

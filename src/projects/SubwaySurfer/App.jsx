@@ -174,7 +174,6 @@ function App() {
 
     // --- Input Handling ---
     let currentLane = 0;
-    let jumpCooldown = false;
 
     const resetGame = () => {
       playerBody.position.set(0, 1, 0);
@@ -211,11 +210,6 @@ function App() {
       if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
         currentLane = Math.min(currentLane + 1, 1);
         playerBody.position.x = currentLane;
-      }
-
-      // Jump (reduced impulse for a lower jump)
-      if (e.key === " " && !jumpCooldown && Math.abs(playerBody.velocity.y) < 0.1) {
-        playerBody.applyImpulse(new CANNON.Vec3(0, 5, 0), playerBody.position);
       }
     }
 
