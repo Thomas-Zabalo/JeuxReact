@@ -1,13 +1,12 @@
-import React from 'react'
-
+import React from 'react';
+import { Link } from 'react-router-dom';  // Importation du composant Link
 
 function Card() {
-
     const dataCard = [
         {
-            name: "Pac-man",
+            name: "Idle Game",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "https://zbt4714a.mmiweb.iut-tlse3.fr/project/application-de-creation-de-projectnages-pour-le-jeu-baldurs-gate-3/",
+            link: "/project/idle",
             collaborators: [
                 { name: "Evan" },
                 { name: "Thomas Cerquiera" }
@@ -16,42 +15,34 @@ function Card() {
         {
             name: "Football Américain",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "https://zbt4714a.mmiweb.iut-tlse3.fr/project/mon-portfolio-realise-avec-astro/",
+            link: "/project/football",
             collaborators: ["Lisa", "Clement", "Lucas"],
         },
         {
             name: "Space invadeur ou Sonic",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "https://zbt4714a.mmiweb.iut-tlse3.fr/project/creation-dune-template-astro/",
+            link: "/project/spaceinvador",
             collaborators: ["Elias", "Théo", "Maxime"],
         },
         {
             name: "SubwaySurfer",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "https://zbt4714a.mmiweb.iut-tlse3.fr/project/creation-dune-template-astro/",
+            link: "/project/SubwaySurfer",
             collaborators: ["Ogene", "Mohammed", "Thomas ZABALO"],
         },
         {
             name: "Application Dessin",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/coloring/App",
+            link: "/project/coloring-app",  // Corrigé en lien absolu
             collaborators: ["Safwa"],
         }
     ];
 
     const avatars = [
-        {
-            src: "https://www.gravatar.com/avatar/1d7d586c9f650fcd16f43f8c915f97ff?s=96&d=retro&r=g"
-        },
-        {
-            src: "https://www.gravatar.com/avatar/d18d4b8b0735b6637731d2f2a2ab7a1c?s=96&d=retro&r=g"
-        },
-        {
-            src: "https://www.gravatar.com/avatar/33c6d5cb43cf68de1f68a3c3428c4574?s=96&d=retro&r=g"
-        },
-        {
-            src: "https://www.gravatar.com/avatar/8c0c672881a5f8395e56f46a4163e3b4?s=96&d=retro&r=g"
-        }
+        { src: "https://www.gravatar.com/avatar/1d7d586c9f650fcd16f43f8c915f97ff?s=96&d=retro&r=g" },
+        { src: "https://www.gravatar.com/avatar/d18d4b8b0735b6637731d2f2a2ab7a1c?s=96&d=retro&r=g" },
+        { src: "https://www.gravatar.com/avatar/33c6d5cb43cf68de1f68a3c3428c4574?s=96&d=retro&r=g" },
+        { src: "https://www.gravatar.com/avatar/8c0c672881a5f8395e56f46a4163e3b4?s=96&d=retro&r=g" }
     ];
 
     return (
@@ -60,17 +51,16 @@ function Card() {
             <div className="flex justify-between items-center mb-8 lg:mb-28">
                 <h2 className="text-xl lg:text-3xl font-bold">Quelques jeux réalisés.</h2>
             </div>
+
             <section className='hidden md:block'>
                 <div id='projet' className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {dataCard.map((project, index) => (
-                        <a key={index} href={project.link} className="block p-6 bg-[#EDEEF0] rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+                        <Link key={index} to={project.link} className="block p-6 bg-[#EDEEF0] rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
                             <article className="flex flex-col h-full">
                                 <h3 className="text-base font-semibold mb-4 hover:text-blue-600">{project.name}</h3>
                                 <img className="object-cover w-full h-36 rounded mb-4" src={project.image} alt={project.name} />
                                 <div className="flex items-center justify-between space-x-2 mt-auto">
-
                                     <div className="flex items-center">
-
                                         <div className="flex -space-x-3 rtl:space-x-reverse">
                                             {project.collaborators.map((collaborator, idx) => (
                                                 <img
@@ -84,7 +74,7 @@ function Card() {
                                     </div>
                                 </div>
                             </article>
-                        </a>
+                        </Link>
                     ))}
                 </div>
             </section>
@@ -120,7 +110,7 @@ function Card() {
                 </ul>
             </section>
         </section>
-    )
+    );
 }
 
-export default Card
+export default Card;
