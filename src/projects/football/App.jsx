@@ -1,6 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-
-class App {
+export default class App {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
@@ -660,27 +658,4 @@ document.addEventListener('DOMContentLoaded', () => {
     app.drawStartScreen();
     app.startSound.currentTime = 0;
     app.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
-});
-
-
-const GameCanvas = () => {
-    const canvasRef = useRef(null);
-  
-    useEffect(() => {
-      const app = new App(canvasRef.current); // Crée une instance du jeu en passant le canvas
-      app.init(); // Initialise et démarre le jeu
-  
-      // Cleanup lorsqu'on quitte la page
-      return () => {
-        app.resetAll(); // Arrête le jeu proprement
-      };
-    }, []);
-  
-    return (
-      <div>
-        <canvas ref={canvasRef} id="gameCanvas" style={{ width: "100%", height: "100%" }}></canvas>
-      </div>
-    );
-  };
-  
-  export default GameCanvas;
+})

@@ -8,8 +8,8 @@ import Hero from './components/Hero';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 
 import ColoringApp from './projects/coloring/App';
-import FootballApp from './projects/football/App';
-import Card from './components/Card'; // Importation du composant Card
+import FootballApp from'./projects/football/App'
+import Card from './components/Card'; 
 
 function App() {
   return (
