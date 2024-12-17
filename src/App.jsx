@@ -4,7 +4,6 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import CannonDebugger from 'cannon-es-debugger';
 
 
 function App() {
@@ -48,10 +47,6 @@ function App() {
       gravity: new CANNON.Vec3(0, -9.82, 0)
     });
     worldRef.current = world;
-
-    const cannonDebugger = new CannonDebugger(scene, world, {
-      color: 0xff0000, // Optional: Color for the wireframes
-    });
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -132,11 +127,14 @@ function App() {
       // Charger le modèle GLTF
       const loader = new GLTFLoader();
       loader.load(
-        '/models/coin.glb', // Remplacez par le chemin de votre modèle
+        '/models/coin/coin.glb', // Remplacez par le chemin de votre modèle
         (gltf) => {
+
           const pointMesh = gltf.scene;
           pointMesh.scale.set(0.05, 0.05, 0.05); // Échelle du modèle, ajustez selon le modèle
           pointMesh.position.copy(pointBody.position);
+          pointMesh.position.x += -0.4;
+          pointMesh.position.y += -0.2;
           scene.add(pointMesh);
           pointMeshesRef.current.push(pointMesh);
         },
@@ -153,19 +151,23 @@ function App() {
       const lanes = [-1, 0, 1];
       const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
       const spawnZ = playerBody.position.z - 30;
-      const enemyShape = new CANNON.Sphere(0.4);
-      const enemyBody = new CANNON.Body({ mass: 0, shape: enemyShape });
-      enemyBody.position.set(randomLane, 0.6, spawnZ);
-      world.addBody(enemyBody);
-      enemyBodiesRef.current.push(enemyBody);
 
-      const enemyGeometry = new THREE.SphereGeometry(0.4, 16, 16);
-      const enemyMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+      // Définition de la forme physique de l'ennemi (CANNON.Box)
+      const enemyShape = new CANNON.Box(new CANNON.Vec3(0.4, 0.4, 0.4)); // CANNON.Vec3 pour la taille de la box
+      const enemyBody = new CANNON.Body({ mass: 0, shape: enemyShape });
+      enemyBody.position.set(randomLane, 0.6, spawnZ); // Position de l'ennemi
+      world.addBody(enemyBody); // Ajouter le corps physique au monde
+      enemyBodiesRef.current.push(enemyBody); // Ajouter le corps physique à la liste
+
+      // Création du modèle visuel de l'ennemi (THREE.BoxGeometry)
+      const enemyGeometry = new THREE.BoxGeometry(0.8, 0.8, 1.6); // Taille ajustée pour le mesh
+      const enemyMat = new THREE.MeshStandardMaterial({ color: 0x695c4c }); // Matériau de l'ennemi
       const enemyMesh = new THREE.Mesh(enemyGeometry, enemyMat);
-      enemyMesh.position.copy(enemyBody.position);
-      scene.add(enemyMesh);
-      enemyMeshesRef.current.push(enemyMesh);
+      enemyMesh.position.copy(enemyBody.position); // Synchroniser la position du modèle avec le corps physique
+      scene.add(enemyMesh); // Ajouter le modèle à la scène
+      enemyMeshesRef.current.push(enemyMesh); // Ajouter le modèle à la liste des meshes
     }
+
 
     let pointSpawnTimer = 0;
     let enemySpawnTimer = 0;
@@ -337,8 +339,6 @@ function App() {
         // Vérification de la fin de la partie
         checkGameOver();
       }
-
-      cannonDebugger.update();
       renderer.render(scene, camera);
     }
 
