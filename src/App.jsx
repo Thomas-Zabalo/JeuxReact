@@ -9,7 +9,7 @@ import Hero from './components/Hero';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import ColoringApp from './projects/coloring/App';
-import FootballApp from './projects/football/App';
+import FootballApp from './projects/football/Game';
 
 function App() {
   return (
