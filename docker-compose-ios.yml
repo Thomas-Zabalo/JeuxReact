@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  ios_preparer:
+    build:
+      context: "."
+      dockerfile: "./Dockerfile"
+    image: "ios_preparer"
+    container_name: "ios_preparer"
+    volumes:
+      - ./ios:/workdir/ios
+    networks:
+      - "ios_network"
+
+networks:
+  ios_network:
+    driver: "bridge"

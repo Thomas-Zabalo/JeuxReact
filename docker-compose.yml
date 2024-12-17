@@ -5,21 +5,17 @@ services:
         build:
             context: "."
             dockerfile: "./Dockerfile"
-        image: "custom-dockerfile"
+        image: "jeuxreact"
         container_name: "jeuxreact"
         privileged: false
-        restart: "always"
         stdin_open: true
         tty: true
         ports:
             - "80:1880"
-            - "443:443"
         networks:
             - "network"
 
 networks:
     network:
         driver: "bridge"
-
-volumes:
 

@@ -1,5 +1,5 @@
 FROM node:22.12.0
-LABEL vendor="PIXMELT"
+LABEL vendor="IUT 3 DEV"
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install requirements
