@@ -189,7 +189,7 @@ const App = () => {
 
   return (
     <div className="app-container">
-      <header className="bg-gray-100 p-4 sm:p-5 text-center text-lg sm:text-2xl font-bold shadow-md">
+      <header className="bg-gray-400 p-4 sm:p-5 text-center text-lg sm:text-2xl font-bold shadow-md text-black" >
         <Button
           gradientMonochrome="success"
           onClick={() => setIsOpen(true)}
@@ -199,7 +199,7 @@ const App = () => {
         </Button>
       </header>
 
-      <div className="flex flex-col md:flex-row p-4 sm:p-5 gap-4 sm:gap-5 app-content ">
+      <div className="flex flex-col p-4 sm:p-5 gap-4 sm:gap-5 app-content ">
         <Drawer open={isOpen} onClose={handleClose}>
           <Drawer.Header title="Settings" />
           <Drawer.Items>
