@@ -26,7 +26,7 @@ function Card() {
             collaborators: ["Elias", "Théo", "Maxime"],
         },
         {
-            name: "Aucun projet",
+            name: "SubwaySurfer",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
             link: "https://zbt4714a.mmiweb.iut-tlse3.fr/project/creation-dune-template-astro/",
             collaborators: ["Ogene", "Mohammed", "Thomas ZABALO"],
@@ -34,7 +34,7 @@ function Card() {
         {
             name: "Application Dessin",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "https://zbt4714a.mmiweb.iut-tlse3.fr/project/creation-dune-template-astro/",
+            link: "/coloring",
             collaborators: ["Safwa"],
         }
     ];
@@ -57,8 +57,8 @@ function Card() {
     return (
         <section className='lg:px-6 pb-12 lg:pb-32'>
             {/* Exemple 1 */}
-            <div class="flex justify-between items-center mb-8 lg:mb-28">
-                <h2 class="text-xl lg:text-3xl font-bold">Quelques jeux réalisés.</h2>
+            <div className="flex justify-between items-center mb-8 lg:mb-28">
+                <h2 className="text-xl lg:text-3xl font-bold">Quelques jeux réalisés.</h2>
             </div>
             <section className='hidden md:block'>
                 <div id='projet' className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -67,13 +67,18 @@ function Card() {
                             <article className="flex flex-col h-full">
                                 <h3 className="text-base font-semibold mb-4 hover:text-blue-600">{project.name}</h3>
                                 <img className="object-cover w-full h-36 rounded mb-4" src={project.image} alt={project.name} />
-                                <div class="flex items-center justify-between space-x-2 mt-auto">
+                                <div className="flex items-center justify-between space-x-2 mt-auto">
 
-                                    <div class="flex items-center">
+                                    <div className="flex items-center">
 
-                                        <div class="flex -space-x-3 rtl:space-x-reverse">
+                                        <div className="flex -space-x-3 rtl:space-x-reverse">
                                             {project.collaborators.map((collaborator, idx) => (
-                                                <img class="inline-block size-6 rounded-full" src={avatars[idx].src} alt={`avatar de ${collaborator.name}`} />
+                                                <img
+                                                    key={idx}
+                                                    className="inline-block size-6 rounded-full"
+                                                    src={avatars[idx % avatars.length].src}
+                                                    alt={`avatar de ${collaborator.name || collaborator}`}
+                                                />
                                             ))}
                                         </div>
                                     </div>
@@ -87,15 +92,20 @@ function Card() {
             {/* Exemple 2 */}
             <section className='md:hidden'>
                 <ul className="divide-y divide-gray-100">
-                    {dataCard.map((project) => (
-                        <li key={project.email} className="flex justify-between gap-x-6 py-5">
+                    {dataCard.map((project, index) => (
+                        <li key={index} className="flex justify-between gap-x-6 py-5">
                             <div className="flex min-w-0 gap-x-4">
                                 <img alt="" src={project.image} className="object-cover size-12 flex-none rounded-md bg-gray-50" />
                                 <div className="min-w-0 flex-auto">
                                     <p className="text-sm/6 font-semibold text-gray-900">{project.name}</p>
-                                    <div class="flex -space-x-3 rtl:space-x-reverse">
+                                    <div className="flex -space-x-3 rtl:space-x-reverse">
                                         {project.collaborators.map((collaborator, idx) => (
-                                            <img class="inline-block size-6 rounded-full" src={avatars[idx].src} alt={`avatar de ${collaborator.name}`} />
+                                            <img
+                                                key={idx}
+                                                className="inline-block size-6 rounded-full"
+                                                src={avatars[idx % avatars.length].src}
+                                                alt={`avatar de ${collaborator.name || collaborator}`}
+                                            />
                                         ))}
                                     </div>
                                 </div>
