@@ -37,9 +37,9 @@ export default class App {
         // Charger l'image du poteau de rugby en fonction du mode
         this.goalpostImage = new Image();
         if (this.isMobile) {
-            this.goalpostImage.src = 'Assets/potovertical.png';
+            this.goalpostImage.src = 'assets/potovertical.png';
         } else {
-            this.goalpostImage.src = 'Assets/goalpost.png';
+            this.goalpostImage.src = 'assets/goalpost.png';
         }
 
         if (this.isMobile) {
@@ -77,7 +77,7 @@ export default class App {
 
         for (let i = 0; i < this.player.frameCount; i++) {
             const img = new Image();
-            img.src = process.env.PUBLIC_URL + `/Assets/runner_sprite${i + 1}.png`;
+            img.src = process.env.PUBLIC_URL + `/assets/runner_sprite${i + 1}.png`;
             this.player.frames.push(img);
         }
 
@@ -85,7 +85,7 @@ export default class App {
         const enemyFrameCount = 24;
         for (let i = 0; i < enemyFrameCount; i++) {
             const img = new Image();
-            img.src = process.env.PUBLIC_URL + `/Assets/mechant_${i}.png`;
+            img.src = process.env.PUBLIC_URL + `/assets/mechant_${i}.png`;
             this.enemyFrames.push(img);
         }
 
@@ -97,12 +97,12 @@ export default class App {
         this.enemySpawnInterval = null;
         this.lastTime = 0;
 
-        this.startSound = new Audio(process.env.PUBLIC_URL + '/Assets/start_game.mp3');
+        this.startSound = new Audio(process.env.PUBLIC_URL + '/assets/start_game.mp3');
         this.startSound.volume = 0.5;
         this.startSound.load();
 
         // Musique de fond
-        this.backgroundMusic = new Audio(process.env.PUBLIC_URL + '/Assets/background_music.mp3');
+        this.backgroundMusic = new Audio(process.env.PUBLIC_URL + '/assets/background_music.mp3');
         this.backgroundMusic.loop = true;
         this.backgroundMusic.volume = 0.3;
         this.backgroundMusic.load();
@@ -422,7 +422,7 @@ export default class App {
         const {ctx, canvas} = this;
         if (!this.fieldPattern) {
             const grassImage = new Image();
-            grassImage.src = process.env.PUBLIC_URL + "/Assets/grass.png";
+            grassImage.src = process.env.PUBLIC_URL + "/assets/grass.png";
             grassImage.onload = () => {
                 this.fieldPattern = ctx.createPattern(grassImage, "repeat");
                 this.drawField();
@@ -555,7 +555,7 @@ export default class App {
 
         const {ctx, canvas} = this;
         const backgroundImage = new Image();
-        backgroundImage.src = process.env.PUBLIC_URL + "/Assets/stade.png";
+        backgroundImage.src = process.env.PUBLIC_URL + "/assets/stade.png";
 
         backgroundImage.onload = () => {
             ctx.globalAlpha = 0.5;
