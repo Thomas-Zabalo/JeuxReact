@@ -204,12 +204,12 @@ k.loadSprite("platformsaut","graphics/S2RSC.png", {
 
 k.loadFont("mania","fonts/mania.ttf");
 
-k.loadSound("destroy","sounds/Destroy.wav");
-k.loadSound("hurt","sounds/Hurt.wav");
-k.loadSound("hyper-ring","sounds/HyperRing.wav");
-k.loadSound("jump","sounds/Jump.wav");
-k.loadSound("ring","sounds/Ring.wav");
-k.loadSound("city","sounds/city.wav");
+k.loadSound("destroy","sounds/sonic-spindash.mp3");
+k.loadSound("hurt","sounds/sonic-spindash.mp3");
+k.loadSound("hyper-ring","sounds/sonic-spindash.mp3");
+k.loadSound("jump","sounds/sonic-spindash.mp3");
+k.loadSound("ring","sounds/sonic-spindash.mp3");
+k.loadSound("city","sounds/sonic-spindash.mp3");
 k.loadSound("speed","sounds/sonic-spindash.mp3");
 k.loadSound("exe","sounds/sonic-exe-laugh.mp3");
 k.loadSound("crunch","sounds/crunch.mp3");
