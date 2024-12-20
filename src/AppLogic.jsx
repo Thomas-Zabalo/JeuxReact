@@ -99,23 +99,34 @@ export default class AppLogic {
         this.tryZone = { x: this.canvas.width - 100, y: 0, width: 100, height: this.canvas.height };
       }
     }
-  
+
     init() {
-      document.addEventListener("keydown", (e) => {
-        this.keys[e.key] = true;
-        if (!this.gameStarted && e.key === "Enter") this.startGame();
-        if (this.gameOver && e.key === "r") {
-          this.resetAll();
-          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-          this.drawStartScreen();
-          this.startSound.currentTime = 0;
-          this.startSound.play().catch((err) => console.warn("Lecture bloquée.", err));
-        }
-      });
-  
-      document.addEventListener("keyup", (e) => (this.keys[e.key] = false));
-      this.drawStartScreen();
+        document.addEventListener("keydown", (e) => {
+            // Normaliser les entrées pour gérer ZQSD (majuscule et minuscule) et les flèches
+            const key = e.key.toLowerCase(); // Transforme en minuscule pour la gestion uniforme
+            if (["z", "q", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright"].includes(key)) {
+                this.keys[key] = true;
+            }
+            if (!this.gameStarted && e.key === "Enter") this.startGame();
+            if (this.gameOver && e.key === "r") {
+                this.resetAll();
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.drawStartScreen();
+                this.startSound.currentTime = 0;
+                this.startSound.play().catch((err) => console.warn("Lecture bloquée.", err));
+            }
+        });
+
+        document.addEventListener("keyup", (e) => {
+            const key = e.key.toLowerCase(); // Transforme en minuscule pour la gestion uniforme
+            if (["z", "q", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright"].includes(key)) {
+                this.keys[key] = false;
+            }
+        });
+
+        this.drawStartScreen();
     }
+
 
     getLevel() {
         if (this.score < 5) return "Facile";
@@ -184,15 +195,15 @@ export default class AppLogic {
     }
 
     updatePlayer(deltaTime) {
-        const {player, keys, canvas} = this;
+        const { player, keys, canvas } = this;
         let ax = 0;
         let ay = 0;
 
-        // Contrôles clavier
-        if (keys["z"]) ay = -0.5;
-        if (keys["s"]) ay = 0.5;
-        if (keys["q"]) ax = -0.5;
-        if (keys["d"]) ax = 0.5;
+        // Gestion des contrôles clavier
+        if (keys["z"] || keys["arrowup"]) ay = -0.5; // Haut
+        if (keys["s"] || keys["arrowdown"]) ay = 0.5; // Bas
+        if (keys["q"] || keys["arrowleft"]) ax = -0.5; // Gauche
+        if (keys["d"] || keys["arrowright"]) ax = 0.5; // Droite
 
         player.vx += ax;
         player.vy += ay;
@@ -211,8 +222,7 @@ export default class AppLogic {
         if (player.x < 0) player.x = 0;
         if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
         if (player.y < 0) player.y = 0;
-        if (player.y + player.height > canvas.height)
-            player.y = canvas.height - player.height;
+        if (player.y + player.height > canvas.height) player.y = canvas.height - player.height;
 
         if (player.vx > 0) {
             player.facingRight = true;
@@ -227,6 +237,7 @@ export default class AppLogic {
             player.currentFrame = 0;
         }
     }
+
 
     createEnemies() {
         const {enemiesPerSpawn, enemySpeedBase} = this.getDifficultyParameters();
@@ -591,6 +602,7 @@ export default class AppLogic {
             canvas.width / 2,
             (canvas.height / 2) + 40
         );
+
     }
 
     gameLoop(timestamp) {
@@ -602,6 +614,8 @@ export default class AppLogic {
         this.drawField();
         if (this.gameOver) {
             this.drawGameOver();
+            this.backgroundMusic.pause();
+            this.backgroundMusic.currentTime = 0;
             return;
         }
 
