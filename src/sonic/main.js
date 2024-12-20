@@ -4,7 +4,7 @@ import mainMenu from "./scenes/mainMenu";
 
 // dialogues mis en plus, si vous souhaitez les activer, de commentez "introdialog" et commentez "k.go("mainGame");" en fin de code
 
-/*
+
 k.scene("introDialog", () => {
   
   k.loadSprite("sonic", "graphics/sonictalking.gif");
@@ -97,7 +97,6 @@ function showDialog() {
 
 k.go("introDialog");
 
-*/
 
 
 k.scene("mainGame", () => {
