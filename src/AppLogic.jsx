@@ -722,26 +722,82 @@ export default class AppLogic {
     drawGameOver() {
         const {ctx, canvas} = this;
 
+        const backgroundImage2 = new Image();
+        backgroundImage2.src = process.env.PUBLIC_URL + "/assets/gameover.gif";
+
+        backgroundImage2.onload = () => {
+            //ctx.globalAlpha = 0.5;
+            ctx.drawImage(backgroundImage2, 0, 0, canvas.width, canvas.height);
+            //ctx.globalAlpha = 1;
+        };
+
         ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
         ctx.fillStyle = "white";
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("Game Over!", canvas.width / 2, canvas.height / 2);
-
-        if (this.isMobile) {
-            this.createReturnButton(); // Ajoute le bouton retour sur mobile
-        } else {
+        /* ctx.fillText("Game Over!", canvas.width / 2, canvas.height / 2);
             ctx.font = "20px Arial";
             ctx.fillText(
                 "Appuyez sur 'R' pour revenir au menu",
                 canvas.width / 2,
                 canvas.height / 2 + 40
-            );
+            );*/
+
+        if (this.isMobile) {
+            this.createReturnButton(); // Ajoute le bouton retour sur mobile
+        } else {
+
+            // Afficher la popup après un délai
+            setTimeout(() => {
+                this.drawPopup2(ctx, canvas);
+            }, 500); // Délai de 0,5 seconde
         }
     }
+    drawPopup2() {
+        const { ctx, canvas } = this;
+
+        const popupWidth = 400;
+        const popupHeight = 200;
+        const popupX = (canvas.width - popupWidth) / 2;
+        const popupY = (canvas.height - popupHeight) / 2;
+        const borderRadius = 50;
+
+        // Fond de la popup
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.beginPath();
+        ctx.moveTo(popupX + borderRadius, popupY);
+        ctx.lineTo(popupX + popupWidth - borderRadius, popupY);
+        ctx.quadraticCurveTo(popupX + popupWidth, popupY, popupX + popupWidth, popupY + borderRadius);
+        ctx.lineTo(popupX + popupWidth, popupY + popupHeight - borderRadius);
+        ctx.quadraticCurveTo(popupX + popupWidth, popupY + popupHeight, popupX + popupWidth - borderRadius, popupY + popupHeight);
+        ctx.lineTo(popupX + borderRadius, popupY + popupHeight);
+        ctx.quadraticCurveTo(popupX, popupY + popupHeight, popupX, popupY + popupHeight - borderRadius);
+        ctx.lineTo(popupX, popupY + borderRadius);
+        ctx.quadraticCurveTo(popupX, popupY, popupX + borderRadius, popupY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Bordure de la popup
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Texte dans la popup
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.textAlign = "center";
+
+        // Texte principal
+        ctx.font = "21px 'Roboto', sans-serif";
+        ctx.fillText("Game Over!", canvas.width / 2, popupY + (popupHeight / 2) - 30);
+
+        // Texte secondaire
+        ctx.font = "15px 'Roboto', sans-serif";
+        ctx.fillText("Appuyez sur 'R' pour rejouer", canvas.width / 2, popupY + (popupHeight / 2) + 10);
+    }
+
+
 
 
     gameLoop(timestamp) {
