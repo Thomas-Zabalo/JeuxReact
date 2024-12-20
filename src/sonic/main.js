@@ -1,10 +1,13 @@
 import { makeplayer } from "./entities/player";
 import k from "./kaplayCtx";
 import mainMenu from "./scenes/mainMenu";
+import { makeMotobug } from "./entities/motobug";
+import { makefish } from "./entities/fish";
+import { makeplatformsaut } from "./entities/platformdesaut";
 
 // dialogues mis en plus, si vous souhaitez les activer, de commentez "introdialog" et commentez "k.go("mainGame");" en fin de code
 
-
+/*
 k.scene("introDialog", () => {
   
   k.loadSprite("sonic", "graphics/sonictalking.gif");
@@ -96,7 +99,7 @@ function showDialog() {
 });
 
 k.go("introDialog");
-
+*/
 
 
 k.scene("mainGame", () => {
@@ -160,6 +163,43 @@ k.loadSprite("sonic","graphics/sonic.png", {
   },
 });
 
+k.loadSprite("ring","graphics/ring.png", {
+  sliceX: 16,
+  SliceY: 1,
+  anims: {
+      spin: {
+          from: 0, to: 15, loop: true, speed: 30
+      },
+  },
+});
+k.loadSprite("motobug","graphics/motobug.png", {
+  sliceX: 5,
+  SliceY: 1,
+  anims: {
+      run: {
+          from: 0, to: 4, loop: true, speed: 8
+      },
+  },
+});
+k.loadSprite("fish","graphics/fish.png", {
+  sliceX: 1,
+  anims: {
+      fishing: {
+          from: 0, to: 0, loop: true, speed: 8
+      },
+  },
+});
+k.loadSprite("platformsaut","graphics/S2RSC.png", {
+  sliceX: 1,
+  anims: {
+      sauter: {
+          from: 0, to: 0, loop: true, speed: 8
+      },
+  },
+});
+
+
+
 
 
 k.loadFont("mania","fonts/mania.ttf");
@@ -172,6 +212,9 @@ k.loadSound("ring","sounds/Ring.wav");
 k.loadSound("city","sounds/city.wav");
 k.loadSound("speed","sounds/sonic-spindash.mp3");
 k.loadSound("exe","sounds/sonic-exe-laugh.mp3");
+k.loadSound("crunch","sounds/crunch.mp3");
+k.loadSound("AHHHH","sounds/AHHHH.mp3");
+k.loadSound("bounce","sounds/bounce.mp3");
 makeplayer();
 
   k.setGravity(2500)
@@ -1668,7 +1711,209 @@ k.add([
   "laugh"
 ]);
 
+//motobug logique
 
+k.onCollide("enemy", "player", (enemy, player) => {
+  if (!player.isGrounded()) {
+    k.play("destroy", {volume: 0.5});
+    k.play("hyper-ring", {volume: 0.5});
+    k.destroy(enemy);
+    player.jump(player.jumpforce);
+    player.play("jump");
+  }
+  k.play("hurt",{volume: 0.5})
+
+  // k.go("gameover");
+});
+
+
+
+let motobugs = [];  
+let positionOccupee = [];  
+
+const spawnMotoBug = () => {
+
+  const positions = [
+    k.vec2(1950, 1080),
+    k.vec2(2950, 1080),
+    k.vec2(3950, 1080),
+    k.vec2(4950, 1080),
+    k.vec2(5950, 1080),
+   
+    k.vec2(8950, 680),
+    k.vec2(9950, 680),
+    k.vec2(10450, 680),
+    k.vec2(12450, 680),
+    k.vec2(15450, 1080),
+
+    k.vec2(20050, 250),
+    k.vec2(25450, 680),
+    k.vec2(28450, 670),
+  ];
+
+
+  const availablePositions = positions.filter(position => 
+    !positionOccupee.some(posoccupee => 
+      posoccupee.x === position.x && posoccupee.y === position.y
+    )
+  );
+
+  if (availablePositions.length === 0) return;  
+
+
+  const position = availablePositions[k.randi(0, availablePositions.length - 1)];
+
+  const motobug = makeMotobug(position);
+  motobugs.push(motobug);  
+  positionOccupee.push(position);  
+  
+  motobug.animate("pos", [k.vec2(position.x, position.y + 500), k.vec2(position.x - 200, position.y + 500)], {
+    duration: 2, 
+    direction: "ping-pong", 
+  });
+
+  motobug.onExitScreen(() => {
+    if (motobug.pos.x < 0) {
+      k.destroy(motobug);
+      motobugs = motobugs.filter(m => m !== motobug);  
+      positionOccupee = positionOccupee.filter(pos => 
+        pos.x !== position.x || pos.y !== position.y
+      );  
+    }
+  });
+
+  const waitTime = k.rand(0.1, 0.2);
+  k.wait(waitTime, spawnMotoBug); 
+};
+
+spawnMotoBug();
+
+
+//fish logique
+
+k.onCollide("enemyfish", "player", (_, player) => {
+  if (!player.isGrounded()) {
+    k.play("crunch",{volume: 0.5})
+  }
+  k.play("crunch",{volume: 0.5})
+
+  // k.go("gameover");
+});
+
+
+
+let fishs = [];  
+let poissonOccupee = [];  
+
+const spawnPoisson = () => {
+
+  const positions = [
+    k.vec2(6300, 1580),
+    k.vec2(23200, 1580),
+    k.vec2(23800, 1580),
+    k.vec2(39000, 2500),
+    k.vec2(6300, 1580),
+  
+  ];
+
+
+  const availablePositions = positions.filter(position => 
+    !poissonOccupee.some(poisoccupee => 
+      poisoccupee.x === position.x && poisoccupee.y === position.y
+    )
+  );
+
+  if (availablePositions.length === 0) return;  
+
+
+  const position = availablePositions[k.randi(0, availablePositions.length - 1)];
+
+  const fish = makefish(position);
+  fishs.push(fish);  
+  poissonOccupee.push(position);  
+  
+  fish.animate("pos", [k.vec2(position.x , position.y - 1500), k.vec2(position.x , position.y + 2000)], {
+    duration: 1.5, 
+    direction: "ping-pong", 
+  });
+
+  fish.onExitScreen(() => {
+    if (fish.pos.x < 0) {
+      k.destroy(fish);
+      fishs = fishs.filter(m => m !== fish);  
+      poissonOccupee = poissonOccupee.filter(pos => 
+        pos.x !== position.x || pos.y !== position.y
+      );  
+    }
+  });
+
+  const waitTime = k.rand(0.1, 0.2);
+  k.wait(waitTime, spawnPoisson); 
+};
+
+spawnPoisson();
+
+
+
+
+
+let platformssaut = [];  
+let platformOccupee = [];  
+
+const spawnPlatformsaut = () => {
+
+  const positions = [
+    k.vec2(39000, 2650),
+  
+  ];
+
+
+  const availablePositions = positions.filter(position => 
+    !platformOccupee.some(platformoccupee => 
+      platformoccupee.x === position.x && platformoccupee.y === position.y
+    )
+  );
+
+  if (availablePositions.length === 0) return;  
+
+
+  const position = availablePositions[k.randi(0, availablePositions.length - 1)];
+
+  const platformdesaut = makeplatformsaut(position);
+  platformssaut.push(platformdesaut);  
+  platformOccupee.push(position);  
+  
+  platformdesaut.animate("pos", [k.vec2(position.x , position.y ), k.vec2(position.x , position.y )], {
+    duration: 1.5, 
+    direction: "ping-pong", 
+  });
+
+  platformdesaut.onExitScreen(() => {
+    if (platformdesaut.pos.x < 0) {
+      k.destroy(platformdesaut);
+      platformssaut = platformssaut.filter(m => m !== platformdesaut);  
+      platformOccupee = platformOccupee.filter(pos => 
+        pos.x !== position.x || pos.y !== position.y
+      );  
+    }
+  });
+
+  const waitTime = k.rand(0.1, 0.2);
+  k.wait(waitTime, spawnPlatformsaut); 
+};
+
+spawnPlatformsaut();
+
+
+k.onCollide("saut", "player", (_, player) => {
+  if (!player.isGrounded()) {
+    player.jump(player.jumpforce * 2);
+    k.play("bounce",{volume: 0.5})
+  }
+  // k.play("bounce",{volume: 0.5})
+
+  // k.go("gameover");
+});
 
 
 
@@ -1735,6 +1980,34 @@ k.scene("gameover", ({ time, score }) => {
     ]);
 });
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
 
 

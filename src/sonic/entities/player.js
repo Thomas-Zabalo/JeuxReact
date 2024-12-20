@@ -3,6 +3,7 @@ import k from "../kaplayCtx";
 const SPEED = 2500;
 const JUMP_FORCE = 2000;
 const MAX_SPEED = 5000;
+const FALL_DEATH = 3500;
 
 export function makeplayer(){
     const player =k.add([
@@ -12,7 +13,7 @@ export function makeplayer(){
         k.anchor("center"),
         k.pos(500,k.height()),
         k.body(),
-        { speed: SPEED, maxSpeed: MAX_SPEED, z: 10 },
+        { speed: SPEED, maxSpeed: MAX_SPEED, z: 10, jumpforce: JUMP_FORCE},
         "player"
       ]);
 
@@ -93,6 +94,23 @@ player.onUpdate(() => {
 
 player.onPhysicsResolve(() => {
     k.camPos(player.worldPos());
+});
+
+
+let isReloading = false;  
+
+player.onUpdate(() => {
+  k.camPos(player.pos);
+  
+  if (player.pos.y >= FALL_DEATH && !isReloading) {
+    isReloading = true;
+
+    k.play("AHHHH", {volume: 0.7});
+    
+    setTimeout(() => {
+      location.reload(); 
+    }, 1500); 
+  }
 });
 
 
