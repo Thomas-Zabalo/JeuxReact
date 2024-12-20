@@ -214,7 +214,7 @@ export default class AppLogic {
 
         requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
     }
-    
+
 
     createReturnButton() {
         // Vérifiez si un bouton existe déjà
@@ -719,42 +719,35 @@ export default class AppLogic {
         ctx.fillText("But : Atteindre la zone verte sans toucher les ennemis", canvas.width / 2, popupY + (popupHeight / 2) + 40);
     }
 
-    drawGameOver() {
-        const {ctx, canvas} = this;
 
+    drawGameOver() {
+        const { ctx, canvas, isMobile } = this;
         const backgroundImage2 = new Image();
         backgroundImage2.src = process.env.PUBLIC_URL + "/assets/gameover.gif";
 
         backgroundImage2.onload = () => {
-            //ctx.globalAlpha = 0.5;
+            // Dessin de l'image de fond
             ctx.drawImage(backgroundImage2, 0, 0, canvas.width, canvas.height);
-            //ctx.globalAlpha = 1;
-        };
 
-        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "white";
-        ctx.font = "30px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        /* ctx.fillText("Game Over!", canvas.width / 2, canvas.height / 2);
+            // Overlay semi-transparent
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "white";
             ctx.font = "20px Arial";
-            ctx.fillText(
-                "Appuyez sur 'R' pour revenir au menu",
-                canvas.width / 2,
-                canvas.height / 2 + 40
-            );*/
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
 
-        if (this.isMobile) {
-            this.createReturnButton(); // Ajoute le bouton retour sur mobile
-        } else {
-
-            // Afficher la popup après un délai
-            setTimeout(() => {
-                this.drawPopup2(ctx, canvas);
-            }, 500); // Délai de 0,5 seconde
-        }
+            if (isMobile) {
+                // Sur mobile : bouton retour, pas de popup
+                this.createReturnButton();
+            } else {
+                // Sur desktop : afficher la popup immédiatement
+                this.drawPopup2();
+            }
+        };
     }
+
     drawPopup2() {
         const { ctx, canvas } = this;
 
@@ -788,17 +781,10 @@ export default class AppLogic {
         ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
         ctx.textAlign = "center";
 
-        // Texte principal
+        // Texte principal (pas de "Game Over!", juste les instructions)
         ctx.font = "21px 'Roboto', sans-serif";
-        ctx.fillText("Game Over!", canvas.width / 2, popupY + (popupHeight / 2) - 30);
-
-        // Texte secondaire
-        ctx.font = "15px 'Roboto', sans-serif";
-        ctx.fillText("Appuyez sur 'R' pour rejouer", canvas.width / 2, popupY + (popupHeight / 2) + 10);
+        ctx.fillText("Appuyez sur 'R' pour rejouer", canvas.width / 2, popupY + (popupHeight / 2) - 10);
     }
-
-
-
 
     gameLoop(timestamp) {
         if (!this.lastTime) this.lastTime = timestamp;
