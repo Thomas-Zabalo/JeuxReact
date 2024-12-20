@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import game from './scenes/game';
 import mainMenu from './scenes/mainMenu';
 
+
 mainMenu()
 game()
 

@@ -29,7 +29,7 @@ player.onGround(() => {
     if (player.isGrounded()){
       player.jump(JUMP_FORCE),
       player.play("jump")
-      // k.play("jump", {volume: 0.5});
+      k.play("jump", {volume: 0.5});
     }
   });
   
