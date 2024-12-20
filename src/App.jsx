@@ -8,9 +8,10 @@ import Hero from './components/Hero';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 
 import ColoringApp from './projects/coloring/App';
-// import FootballApp from'./projects/football/App'
-import SubwaySurferApp from'./projects/SubwaySurfer/App'
-import Card from './components/Card'; 
+import FootballApp from'./projects/football/App'
+import SubwaySurferApp from './projects/SubwaySurfer/App'
+import SonicApp from './projects/sonic/App'
+import Card from './components/Card';
 
 function App() {
   return (
@@ -46,8 +47,9 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/project/coloring-app" element={<ColoringApp />} />
-        {/* <Route path="/project/football-app" element={<FootballApp />} /> */}
+        <Route path="/project/football-app" element={<FootballApp />} />
         <Route path="/project/SubwaySurfer-app" element={<SubwaySurferApp />} />
+        <Route path="/project/sonic-app" element={<SonicApp />} />
       </Routes>
 
       {isHomePage && <Footer />}
@@ -58,8 +60,7 @@ function AppContent() {
 function Home() {
   return (
     <div>
-      <h2>Page d'accueil</h2>
-      <Card /> {/* Intégration des cartes ici */}
+      <Card />
     </div>
   );
 }

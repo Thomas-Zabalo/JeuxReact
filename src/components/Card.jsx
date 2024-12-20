@@ -6,7 +6,7 @@ function Card() {
         {
             name: "Idle Game",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/project/idle",
+            link: "/project/idle-app",
             collaborators: [
                 { name: "Evan" },
                 { name: "Thomas Cerquiera" }
@@ -14,14 +14,14 @@ function Card() {
         },
         {
             name: "Football Américain",
-            image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/project/football",
+            image: "",
+            link: "/project/football-app",
             collaborators: ["Lisa", "Clement", "Lucas"],
         },
         {
-            name: "Space invadeur ou Sonic",
+            name: "Sonic",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/project/spaceinvador",
+            link: "/project/sonic-app",
             collaborators: ["Elias", "Théo", "Maxime"],
         },
         {
@@ -33,7 +33,7 @@ function Card() {
         {
             name: "Application Dessin",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/project/coloring-app", 
+            link: "/project/coloring-app",
             collaborators: ["Safwa"],
         }
     ];
@@ -47,7 +47,6 @@ function Card() {
 
     return (
         <section className='lg:px-6 pb-12 lg:pb-32'>
-            {/* Exemple 1 */}
             <div className="flex justify-between items-center mb-8 lg:mb-28">
                 <h2 className="text-xl lg:text-3xl font-bold">Quelques jeux réalisés.</h2>
             </div>
@@ -71,6 +70,16 @@ function Card() {
                                                 />
                                             ))}
                                         </div>
+                                        <div>
+                                            {project.collaborators.map((collaborator, idx) => (
+                                                <p
+                                                    key={`text-${idx}`}
+                                                    className="inline-block text-sm ml-2"
+                                                >
+                                                    [{collaborator.name || collaborator}]
+                                                </p>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </article>
@@ -78,8 +87,6 @@ function Card() {
                     ))}
                 </div>
             </section>
-
-            {/* Exemple 2 */}
             <section className='md:hidden'>
                 <ul className="divide-y divide-gray-100">
                     {dataCard.map((project, index) => (

@@ -20,7 +20,8 @@
     "cannon-es-debugger": "^1.0.0",
     "core-js-pure": "^3.39.0",
     "react-gamepads": "^1.0.0",
-    "three": "^0.171.0"
+    "three": "^0.171.0",
+    "kaplay": "^3001.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
