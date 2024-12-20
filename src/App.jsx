@@ -1,39 +1,26 @@
-'use client'
-
-import './App.css';
-import Card from './components/Card';
-import Footer from './components/Footer';
-import Header from './components/Header';
-import Hero from './components/Hero';
-
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-import ColoringApp from './projects/coloring/App';
-import FootballApp from './projects/football/App';
+import React, { useEffect, useRef } from 'react';
+import AppLogic from './AppLogic';
 
 function App() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    // Rest of your logic
+    const app = new AppLogic(canvas, ctx);
+    app.init();
+
+    return () => {
+      // Cleanup event listeners or intervals if needed
+      window.removeEventListener('resize', app.resizeCanvas);
+      clearInterval(app.enemySpawnInterval);
+    };
+  }, []);
+
   return (
-    <Router>
-      <div className="scroll-smooth focus:scroll-auto bg-white">
-
-
-        <Header />
-        <Hero />
-
-        <main className='px-6 xl:px-32'>
-          <Routes>
-
-            <Route path="/" element={<Card />} />
-            <Route path="/project/coloring-app" element={<ColoringApp />} />
-            <Route path="/project/football-app" element={<FootballApp />} />
-
-          </Routes>
-        </main>
-
-        <Footer />
-      </div>
-    </Router>
+    <canvas id="gameCanvas" ref={canvasRef} style={{ display: 'block' }}></canvas>
   );
-}
-
+};
 export default App;
