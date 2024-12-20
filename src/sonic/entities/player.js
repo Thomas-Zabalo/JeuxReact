@@ -64,23 +64,23 @@ player.onGround(() => {
     });
   });
 
-  const getInfo = () =>
-    `
-  Anim: ${player.curAnim()}
-  Frame: ${player.frame}
-  `.trim();
+  // const getInfo = () =>
+  //   `
+  // Anim: ${player.curAnim()}
+  // Frame: ${player.frame}
+  // `.trim();
   
 
-  const label = k.add([
-    k.text(getInfo(), { size: 100 }),
-    k.color(0, 0, 0),
-    k.pos(500,k.height()),
-    {z:10},
-  ]);
+  // const label = k.add([
+  //   k.text(getInfo(), { size: 100 }),
+  //   k.color(0, 0, 0),
+  //   k.pos(500,k.height()),
+  //   {z:10},
+  // ]);
   
-  label.onUpdate(() => {
-    label.text = getInfo();
-  });
+  // label.onUpdate(() => {
+  //   label.text = getInfo();
+  // });
 
 
 player.onUpdate(() => {

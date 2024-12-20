@@ -39,12 +39,17 @@ const dialogs =
   ["sonic", "[default]Oh salut[/default]"],
   ["tails", "[default]Hey! c'est Sonic[/default]"],
   ["sonic", "[default]Comment tu vas ?[/default]"],
-  ["tails", "[default]Pas bien du tout Robotenik a volé notre ciel[/default]"],
+  ["tails", "[default]Pas bien du tout Robotnik a volé notre ciel[/default]"],
   ["sonic", "[default]ho la vache je l'avais pas vu[/default]"],
   ["tails", "[default]oui il faut l'arreter !![/default]"],
   ["sonic", "[default]ok tu viens avec moi tails ?[/default]"],
   ["tails", "[default]nope[/default]"],
-  ["sonic", "[default]Enculé[/default]"],
+  ["sonic", "[default]Pas sympa ...[/default]"],
+  ["tails", "[default]Au cas ou sonic, certaines platformes sont traversable[/default]"],
+  ["sonic", "[default]...[/default]"],
+  ["tails", "[default]et déplace toi avec les touche directives de l'ordinateur[/default]"],
+  ["sonic", "[default]heuuu ok ... merci je devine[/default]"],
+  ["tails", "[default]de rien, allez maintenant va attraper Robotnik ''qui a volé le ciel''[/default]"],
 ];
 
   let curDialog = 0;
@@ -1954,6 +1959,23 @@ k.add([
   { z: 1 }
 ]);
 
+k.add([
+  k.sprite("platforms18"),
+  k.pos(63000, k.height() - 2550),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(240, -100),     
+      k.vec2(300, 0),   
+      k.vec2(300, 250),
+      k.vec2(240, 250),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  { z: 1 }
+]);
+
 k.onCollide("passthroughPlatform", "player", (_, player) => {
   if (player.speed && !player.isBoosted) {
       player.isBoosted = true;
@@ -2413,7 +2435,7 @@ k.scene("game over", () => {
 
 
   k.add([
-      k.text("Game Over", {
+      k.text("Ce n'etait Robotnik qui avait volé le ciel", {
           size: 48,
           font: "sink",
           color: k.rgb(255, 0, 0)
