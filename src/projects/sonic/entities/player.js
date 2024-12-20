@@ -28,7 +28,7 @@ export function makeplayer() {
 
   player.onKeyPress("space", () => {
     if (player.isGrounded()) {
-      player.jump(JUMP_FORCE),
+      player.jump(JUMP_FORCE)
         player.play("jump")
       k.play("jump", { volume: 0.5 });
     }
@@ -111,7 +111,7 @@ export function makeplayer() {
       k.play("AHHHH", { volume: 0.7 });
 
       setTimeout(() => {
-        location.reload();
+        window.location.reload();
       }, 1500);
     }
   });
