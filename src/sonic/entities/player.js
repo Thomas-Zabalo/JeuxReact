@@ -70,7 +70,7 @@ player.onGround(() => {
   Frame: ${player.frame}
   `.trim();
   
-  // Add some text to show the current animation
+
   const label = k.add([
     k.text(getInfo(), { size: 100 }),
     k.color(0, 0, 0),
@@ -85,6 +85,9 @@ player.onGround(() => {
 
 player.onUpdate(() => {
 
+  if (!player.manualCamera) {
+    k.setCamPos(player.worldPos()); 
+}
     if (player.speed > MAX_SPEED) {
         player.speed = MAX_SPEED;
     }
@@ -124,6 +127,21 @@ player.onUpdate(() => {
       player.isPropelled = false;
     }
   });
+
+
+  player.onBeforePhysicsResolve(collision => {
+    if (collision.target.is("passthroughPlatform") && player.isJumping()) {
+        collision.preventResolution()
+    }
+})
+
+player.onBeforePhysicsResolve(collision => {
+  if (collision.target.is("passthroughPlatform") 
+    && (player.isJumping() || k.isKeyDown("down")))
+    {
+         collision.preventResolution() 
+  }
+})
 
 
   return player

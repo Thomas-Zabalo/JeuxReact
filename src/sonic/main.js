@@ -215,6 +215,7 @@ k.loadSound("exe","sounds/sonic-exe-laugh.mp3");
 k.loadSound("crunch","sounds/crunch.mp3");
 k.loadSound("AHHHH","sounds/AHHHH.mp3");
 k.loadSound("bounce","sounds/bounce.mp3");
+k.loadSound("musicsad","sounds/sadmusic.mp3");
 makeplayer();
 
   k.setGravity(2500)
@@ -735,7 +736,7 @@ k.add([
 */
 
 //platforms 18 
-/*
+
 k.add([
   k.sprite("platforms18"),
   k.pos(500, k.height() - 1500),
@@ -750,8 +751,26 @@ k.add([
   }),
   k.scale(6),
   k.body({ isStatic: true }),
+  "passthroughPlatform",
   { z: 1 }
-]);*/
+]);
+
+k.add([
+  k.sprite("platforms18"),
+  k.pos(500, k.height() - 1500),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(0, 200),     
+      k.vec2(255, 200),    
+      k.vec2(255, 255),     
+      k.vec2(0, 255),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  { z: 1 }
+]);
 
 // platform 19
 
@@ -1711,6 +1730,181 @@ k.add([
   "laugh"
 ]);
 
+k.add([
+  k.sprite("platforms3"),
+  k.pos(50500, k.height() - 2550),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(5, 200),     
+      k.vec2(250, 200),   
+      k.vec2(60, 250),   
+      k.vec2(5, 250),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  { z: 1 }
+]);
+k.add([
+  k.sprite("platforms3"),
+  k.pos(52000, k.height() - 2550),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(5, 200),     
+      k.vec2(250, 200),   
+      k.vec2(60, 250),   
+      k.vec2(5, 250),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  { z: 1 }
+]);
+
+k.add([
+  k.sprite("platforms3"),
+  k.pos(53500, k.height() - 2550),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(5, 200),     
+      k.vec2(250, 200),   
+      k.vec2(60, 250),   
+      k.vec2(5, 250),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  { z: 1 }
+]);
+
+
+k.add([
+  k.sprite("platforms18"),
+  k.pos(55000, k.height() - 2550),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(38, 130),     
+      k.vec2(218, 130),    
+      k.vec2(218, 100),     
+      k.vec2(38, 100),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  "passthroughPlatform",
+  { z: 1 }
+]);
+
+k.add([
+  k.sprite("platforms18"),
+  k.pos(55000, k.height() - 2550),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(0, 200),     
+      k.vec2(255, 200),    
+      k.vec2(255, 255),     
+      k.vec2(0, 255),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  { z: 1 }
+]);
+
+k.add([
+  k.sprite("platforms3"),
+  k.pos(565000, k.height() - 2550),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(5, 200),     
+      k.vec2(250, 200),   
+      k.vec2(60, 250),   
+      k.vec2(5, 250),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  { z: 1 }
+]);
+
+k.add([
+  k.sprite("platforms18"),
+  k.pos(58000, k.height() - 2550),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(38, 130),     
+      k.vec2(218, 130),    
+      k.vec2(218, 100),     
+      k.vec2(38, 100),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  { z: 1 }
+]);
+
+k.add([
+  k.sprite("platforms18"),
+  k.pos(58000, k.height() - 2550),
+  k.area({ 
+    shape: new k.Polygon([
+      k.vec2(0, 200),     
+      k.vec2(255, 200),    
+      k.vec2(255, 255),     
+      k.vec2(0, 255),
+    ])
+    
+  }),
+  k.scale(6),
+  k.body({ isStatic: true }),
+  { z: 1 }
+]);
+
+k.onCollide("passthroughPlatform", "player", (_, player) => {
+  if (player.speed && !player.isBoosted) {
+      player.isBoosted = true;
+      const originalSpeed = player.speed;
+
+      // Réduire temporairement la vitesse
+      player.speed = Math.min(player.speed * 0.5, player.maxSpeed);
+      k.play("musicsad", { volume: 0.5 });
+
+      // Restaurer la vitesse après 4 secondes
+      k.wait(4, () => {
+          player.speed = originalSpeed;
+          player.isBoosted = false;
+      });
+
+      // Déplacement manuel de la caméra
+      player.manualCamera = true;
+      const targetX = k.getCamPos().x + 500; // Déplacer de 500 pixels à droite
+
+      // Déplacer la caméra
+      k.wait(0, () => {
+          k.setCamPos(targetX, k.getCamPos().y); // Déplace uniquement sur l'axe X
+      });
+
+      // Restaurer le suivi automatique de la caméra après 5 secondes
+      k.wait(5, () => {
+          player.manualCamera = false;
+      });
+  }
+});
+
+
+
+
+
+
+
+
 //motobug logique
 
 k.onCollide("enemy", "player", (enemy, player) => {
@@ -1855,7 +2049,7 @@ spawnPoisson();
 
 
 
-
+//platformsaut logique
 
 let platformssaut = [];  
 let platformOccupee = [];  
