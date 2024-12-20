@@ -3,6 +3,7 @@ import k from "../kaplayCtx";
 const SPEED = 2500;
 const JUMP_FORCE = 2000;
 const MAX_SPEED = 5000;
+const FALL_DEATH = 3500;
 
 export function makeplayer(){
     const player =k.add([
@@ -12,7 +13,7 @@ export function makeplayer(){
         k.anchor("center"),
         k.pos(500,k.height()),
         k.body(),
-        { speed: SPEED, maxSpeed: MAX_SPEED, z: 10 },
+        { speed: SPEED, maxSpeed: MAX_SPEED, z: 10, jumpforce: JUMP_FORCE},
         "player"
       ]);
 
@@ -25,13 +26,13 @@ player.onGround(() => {
     }
   });
   
-player.onKeyPress("space", () => {
-    if (player.isGrounded()) {
-        player.jump(JUMP_FORCE);  // This should be a statement, not an expression
-        player.play("jump");      // Play the jump animation
-        // k.play("jump", {volume: 0.5}); // Uncomment if needed for sound
+  player.onKeyPress("space", () => {
+    if (player.isGrounded()){
+      player.jump(JUMP_FORCE),
+      player.play("jump")
+      k.play("jump", {volume: 0.5});
     }
-});
+  });
   
   player.onKeyDown("left", ()=>{
     player.move(-player.speed, 0);
@@ -69,7 +70,7 @@ player.onKeyPress("space", () => {
   Frame: ${player.frame}
   `.trim();
   
-  // Add some text to show the current animation
+
   const label = k.add([
     k.text(getInfo(), { size: 100 }),
     k.color(0, 0, 0),
@@ -84,6 +85,9 @@ player.onKeyPress("space", () => {
 
 player.onUpdate(() => {
 
+  if (!player.manualCamera) {
+    k.setCamPos(player.worldPos()); 
+}
     if (player.speed > MAX_SPEED) {
         player.speed = MAX_SPEED;
     }
@@ -93,6 +97,23 @@ player.onUpdate(() => {
 
 player.onPhysicsResolve(() => {
     k.camPos(player.worldPos());
+});
+
+
+let isReloading = false;  
+
+player.onUpdate(() => {
+  k.camPos(player.pos);
+  
+  if (player.pos.y >= FALL_DEATH && !isReloading) {
+    isReloading = true;
+
+    k.play("AHHHH", {volume: 0.7});
+    
+    setTimeout(() => {
+      location.reload(); 
+    }, 1500); 
+  }
 });
 
 
@@ -106,6 +127,21 @@ player.onPhysicsResolve(() => {
       player.isPropelled = false;
     }
   });
+
+
+  player.onBeforePhysicsResolve(collision => {
+    if (collision.target.is("passthroughPlatform") && player.isJumping()) {
+        collision.preventResolution()
+    }
+})
+
+player.onBeforePhysicsResolve(collision => {
+  if (collision.target.is("passthroughPlatform") 
+    && (player.isJumping() || k.isKeyDown("down")))
+    {
+         collision.preventResolution() 
+  }
+})
 
 
   return player
