@@ -111,8 +111,8 @@ player.onUpdate(() => {
     k.play("AHHHH", {volume: 0.7});
     
     setTimeout(() => {
-      location.reload(); 
-    }, 1500); 
+      k.go("mainGame");
+    }, 500);
   }
 });
 
