@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import GameLogic from './GameLogic';
 
-function App() {
+function Sonic() {
     const gameCanvasRef = useRef(null);
 
     useEffect(() => {
@@ -13,12 +13,10 @@ function App() {
     }, []);
 
     return (
-        <canvas
-            id="gameCanvas"
-            ref={gameCanvasRef}
-            style={{ display: 'block', width: '100vw', height: '100vh' }}
-        />
+        <canvas id="gameCanvas" ref={gameCanvasRef} style={{ display: 'block' }}></canvas>
     );
 };
 
-export default App;
+export default Sonic;
+
+

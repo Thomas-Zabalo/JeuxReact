@@ -14,7 +14,7 @@ function Card() {
         },
         {
             name: "Football Américain",
-            image: "",
+            image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
             link: "/project/football-app",
             collaborators: ["Lisa", "Clement", "Lucas"],
         },
@@ -46,7 +46,7 @@ function Card() {
     ];
 
     return (
-        <section className='lg:px-6 pb-12 lg:pb-32'>
+        <section className='px-6 lg:px-6 pb-12 lg:pb-32'>
             <div className="flex justify-between items-center mb-8 lg:mb-28">
                 <h2 className="text-xl lg:text-3xl font-bold">Quelques jeux réalisés.</h2>
             </div>
@@ -108,9 +108,9 @@ function Card() {
                                 </div>
                             </div>
                             <div className="shrink-0 sm:flex sm:flex-col sm:items-end">
-                                <button className="rounded-md border-slate-200 py-2 px-4 border border-transparent text-center text-sm text-black transition-all shadow-md hover:shadow-lg focus:bg-slate-300 focus:shadow-none active:bg-slate-300 hover:bg-slate-400 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2" type="button">
+                                <Link key={index} to={project.link} className="block py-3 px-6 bg-[#EDEEF0] rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
                                     Voir
-                                </button>
+                                </Link>
                             </div>
                         </li>
                     ))}

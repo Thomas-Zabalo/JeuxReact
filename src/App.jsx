@@ -7,10 +7,10 @@ import Hero from './components/Hero';
 
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 
-import ColoringApp from './projects/coloring/App';
-import FootballApp from'./projects/football/App'
-import SubwaySurferApp from './projects/SubwaySurfer/App'
-import SonicApp from './projects/sonic/App'
+import ColoringApp from './projects/coloring/Color';
+import FootballApp from './projects/football/Football'
+import SubwaySurferApp from './projects/SubwaySurfer/Subway'
+import SonicApp from './projects/sonic/Sonic'
 import Card from './components/Card';
 
 function App() {

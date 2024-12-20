@@ -1,4 +1,4 @@
-export default class GameLogic {
+export default class AppLogic {
     constructor(canvas, ctx) {
         this.canvas = canvas;
         this.ctx = ctx;
@@ -30,8 +30,8 @@ export default class GameLogic {
 
         this.goalpostImage = new Image();
         this.goalpostImage.src = this.isMobile
-            ? process.env.PUBLIC_URL + "/assets/potovertical.png"
-            : process.env.PUBLIC_URL + "/assets/goalpost.png";
+            ? process.env.PUBLIC_URL + "/assets/football/potovertical.png"
+            : process.env.PUBLIC_URL + "/assets/football/goalpost.png";
 
         this.goalPosts = this.isMobile
             ? [{ x: this.canvas.width / 2 - 75, y: -45, width: 150, height: 150 }]
@@ -76,12 +76,12 @@ export default class GameLogic {
         this.enemySpawnInterval = null;
         this.lastTime = 0;
 
-        this.startSound = new Audio(process.env.PUBLIC_URL + "/assets/start_game.mp3");
+        this.startSound = new Audio(process.env.PUBLIC_URL + "/assets/football/start_game.mp3");
         this.startSound.volume = 0.5;
         this.startSound.load();
 
         this.backgroundMusic = new Audio(
-            process.env.PUBLIC_URL + "/assets/background_music.mp3"
+            process.env.PUBLIC_URL + "/assets/football/background_music.mp3"
         );
         this.backgroundMusic.loop = true;
         this.backgroundMusic.volume = 0.3;
@@ -391,7 +391,7 @@ export default class GameLogic {
         const { ctx, canvas } = this;
         if (!this.fieldPattern) {
             const grassImage = new Image();
-            grassImage.src = process.env.PUBLIC_URL + "/assets/grass.png";
+            grassImage.src = process.env.PUBLIC_URL + "/assets/football/grass.png";
             grassImage.onload = () => {
                 this.fieldPattern = ctx.createPattern(grassImage, "repeat");
                 this.drawField();
@@ -524,7 +524,7 @@ export default class GameLogic {
 
         const { ctx, canvas } = this;
         const backgroundImage = new Image();
-        backgroundImage.src = process.env.PUBLIC_URL + "/assets/stade.png";
+        backgroundImage.src = process.env.PUBLIC_URL + "/assets/football/stade.png";
 
         backgroundImage.onload = () => {
             ctx.globalAlpha = 0.5;
@@ -617,4 +617,28 @@ export default class GameLogic {
 
         requestAnimationFrame((ts) => this.gameLoop(ts));
     }
+
+    cleanup() {
+        // Nettoyer les ressources
+        console.log('Nettoyage des ressources...');
+
+        // Retirer les listeners s'ils existent
+        if (this.resizeCanvas) {
+            window.removeEventListener('resize', this.resizeCanvas);
+        }
+
+        // Arrêter les intervalles
+        if (this.enemySpawnInterval) {
+            clearInterval(this.enemySpawnInterval);
+        }
+
+        // Réinitialiser les styles globaux si le canvas est défini
+        if (this.canvas) {
+            document.body.style.margin = "";
+            document.body.style.padding = "";
+            document.body.style.overflow = "";
+            this.canvas.style.display = "";
+        }
+    }
+
 }

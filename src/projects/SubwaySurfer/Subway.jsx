@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 
-function App() {
+function Subway() {
   const [points, setPoints] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [startGame, setStartGame] = useState(false);
@@ -356,4 +356,4 @@ function App() {
   );
 }
 
-export default App;
+export default Subway;

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button, Drawer } from "flowbite-react";
 
-const App = () => {
+function Color() {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushColor, setBrushColor] = useState("#000000");
@@ -15,10 +15,10 @@ const App = () => {
   const handleClose = () => setIsOpen(false);
 
   const drawings = [
-    { id: 1, name: 'Boule de Noel 2 lutins', src: '/assets/bouledenoel-2lutin.webp' },
-    { id: 2, name: 'Boule de Noel Papa Noel', src: '/assets/bouledenoel-papanoel-renne.jpg' },
-    { id: 3, name: 'Boule de Noel Renne', src: '/assets/bouledenoel-renne.webp' },
-    { id: 4, name: 'Boule de Noel Lutin', src: '/assets/bouledenoel1lutin.webp' },
+    { id: 1, name: 'Boule de Noel 2 lutins', src: '/assets/dessin/bouledenoel-2lutin.webp' },
+    { id: 2, name: 'Boule de Noel Papa Noel', src: '/assets/dessin/bouledenoel-papanoel-renne.jpg' },
+    { id: 3, name: 'Boule de Noel Renne', src: '/assets/dessin/bouledenoel-renne.webp' },
+    { id: 4, name: 'Boule de Noel Lutin', src: '/assets/dessin/bouledenoel1lutin.webp' },
   ];
 
   const getContext = () => {
@@ -287,4 +287,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Color;
