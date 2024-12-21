@@ -1,0 +1,2 @@
+Incrémentation des valeurs dans la marché en fonction de la quantité déjà dans l'inventaire
+Probème d'index pour les améliorations et pour nourrir
