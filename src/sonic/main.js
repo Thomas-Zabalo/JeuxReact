@@ -2391,14 +2391,6 @@ if (player) {
     k.camPos(player.pos); // La caméra suit Sonic
 }
 
-// Fonction pour déterminer le score en fonction du temps écoulé
-const determineScore = (time) => {
-    if (time <= 120) return "S"; // Moins de 2 minutes
-    if (time <= 150) return "A"; // 2 minutes 30 ou moins
-    if (time <= 180) return "B"; // 3 minutes ou moins
-    return "D"; // 3 minutes 15 ou plus
-};
-
 // Boucle de mise à jour
 k.onUpdate(() => {
     // Met à jour le temps écoulé
@@ -2409,26 +2401,10 @@ k.onUpdate(() => {
     timerText.pos = k.vec2(k.camPos().x - k.width() / 2 + 20, k.camPos().y - k.height() / 2 + 20); // Ajustez ici pour la position souhaitée
 });
 
-// Fin du jeu : Appuyez sur une touche pour afficher le score final
+// Fin du jeu : Appuyez sur une touche pour afficher l'écran de fin
 k.onKeyPress("end", () => {
-    const finalScore = determineScore(elapsedTime); // Déterminer le score final
-    k.go("gameover", { time: elapsedTime, score: finalScore }); // Aller à la scène "gameover" avec les données
+    k.go("gameover", { time: elapsedTime }); // Aller à la scène "gameover" avec le temps écoulé
 });
-
- 
-//Scène de Game Over
-k.scene("gameover", ({ time, score }) => {
-    k.add([
-        k.text(`GAME OVER\nTIME: ${formatTime(time)}\nSCORE: ${score}`, {
-            font: "mania",
-            size: 64,
-        }),
-        k.pos(k.width() / 2, k.height() / 2),
-        k.origin("center"),
-    ]);
-});
-
-
 
 
 k.scene("game over", () => {
