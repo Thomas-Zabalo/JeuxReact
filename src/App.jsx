@@ -10,7 +10,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import ColoringApp from './projects/coloring/Color';
 import FootballApp from './projects/football/Football'
 import SubwaySurferApp from './projects/SubwaySurfer/Subway'
-import SonicApp from './projects/sonic/Sonic'
+// import SonicApp from './projects/sonic/Sonic'
 import IdleApp from './projects/idle/router'
 import Card from './components/Card';
 
@@ -50,7 +50,7 @@ function AppContent() {
         <Route path="/project/coloring-app" element={<ColoringApp />} />
         <Route path="/project/football-app" element={<FootballApp />} />
         <Route path="/project/SubwaySurfer-app" element={<SubwaySurferApp />} />
-        <Route path="/project/sonic-app" element={<SonicApp />} />
+        {/* <Route path="/project/sonic-app" element={<SonicApp />} /> */}
         <Route path="/project/idle-app" element={<IdleApp />} />
       </Routes>
 
