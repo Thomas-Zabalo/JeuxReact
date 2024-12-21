@@ -7,7 +7,7 @@ const Game = () => {
   const [projectiles, setProjectiles] = useState([]); // Liste des projectiles
   const [obstacles, setObstacles] = useState([]); // Liste des obstacles
   const [score, setScore] = useState(0); // Score du joueur
-  const gameContainerRef = useRef(null); // Référence pour capturer le focus
+  const gameContainerRef = useRef(null); 
 
   // Gérer le mouvement du joueur et le tir
   const handleKeyDown = (e) => {
