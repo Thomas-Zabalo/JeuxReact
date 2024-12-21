@@ -2369,7 +2369,7 @@ function createPath(startPos, endPos) {
 
 // code bien lourd au niveau du jeu, a ammeliorer
 
-/*
+
 // Ajout d'un timer
 let elapsedTime = 0; // Temps écoulé en secondes
 const timerText = k.add([
@@ -2386,7 +2386,7 @@ const formatTime = (seconds) => {
 };
 
 // Configure la caméra pour suivre Sonic
-const player = k.get("player")[0]; // Suppose que le joueur est tagué avec "player"
+player = k.get("player")[0]; // Suppose que le joueur est tagué avec "player"
 if (player) {
     k.camPos(player.pos); // La caméra suit Sonic
 }
@@ -2415,8 +2415,8 @@ k.onKeyPress("end", () => {
     k.go("gameover", { time: elapsedTime, score: finalScore }); // Aller à la scène "gameover" avec les données
 });
 
-/* 
-Scène de Game Over
+ 
+//Scène de Game Over
 k.scene("gameover", ({ time, score }) => {
     k.add([
         k.text(`GAME OVER\nTIME: ${formatTime(time)}\nSCORE: ${score}`, {
@@ -2427,7 +2427,7 @@ k.scene("gameover", ({ time, score }) => {
         k.origin("center"),
     ]);
 });
-*/
+
 
 
 
