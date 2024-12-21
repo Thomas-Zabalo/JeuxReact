@@ -11,6 +11,7 @@ import ColoringApp from './projects/coloring/Color';
 import FootballApp from './projects/football/Football'
 import SubwaySurferApp from './projects/SubwaySurfer/Subway'
 import SonicApp from './projects/sonic/Sonic'
+import IdleApp from './projects/idle/Idle'
 import Card from './components/Card';
 
 function App() {
@@ -50,6 +51,7 @@ function AppContent() {
         <Route path="/project/football-app" element={<FootballApp />} />
         <Route path="/project/SubwaySurfer-app" element={<SubwaySurferApp />} />
         <Route path="/project/sonic-app" element={<SonicApp />} />
+        <Route path="/project/idle-app" element={<IdleApp />} />
       </Routes>
 
       {isHomePage && <Footer />}
