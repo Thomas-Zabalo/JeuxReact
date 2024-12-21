@@ -11,7 +11,7 @@ import ColoringApp from './projects/coloring/Color';
 import FootballApp from './projects/football/Football'
 import SubwaySurferApp from './projects/SubwaySurfer/Subway'
 import SonicApp from './projects/sonic/Sonic'
-import IdleApp from './projects/idle/pages/HomePage'
+import IdleApp from './projects/idle/router'
 import Card from './components/Card';
 
 function App() {
