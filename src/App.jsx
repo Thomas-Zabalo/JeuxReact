@@ -1,16 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './App.css';
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-
-function App() {
+function Subway() {
   const [points, setPoints] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [startGame, setStartGame] = useState(false);
   const [bestScore, setBestScore] = useState(0);
+
   const pointsRef = useRef(0);
   const requestRef = useRef();
   const rendererRef = useRef();
@@ -25,10 +24,12 @@ function App() {
   const enemyMeshesRef = useRef([]);
   const clockRef = useRef(new THREE.Clock());
 
+  const startSoundRef = useRef();
+  const coinSoundRef = useRef();
+
+  const gltfLoaderRef = useRef(new GLTFLoader());
 
   useEffect(() => {
-
-    // --- Chargement du meilleur score depuis le localStorage ---
     const storedBestScore = localStorage.getItem('bestScore');
     if (storedBestScore) {
       setBestScore(parseInt(storedBestScore));
@@ -36,16 +37,18 @@ function App() {
       localStorage.setItem('bestScore', 0);
     }
 
-    // --- Setup Three.js Scene and Cannon.js World ---
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Fog: Pink fog with a light effect
-    scene.fog = new THREE.Fog(0xffffff, 1, 150); // Light pink fog with near/far distances
-
-    const world = new CANNON.World({
-      gravity: new CANNON.Vec3(0, -9.82, 0)
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load('/skybox/panorama.jpg', (texture) => {
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+      scene.background = texture;
     });
+
+    scene.fog = new THREE.Fog(0xffffff, 1, 150);
+
+    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -9.82, 0) });
     worldRef.current = world;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -64,21 +67,18 @@ function App() {
     cameraRef.current = camera;
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enabled = false; // Disable manual orbiting in final gameplay
+    controls.enabled = false;
 
-    // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
 
-    // --- Player Setup ---
     const player = new THREE.Mesh(
       new THREE.BoxGeometry(0.5, 0.5, 0.5),
       new THREE.MeshStandardMaterial({ color: 0xff0000 })
-    )
+    );
     player.position.y = -1;
     scene.add(player);
     playerRef.current = player;
-
 
     const playerBody = new CANNON.Body({
       mass: 1,
@@ -89,92 +89,101 @@ function App() {
     });
     world.addBody(playerBody);
     playerBodyRef.current = playerBody;
-
-    // Give the player body some linear damping so it doesn't slide forever
     playerBody.linearDamping = 0.1;
 
-    // --- Ground Setup ---
     const groundShape = new CANNON.Box(new CANNON.Vec3(2, 0.1, 2000));
     const groundBody = new CANNON.Body({ mass: 0, shape: groundShape });
     groundBody.position.set(0, 0, -1000);
     world.addBody(groundBody);
 
-    // Ground Material with a shiny effect
     const groundMesh = new THREE.Mesh(
       new THREE.BoxGeometry(4, 0.2, 4000),
       new THREE.MeshStandardMaterial({
         color: 0xbee6fe,
-        roughness: 0.1, // Low roughness for more shine
-        metalness: 0.7, // Higher metalness for a shiny, reflective surface
+        roughness: 0.1,
+        metalness: 0.7,
       })
     );
     groundMesh.position.set(0, 0, -1000);
     scene.add(groundMesh);
 
-    // --- Spawning Points ---
     function spawnPoint() {
       const lanes = [-1, 0, 1];
       const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
-      const spawnZ = playerBody.position.z - 30; // spawn far ahead
+      const spawnZ = playerBody.position.z - 30;
 
-      const pointShape = new CANNON.Sphere(0.2); // Shape remains a sphere
+      const pointShape = new CANNON.Sphere(0.2);
       const pointBody = new CANNON.Body({ mass: 0, shape: pointShape });
       pointBody.position.set(randomLane, 0.6, spawnZ);
-
       world.addBody(pointBody);
       pointBodiesRef.current.push(pointBody);
 
-      // Charger le modèle GLTF
-      const loader = new GLTFLoader();
-      loader.load(
-        '/models/coin/coin.glb', // Remplacez par le chemin de votre modèle
+      gltfLoaderRef.current.load(
+        '/models/coin/coin.glb',
         (gltf) => {
-
           const pointMesh = gltf.scene;
-          pointMesh.scale.set(0.05, 0.05, 0.05); // Échelle du modèle, ajustez selon le modèle
+          pointMesh.scale.set(0.05, 0.05, 0.05);
           pointMesh.position.copy(pointBody.position);
-          pointMesh.position.x += -0.4;
-          pointMesh.position.y += -0.2;
+          pointMesh.position.x -= 0.4;
+          pointMesh.position.y -= 0.2;
           scene.add(pointMesh);
           pointMeshesRef.current.push(pointMesh);
         },
-        undefined, // Optionnel : fonction de suivi du chargement
+        undefined,
         (error) => {
-          console.error('Erreur lors du chargement du modèle GLTF:', error);
+          console.error('Error loading coin model:', error);
         }
       );
     }
 
+    function createFenceMesh() {
+      const fenceGroup = new THREE.Group();
+      const barMaterial = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, metalness:0.2, roughness:0.7 });
 
-    // --- Ennemis ---
+      const barHeight = 1.5;
+      const barCount = 5;
+      const barSpacing = 0.25;
+      const barGeometry = new THREE.BoxGeometry(0.05, barHeight, 0.1);
+
+      for (let i = 0; i < barCount; i++) {
+        const bar = new THREE.Mesh(barGeometry, barMaterial);
+        const startX = -(barCount - 1) * barSpacing * 0.5;
+        bar.position.set(startX + i * barSpacing, 0.6, 0);
+        fenceGroup.add(bar);
+      }
+
+      const topBarGeometry = new THREE.BoxGeometry((barCount-1)*barSpacing + 0.2, 0.05, 0.1);
+      const topBar = new THREE.Mesh(topBarGeometry, barMaterial);
+      topBar.position.set(0, 0.6 + barHeight*0.5, 0);
+      fenceGroup.add(topBar);
+
+      const bottomBar = new THREE.Mesh(topBarGeometry, barMaterial);
+      bottomBar.position.set(0, 0.6 - barHeight*0.5, 0);
+      fenceGroup.add(bottomBar);
+
+      return fenceGroup;
+    }
+
     function spawnEnemy() {
       const lanes = [-1, 0, 1];
       const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
       const spawnZ = playerBody.position.z - 30;
 
-      // Définition de la forme physique de l'ennemi (CANNON.Box)
-      const enemyShape = new CANNON.Box(new CANNON.Vec3(0.4, 0.4, 0.4)); // CANNON.Vec3 pour la taille de la box
+      const enemyShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.75, 0.05));
       const enemyBody = new CANNON.Body({ mass: 0, shape: enemyShape });
-      enemyBody.position.set(randomLane, 0.6, spawnZ); // Position de l'ennemi
-      world.addBody(enemyBody); // Ajouter le corps physique au monde
-      enemyBodiesRef.current.push(enemyBody); // Ajouter le corps physique à la liste
+      enemyBody.position.set(randomLane, 0.6, spawnZ);
+      world.addBody(enemyBody);
+      enemyBodiesRef.current.push(enemyBody);
 
-      // Création du modèle visuel de l'ennemi (THREE.BoxGeometry)
-      const enemyGeometry = new THREE.BoxGeometry(0.8, 0.8, 1.6); // Taille ajustée pour le mesh
-      const enemyMat = new THREE.MeshStandardMaterial({ color: 0x695c4c }); // Matériau de l'ennemi
-      const enemyMesh = new THREE.Mesh(enemyGeometry, enemyMat);
-      enemyMesh.position.copy(enemyBody.position); // Synchroniser la position du modèle avec le corps physique
-      scene.add(enemyMesh); // Ajouter le modèle à la scène
-      enemyMeshesRef.current.push(enemyMesh); // Ajouter le modèle à la liste des meshes
+      const enemyMesh = createFenceMesh();
+      enemyMesh.position.copy(enemyBody.position);
+      scene.add(enemyMesh);
+      enemyMeshesRef.current.push(enemyMesh);
     }
-
 
     let pointSpawnTimer = 0;
     let enemySpawnTimer = 0;
-
-    // --- Input Handling ---
     let currentLane = 0;
-    let jumpCooldown = false;
 
     const resetGame = () => {
       playerBody.position.set(0, 1, 0);
@@ -183,15 +192,18 @@ function App() {
       setGameOver(false);
       setStartGame(false);
 
-      // Remove points from scene and world
       pointBodiesRef.current.forEach((pb) => world.removeBody(pb));
       pointMeshesRef.current.forEach((pm) => scene.remove(pm));
       pointBodiesRef.current = [];
       pointMeshesRef.current = [];
+
+      enemyBodiesRef.current.forEach((eb) => world.removeBody(eb));
+      enemyMeshesRef.current.forEach((em) => scene.remove(em));
+      enemyBodiesRef.current = [];
+      enemyMeshesRef.current = [];
     };
 
     function handleKeyDown(e) {
-      // Always allow R to reset even if game over
       if (e.key.toLowerCase() === "r") {
         resetGame();
         return;
@@ -199,11 +211,13 @@ function App() {
 
       if (!startGame && e.key === "Enter") {
         setStartGame(true);
+        if (startSoundRef.current) {
+          startSoundRef.current.play();
+        }
       }
 
       if (gameOver) return;
 
-      // Left/Right movement
       if (e.key === "ArrowLeft" || e.key.toLowerCase() === "q") {
         currentLane = Math.max(currentLane - 1, -1);
         playerBody.position.x = currentLane;
@@ -212,27 +226,17 @@ function App() {
         currentLane = Math.min(currentLane + 1, 1);
         playerBody.position.x = currentLane;
       }
-
-      // Jump (reduced impulse for a lower jump)
-      if (e.key === " " && !jumpCooldown && Math.abs(playerBody.velocity.y) < 0.1) {
-        playerBody.applyImpulse(new CANNON.Vec3(0, 5, 0), playerBody.position);
-      }
     }
 
     window.addEventListener("keydown", handleKeyDown);
 
-    // --- Resize Handling ---
     window.addEventListener("resize", () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-
-    // --- Game Over Check ---
-    // --- Vérifier la fin de jeu ---
     function checkGameOver() {
-
       if (
         playerBody.position.y < -2 ||
         playerBody.position.x < -1.5 ||
@@ -240,94 +244,78 @@ function App() {
       ) {
         setGameOver(true);
         setStartGame(false);
-
-        // Update best score
         if (pointsRef.current > bestScore) {
           setBestScore(pointsRef.current);
-          localStorage.setItem("bestScore", pointsRef.current);
+          localStorage.setItem('bestScore', pointsRef.current);
         }
       }
 
-      // Collision avec les ennemis
       enemyBodiesRef.current.forEach((enemyBody) => {
         const dist = playerBody.position.vsub(enemyBody.position).length();
         if (dist < 0.5) {
           setGameOver(true);
           setStartGame(false);
-          // Update best score
           if (pointsRef.current > bestScore) {
             setBestScore(pointsRef.current);
-            localStorage.setItem("bestScore", pointsRef.current);
+            localStorage.setItem('bestScore', pointsRef.current);
           }
         }
       });
     }
 
-    // --- Animation Loop ---
     function animate() {
       requestRef.current = requestAnimationFrame(animate);
       const delta = clockRef.current.getDelta();
 
       if (startGame && !gameOver) {
-        // Définir une vitesse de base
         const baseSpeed = 10;
-
-        // Multiplier la vitesse en fonction des points du joueur
         const speedIncreasePerPoint = 0.2;
         const speed = baseSpeed + pointsRef.current * speedIncreasePerPoint;
 
-        // Appliquer la nouvelle vitesse
         playerBody.position.z -= speed * delta;
 
-        // Ajuster l'intervalle de spawn en fonction des points
-        const minSpawnInterval = 0.2; // L'intervalle minimum entre les spawns (plus petit = plus fréquent)
-        const maxSpawnInterval = 0.5; // L'intervalle de spawn de base
-        const spawnInterval = maxSpawnInterval - (pointsRef.current * 0.01); // Réduit l'intervalle en fonction des points
-
-        // Assurez-vous que l'intervalle de spawn ne soit pas trop court (vous pouvez ajuster ce seuil)
+        const minSpawnInterval = 0.2;
+        const maxSpawnInterval = 0.5;
+        const spawnInterval = maxSpawnInterval - (pointsRef.current * 0.01);
         const spawnIntervalAdjusted = Math.max(minSpawnInterval, spawnInterval);
 
-        // Spawn des points à intervalles ajustés
         pointSpawnTimer += delta;
         if (pointSpawnTimer > spawnIntervalAdjusted) {
           spawnPoint();
           pointSpawnTimer = 0;
         }
 
-        // Spawn des ennemis à intervalles ajustés
-        const enemySpawnIntervalAdjusted = spawnIntervalAdjusted * 1.5; // Les ennemis apparaissent plus lentement que les points
+        const enemySpawnIntervalAdjusted = spawnIntervalAdjusted * 1.5;
         enemySpawnTimer += delta;
         if (enemySpawnTimer > enemySpawnIntervalAdjusted) {
           spawnEnemy();
           enemySpawnTimer = 0;
         }
 
-        // Mise à jour de la physique
         world.fixedStep();
 
-        // Mise à jour du mesh du joueur
         player.position.copy(playerBody.position);
         player.quaternion.copy(playerBody.quaternion);
 
-        // Mise à jour de la caméra
         camera.position.x = player.position.x;
         camera.position.y = player.position.y + 1.5;
         camera.position.z = player.position.z + 5;
         camera.lookAt(player.position.x, player.position.y, player.position.z);
 
-        // Vérification des collisions avec les points
         for (let i = 0; i < pointBodiesRef.current.length; i++) {
           const pBody = pointBodiesRef.current[i];
           const pMesh = pointMeshesRef.current[i];
           const dist = playerBody.position.vsub(pBody.position).length();
           if (dist < 0.5) {
-            // Collecte de points
+            if (coinSoundRef.current) {
+              coinSoundRef.current.currentTime = 0; 
+              coinSoundRef.current.play();
+            }
             setPoints((prev) => {
               const newPoints = prev + 1;
-              pointsRef.current = newPoints; // Synchroniser le ref avec les points actuels
+              pointsRef.current = newPoints;
               return newPoints;
             });
-            // Retirer le point du monde et de la scène
             world.removeBody(pBody);
             scene.remove(pMesh);
             pointBodiesRef.current.splice(i, 1);
@@ -336,22 +324,27 @@ function App() {
           }
         }
 
-        // Vérification de la fin de la partie
         checkGameOver();
       }
+
       renderer.render(scene, camera);
     }
 
-
     animate();
 
-    // Cleanup on unmount
     return () => {
       cancelAnimationFrame(requestRef.current);
       document.body.removeChild(renderer.domElement);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [gameOver, startGame]);
+  }, [gameOver, startGame, bestScore]);
+
+  useEffect(() => {
+    const startSound = new Audio('/sounds/theme.mp3');
+    const coinSound = new Audio('/sounds/coin.mp3');
+    startSoundRef.current = startSound;
+    coinSoundRef.current = coinSound;
+  }, []);
 
   return (
     <div className="absolute m-0 text-white top-3 left-3">
@@ -363,4 +356,4 @@ function App() {
   );
 }
 
-export default App;
+export default Subway;
