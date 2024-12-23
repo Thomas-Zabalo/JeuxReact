@@ -3,7 +3,6 @@ export default class AppLogic {
         this.canvas = canvas;
         this.ctx = ctx;
 
-        // Lier toutes les méthodes pour éviter des erreurs liées à "this"
         this.init = this.init.bind(this);
         this.resizeCanvas = this.resizeCanvas.bind(this);
         this.startGame = this.startGame.bind(this);
@@ -18,24 +17,26 @@ export default class AppLogic {
 
         this.isMobile = window.innerWidth < 600;
 
+        // Zone "try" adaptée selon mobile ou non
         this.tryZone = this.isMobile
-            ? { x: 0, y: 0, width: 0, height: 100, color: "green" }
-            : { x: 0, y: 0, width: 100, height: 0, color: "green" };
+            ? {x: 0, y: 0, width: this.canvas.width, height: 100, color: "green"}
+            : {x: 0, y: 0, width: 100, height: this.canvas.height, color: "green"};
 
         this.resizeCanvas();
         window.addEventListener("resize", this.resizeCanvas);
 
         this.fieldImage = new Image();
-        this.fieldImage.src = process.env.PUBLIC_URL + "field.png";
+        this.fieldImage.src = "field.png";
 
         this.goalpostImage = new Image();
         this.goalpostImage.src = this.isMobile
             ? process.env.PUBLIC_URL + "/assets/rugby/potovertical.png"
             : process.env.PUBLIC_URL + "/assets/rugby/goalpost.png";
 
+
         this.goalPosts = this.isMobile
-            ? [{ x: this.canvas.width / 2 - 75, y: -45, width: 150, height: 150 }]
-            : [{ x: this.tryZone.x, y: this.canvas.height / 2, width: 150, height: 150 }];
+            ? [{x: this.canvas.width / 2 - 75, y: -45, width: 150, height: 150}]
+            : [{x: this.canvas.width - 100, y: this.canvas.height / 2, width: 150, height: 150}];
 
         this.player = {
             x: 100,
@@ -76,6 +77,14 @@ export default class AppLogic {
         this.enemySpawnInterval = null;
         this.lastTime = 0;
 
+        this.joystick = {
+            isActive: false,
+            startX: 0,
+            startY: 0,
+            deltaX: 0,
+            deltaY: 0,
+        };
+
         this.startSound = new Audio(process.env.PUBLIC_URL + "/assets/rugby/start_game.mp3");
         this.startSound.volume = 0.5;
         this.startSound.load();
@@ -94,27 +103,152 @@ export default class AppLogic {
         this.isMobile = window.innerWidth < 600;
 
         if (this.isMobile) {
-            this.tryZone = { x: 0, y: 0, width: this.canvas.width, height: 100 };
+            this.tryZone = {
+                x: 0,
+                y: 0,
+                width: this.canvas.width,
+                height: 100,
+                color: "green",
+            };
         } else {
-            this.tryZone = { x: this.canvas.width - 100, y: 0, width: 100, height: this.canvas.height };
+            this.tryZone = {
+                x: this.canvas.width - 100,
+                y: 0,
+                width: 100,
+                height: this.canvas.height,
+                color: "green",
+            };
         }
     }
 
     init() {
-        document.addEventListener("keydown", (e) => {
-            this.keys[e.key] = true;
-            if (!this.gameStarted && e.key === "Enter") this.startGame();
-            if (this.gameOver && e.key === "r") {
-                this.resetAll();
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                this.drawStartScreen();
-                this.startSound.currentTime = 0;
-                this.startSound.play().catch((err) => console.warn("Lecture bloquée.", err));
-            }
+        // Initialise les contrôles selon mobile ou desktop
+        if (this.isMobile) {
+            this.createStartButton();
+            this.initJoystick(); // Initialisation du joystick sur mobile
+        } else {
+            document.addEventListener("keydown", (e) => {
+                this.keys[e.key.toLowerCase()] = true;
+                if (!this.gameStarted && e.key === "Enter") this.startGame();
+                if (this.gameOver && e.key === "r") {
+                    this.resetAll();
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.drawStartScreen();
+                    this.startSound.currentTime = 0;
+                    this.startSound.play().catch((err) => console.warn("Lecture bloquée.", err));
+                }
+            });
+
+            document.addEventListener("keyup", (e) => {
+                this.keys[e.key.toLowerCase()] = false;
+            });
+        }
+
+        this.drawStartScreen();
+    }
+
+    createStartButton() {
+        const existingButton = document.getElementById("start-button");
+        if (existingButton) return;
+
+        const startButton = document.createElement("button");
+        startButton.id = "start-button";
+        startButton.innerText = "Démarrer";
+        startButton.style.position = "absolute";
+        startButton.style.top = "50%";
+        startButton.style.left = "50%";
+        startButton.style.transform = "translate(-50%, -50%)";
+        startButton.style.padding = "15px 30px";
+        startButton.style.fontSize = "20px";
+        startButton.style.backgroundColor = "#4CAF50";
+        startButton.style.color = "white";
+        startButton.style.border = "none";
+        startButton.style.borderRadius = "5px";
+        startButton.style.cursor = "pointer";
+        startButton.style.zIndex = "1000";
+        startButton.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+
+        document.body.appendChild(startButton);
+
+        startButton.addEventListener("click", () => {
+            this.startGame();
+            startButton.remove();
+        });
+    }
+
+    initJoystick() {
+        // Activation des événements tactiles
+        this.canvas.addEventListener("touchstart", (e) => {
+            const touch = e.touches[0];
+            this.joystick.isActive = true;
+            this.joystick.startX = touch.clientX;
+            this.joystick.startY = touch.clientY;
         });
 
-        document.addEventListener("keyup", (e) => (this.keys[e.key] = false));
-        this.drawStartScreen();
+        this.canvas.addEventListener("touchmove", (e) => {
+            if (!this.joystick.isActive) return;
+            const touch = e.touches[0];
+            this.joystick.deltaX = touch.clientX - this.joystick.startX;
+            this.joystick.deltaY = touch.clientY - this.joystick.startY;
+        });
+
+        this.canvas.addEventListener("touchend", () => {
+            this.joystick.isActive = false;
+            this.joystick.deltaX = 0;
+            this.joystick.deltaY = 0;
+        });
+    }
+
+    startGame() {
+        this.gameStarted = true;
+        this.resetGame();
+        this.setupSpawnInterval();
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawField();
+        this.drawTryZone();
+        this.drawPlayer();
+
+        // On lance la musique de fond même sur mobile car l'utilisateur a cliqué
+        this.backgroundMusic.currentTime = 0;
+        this.backgroundMusic.play().catch(err => console.warn("Lecture musique fond bloquée sur mobile:", err));
+
+        requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
+    }
+
+
+    createReturnButton() {
+        // Vérifiez si un bouton existe déjà
+        const existingButton = document.getElementById("return-button");
+        if (existingButton) return;
+
+        // Crée le bouton "Retour"
+        const returnButton = document.createElement("button");
+        returnButton.id = "return-button";
+        returnButton.innerText = "Retour";
+        returnButton.style.position = "absolute";
+        returnButton.style.top = "70%";
+        returnButton.style.left = "50%";
+        returnButton.style.transform = "translate(-50%, -50%)";
+        returnButton.style.padding = "10px 20px";
+        returnButton.style.fontSize = "18px";
+        returnButton.style.backgroundColor = "#FF5722";
+        returnButton.style.color = "white";
+        returnButton.style.border = "none";
+        returnButton.style.borderRadius = "5px";
+        returnButton.style.cursor = "pointer";
+        returnButton.style.zIndex = "1000";
+        returnButton.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+
+        document.body.appendChild(returnButton);
+
+        // Ajouter l'événement de clic pour retourner au menu principal
+        returnButton.addEventListener("click", () => {
+            this.resetAll(); // Réinitialise le jeu
+            returnButton.remove(); // Supprime le bouton après utilisation
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.drawStartScreen(); // Revient à l'écran de démarrage
+        });
     }
 
     getLevel() {
@@ -127,29 +261,20 @@ export default class AppLogic {
         const level = this.getLevel();
         switch (level) {
             case "Facile":
-                return { enemySpeedBase: 2, spawnInterval: 2000, enemiesPerSpawn: 1 };
+                return {enemySpeedBase: 2, spawnInterval: 2000, enemiesPerSpawn: 1};
             case "Intermédiaire":
-                return { enemySpeedBase: 3, spawnInterval: 1700, enemiesPerSpawn: 2 };
+                return {enemySpeedBase: 3, spawnInterval: 1700, enemiesPerSpawn: 2};
             case "Difficile":
-                return { enemySpeedBase: 4, spawnInterval: 1200, enemiesPerSpawn: 3 };
+                return {enemySpeedBase: 4, spawnInterval: 1200, enemiesPerSpawn: 3};
             default:
-                return { enemySpeedBase: 2, spawnInterval: 2000, enemiesPerSpawn: 1 };
+                return {enemySpeedBase: 2, spawnInterval: 2000, enemiesPerSpawn: 1};
         }
     }
 
-    startGame() {
-        this.gameStarted = true;
-        this.resetGame();
-        this.setupSpawnInterval();
-        // Lecture de la musique de fond quand on entre dans le jeu
-        this.backgroundMusic.currentTime = 0;
-        this.backgroundMusic.play().catch(err => console.warn("Lecture de la musique de fond bloquée.", err));
-        requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
-    }
 
     setupSpawnInterval() {
         if (this.enemySpawnInterval) clearInterval(this.enemySpawnInterval);
-        const { spawnInterval } = this.getDifficultyParameters();
+        const {spawnInterval} = this.getDifficultyParameters();
         this.enemySpawnInterval = setInterval(() => this.createEnemies(), spawnInterval);
     }
 
@@ -176,23 +301,43 @@ export default class AppLogic {
         this.gameOver = false;
         this.gameStarted = false;
         this.enemies = [];
-        this.startSound.currentTime = 0;
-        this.startSound.play().catch(err => console.warn("Lecture du son bloquée.", err));
+
+        // Supprime le bouton "Retour" s'il existe
+        const returnButton = document.getElementById("return-button");
+        if (returnButton) returnButton.remove();
+
+        // Réaffiche le bouton "Démarrer" sur mobile
+        if (this.isMobile) {
+            this.createStartButton();
+        }
+
         // Arrêter la musique de fond lorsque l'on revient au menu
         this.backgroundMusic.pause();
         this.backgroundMusic.currentTime = 0;
+
+        if (!this.isMobile) {
+            this.startSound.currentTime = 0;
+            this.startSound.play().catch(err => console.warn("Lecture bloquée.", err));
+        }
     }
 
+
     updatePlayer(deltaTime) {
-        const { player, keys, canvas } = this;
+        const {player, keys, joystick, canvas} = this;
         let ax = 0;
         let ay = 0;
 
-        // Contrôles clavier
-        if (keys["z"]) ay = -0.5;
-        if (keys["s"]) ay = 0.5;
-        if (keys["q"]) ax = -0.5;
-        if (keys["d"]) ax = 0.5;
+        // Contrôles tactiles (joystick)
+        if (joystick.isActive) {
+            ax = joystick.deltaX / 50; // Divise pour réduire la sensibilité
+            ay = joystick.deltaY / 50;
+        } else {
+            // Contrôles clavier
+            if (keys["z"] || keys["arrowup"]) ay = -0.5;
+            if (keys["s"] || keys["arrowdown"]) ay = 0.5;
+            if (keys["q"] || keys["arrowleft"]) ax = -0.5;
+            if (keys["d"] || keys["arrowright"]) ax = 0.5;
+        }
 
         player.vx += ax;
         player.vy += ay;
@@ -211,8 +356,7 @@ export default class AppLogic {
         if (player.x < 0) player.x = 0;
         if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
         if (player.y < 0) player.y = 0;
-        if (player.y + player.height > canvas.height)
-            player.y = canvas.height - player.height;
+        if (player.y + player.height > canvas.height) player.y = canvas.height - player.height;
 
         if (player.vx > 0) {
             player.facingRight = true;
@@ -229,7 +373,7 @@ export default class AppLogic {
     }
 
     createEnemies() {
-        const { enemiesPerSpawn, enemySpeedBase } = this.getDifficultyParameters();
+        const {enemiesPerSpawn, enemySpeedBase} = this.getDifficultyParameters();
 
         for (let i = 0; i < enemiesPerSpawn; i++) {
             let enemy;
@@ -265,7 +409,7 @@ export default class AppLogic {
     }
 
     updateEnemies(deltaTime) {
-        const { player, enemies } = this;
+        const {player, enemies} = this;
         let rectCollisionOccurred = false;
 
         for (let i = enemies.length - 1; i >= 0; i--) {
@@ -329,7 +473,7 @@ export default class AppLogic {
     }
 
     checkWin() {
-        const { player, tryZone } = this;
+        const {player, tryZone} = this;
 
         if (this.isMobile) {
             if (
@@ -355,7 +499,7 @@ export default class AppLogic {
     }
 
     drawPlayer() {
-        const { ctx, player } = this;
+        const {ctx, player} = this;
         const frameIndex = Math.floor(player.currentFrame);
         const frame = player.frames[frameIndex];
 
@@ -388,7 +532,7 @@ export default class AppLogic {
     }
 
     drawField() {
-        const { ctx, canvas } = this;
+        const {ctx, canvas} = this;
         if (!this.fieldPattern) {
             const grassImage = new Image();
             grassImage.src = process.env.PUBLIC_URL + "/assets/rugby/grass.png";
@@ -403,7 +547,7 @@ export default class AppLogic {
     }
 
     drawEnemies() {
-        const { ctx, enemies } = this;
+        const {ctx, enemies} = this;
         enemies.forEach((enemy) => {
             const frameIndex = Math.floor(enemy.currentFrame);
             const frame = enemy.frames[frameIndex];
@@ -431,7 +575,7 @@ export default class AppLogic {
     }
 
     drawTryZone() {
-        const { ctx, tryZone } = this;
+        const {ctx, tryZone} = this;
         ctx.fillStyle = tryZone.color;
         ctx.fillRect(tryZone.x, tryZone.y, tryZone.width, tryZone.height);
 
@@ -451,14 +595,14 @@ export default class AppLogic {
     }
 
     drawGoalPosts() {
-        const { ctx } = this;
+        const {ctx} = this;
         this.goalPosts.forEach((post) => {
             ctx.drawImage(this.goalpostImage, post.x, post.y, post.width, post.height);
         });
     }
 
     drawScore() {
-        const { ctx, score } = this;
+        const {ctx, score} = this;
 
         ctx.fillStyle = "white";
         ctx.font = "bold 28px Arial";
@@ -522,7 +666,7 @@ export default class AppLogic {
     drawStartScreen() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        const { ctx, canvas } = this;
+        const {ctx, canvas} = this;
         const backgroundImage = new Image();
         backgroundImage.src = process.env.PUBLIC_URL + "/assets/rugby/stade.png";
 
@@ -531,12 +675,15 @@ export default class AppLogic {
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
             ctx.globalAlpha = 1;
 
-            this.drawPopup();
+            if (!this.isMobile) {
+                this.drawPopup(); // Affiche uniquement le popup pour desktop
+            }
         };
     }
 
+
     drawPopup() {
-        const { ctx, canvas } = this;
+        const {ctx, canvas} = this;
 
         const popupWidth = 400;
         const popupHeight = 200;
@@ -573,24 +720,71 @@ export default class AppLogic {
         ctx.fillText("But : Atteindre la zone verte sans toucher les ennemis", canvas.width / 2, popupY + (popupHeight / 2) + 40);
     }
 
+
     drawGameOver() {
-        const { ctx, canvas } = this;
-        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const {ctx, canvas, isMobile} = this;
+        const backgroundImage2 = new Image();
+        backgroundImage2.src = process.env.PUBLIC_URL + "/assets/rugby/gameover.gif";
 
-        ctx.fillStyle = "white";
-        ctx.font = "30px Arial";
+        backgroundImage2.onload = () => {
+            // Dessin de l'image de fond
+            ctx.drawImage(backgroundImage2, 0, 0, canvas.width, canvas.height);
+
+            // Overlay semi-transparent
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "white";
+            ctx.font = "20px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            if (isMobile) {
+                // Sur mobile : bouton retour, pas de popup
+                this.createReturnButton();
+            } else {
+                // Sur desktop : afficher la popup immédiatement
+                this.drawPopup2();
+            }
+        };
+    }
+
+    drawPopup2() {
+        const {ctx, canvas} = this;
+
+        const popupWidth = 400;
+        const popupHeight = 200;
+        const popupX = (canvas.width - popupWidth) / 2;
+        const popupY = (canvas.height - popupHeight) / 2;
+        const borderRadius = 50;
+
+        // Fond de la popup
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.beginPath();
+        ctx.moveTo(popupX + borderRadius, popupY);
+        ctx.lineTo(popupX + popupWidth - borderRadius, popupY);
+        ctx.quadraticCurveTo(popupX + popupWidth, popupY, popupX + popupWidth, popupY + borderRadius);
+        ctx.lineTo(popupX + popupWidth, popupY + popupHeight - borderRadius);
+        ctx.quadraticCurveTo(popupX + popupWidth, popupY + popupHeight, popupX + popupWidth - borderRadius, popupY + popupHeight);
+        ctx.lineTo(popupX + borderRadius, popupY + popupHeight);
+        ctx.quadraticCurveTo(popupX, popupY + popupHeight, popupX, popupY + popupHeight - borderRadius);
+        ctx.lineTo(popupX, popupY + borderRadius);
+        ctx.quadraticCurveTo(popupX, popupY, popupX + borderRadius, popupY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Bordure de la popup
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Texte dans la popup
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
         ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
 
-        ctx.fillText("Game Over!", canvas.width / 2, canvas.height / 2);
-
-        ctx.font = "20px Arial";
-        ctx.fillText(
-            "Appuyez sur 'R' pour revenir au menu",
-            canvas.width / 2,
-            (canvas.height / 2) + 40
-        );
+        // Texte principal (pas de "Game Over!", juste les instructions)
+        ctx.font = "21px 'Roboto', sans-serif";
+        ctx.fillText("Appuyez sur 'R' pour rejouer", canvas.width / 2, popupY + (popupHeight / 2) - 10);
     }
 
     gameLoop(timestamp) {
@@ -602,8 +796,11 @@ export default class AppLogic {
         this.drawField();
         if (this.gameOver) {
             this.drawGameOver();
+            this.backgroundMusic.pause();
+            this.backgroundMusic.currentTime = 0;
             return;
         }
+        this.initJoystick();
 
         this.updatePlayer(deltaTime);
         this.updateEnemies(deltaTime);
@@ -617,6 +814,7 @@ export default class AppLogic {
 
         requestAnimationFrame((ts) => this.gameLoop(ts));
     }
+
 
     cleanup() {
         // Nettoyer les ressources
