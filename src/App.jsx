@@ -1,37 +1,70 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import game from './scenes/game'
+'use client'
+
+import './App.css';
+import Footer from './components/Footer';
+import Header from './components/Header';
+import Hero from './components/Hero';
+
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+
+import ColoringApp from './projects/coloring/Color';
+import FootballApp from './projects/rugby/Rugby'
+import SubwaySurferApp from './projects/SubwaySurfer/Subway'
+// import SonicApp from './projects/sonic/Sonic'
+import IdleApp from './projects/idle/router'
+import Card from './components/Card';
 
 function App() {
-  const [count, setCount] = useState(0)
+  return (
+    <Router>
+      <div>
+        <AppContent />
+      </div>
+    </Router>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+  const isGamePage = location.pathname !== '/';
+  const navigate = useNavigate();
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div>
+      {isHomePage && (
+        <>
+          <Header />
+          <Hero />
+        </>
+      )}
+
+      {isGamePage && (
+        <button className="back-button absolute right-10 top-5" onClick={() => navigate('/')}>
+          Retour à l'accueil
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      )}
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/project/coloring-app" element={<ColoringApp />} />
+        <Route path="/project/rugby-app" element={<FootballApp />} />
+        <Route path="/project/SubwaySurfer-app" element={<SubwaySurferApp />} />
+        {/* <Route path="/project/sonic-app" element={<SonicApp />} /> */}
+        <Route path="/project/idle-app" element={<IdleApp />} />
+      </Routes>
+
+      {isHomePage && <Footer />}
+    </div>
+  );
 }
-game
+
+function Home() {
+  return (
+    <div>
+      <Card />
+    </div>
+  );
+}
 
 export default App
