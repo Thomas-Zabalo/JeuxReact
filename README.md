@@ -1,10 +1,9 @@
 # JeuxReact
 
 ## Composer un groupe de deux ou trois personnes pour créer un jeu pour le web :
-### Groupe 1 :
+### Groupe 1 : IdleDragon
 - Evan
 - Thomas Cerqueira
-- IdleDragon
 
 ### Groupe 2 :
 - Lucas
