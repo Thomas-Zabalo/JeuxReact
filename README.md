@@ -3,7 +3,8 @@
 ## Composer un groupe de deux ou trois personnes pour créer un jeu pour le web :
 ### Groupe 1 :
 - Evan
-- Thomas Cerquiera
+- Thomas Cerqueira
+IdleDragon
 
 ### Groupe 2 :
 - Lucas
