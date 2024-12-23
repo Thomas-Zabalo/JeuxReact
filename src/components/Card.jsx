@@ -13,7 +13,7 @@ function Card() {
             ],
         },
         {
-            name: "Football Américain",
+            name: "RugbyDash",
             image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
             link: "/project/rugby-app",
             collaborators: ["Lisa", "Clement", "Lucas"],
