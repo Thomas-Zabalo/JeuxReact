@@ -4,7 +4,7 @@
 ### Groupe 1 :
 - Evan
 - Thomas Cerqueira
-IdleDragon
+- IdleDragon
 
 ### Groupe 2 :
 - Lucas
