@@ -1,12 +1,9 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.mmi.jeuxreact',
-  appName: 'JeuxReact',
-  webDir: 'build',
-  server: {
-    androidScheme: 'https'
-  }
+  appName: 'jeuxreact',
+  webDir: 'build'
 };
 
 export default config;

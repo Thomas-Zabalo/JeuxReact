@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+    capacitor_builder_android:
+        build:
+            context: "."
+            dockerfile: "./build-android.Dockerfile"
+        image: "capacitor_builder_android"
+        container_name: "capacitor_builder_android"
+        privileged: false
+        stdin_open: true
+        tty: true
+        volumes: 
+            - ./apk_build:/workdir/android/app/build/outputs/apk
+        networks:
+            - "network"
+
+networks:
+    network:
+        driver: "bridge"

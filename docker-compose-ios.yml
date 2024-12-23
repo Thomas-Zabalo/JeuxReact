@@ -1,17 +1,20 @@
 version: "3.8"
 
 services:
-  ios_preparer:
+  capacitor_builder_ios:
     build:
       context: "."
-      dockerfile: "./Dockerfile"
-    image: "ios_preparer"
-    container_name: "ios_preparer"
+      dockerfile: "./build-ios.Dockerfile"
+    image: "capacitor_builder_ios"
+    container_name: "capacitor_builder_ios"
+    privileged: false
+    stdin_open: true
+    tty: true
     volumes:
-      - ./ios:/workdir/ios
+      - ./ipa_build:/workdir/ios/build/outputs/ipa
     networks:
-      - "ios_network"
+      - "network"
 
 networks:
-  ios_network:
+  network:
     driver: "bridge"
