@@ -1,7 +1,14 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
+  "name": "jeuvideo",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@capacitor/android": "^6.2.0",
