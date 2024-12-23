@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import AppLogic from './AppLogic';
 
-function Football() {
+function RugbyDash() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -23,5 +23,5 @@ function Football() {
   return (
     <canvas id="gameCanvas" ref={canvasRef} style={{ display: 'block' }}></canvas>
   );
-};
-export default Football;
+}
+export default RugbyDash;

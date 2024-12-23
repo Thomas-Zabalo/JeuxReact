@@ -30,8 +30,8 @@ export default class AppLogic {
 
         this.goalpostImage = new Image();
         this.goalpostImage.src = this.isMobile
-            ? process.env.PUBLIC_URL + "/assets/football/potovertical.png"
-            : process.env.PUBLIC_URL + "/assets/football/goalpost.png";
+            ? process.env.PUBLIC_URL + "/assets/rugby/potovertical.png"
+            : process.env.PUBLIC_URL + "/assets/rugby/goalpost.png";
 
         this.goalPosts = this.isMobile
             ? [{ x: this.canvas.width / 2 - 75, y: -45, width: 150, height: 150 }]
@@ -56,7 +56,7 @@ export default class AppLogic {
 
         for (let i = 0; i < this.player.frameCount; i++) {
             const img = new Image();
-            img.src = process.env.PUBLIC_URL + `/assets/runner_sprite${i + 1}.png`;
+            img.src = process.env.PUBLIC_URL + `/assets/rugby/runner_sprite${i + 1}.png`;
             this.player.frames.push(img);
         }
 
@@ -64,7 +64,7 @@ export default class AppLogic {
         const enemyFrameCount = 24;
         for (let i = 0; i < enemyFrameCount; i++) {
             const img = new Image();
-            img.src = process.env.PUBLIC_URL + `/assets/mechant_${i}.png`;
+            img.src = process.env.PUBLIC_URL + `/assets/rugby/mechant_${i}.png`;
             this.enemyFrames.push(img);
         }
 
@@ -76,12 +76,12 @@ export default class AppLogic {
         this.enemySpawnInterval = null;
         this.lastTime = 0;
 
-        this.startSound = new Audio(process.env.PUBLIC_URL + "/assets/football/start_game.mp3");
+        this.startSound = new Audio(process.env.PUBLIC_URL + "/assets/rugby/start_game.mp3");
         this.startSound.volume = 0.5;
         this.startSound.load();
 
         this.backgroundMusic = new Audio(
-            process.env.PUBLIC_URL + "/assets/football/background_music.mp3"
+            process.env.PUBLIC_URL + "/assets/rugby/background_music.mp3"
         );
         this.backgroundMusic.loop = true;
         this.backgroundMusic.volume = 0.3;
@@ -391,7 +391,7 @@ export default class AppLogic {
         const { ctx, canvas } = this;
         if (!this.fieldPattern) {
             const grassImage = new Image();
-            grassImage.src = process.env.PUBLIC_URL + "/assets/football/grass.png";
+            grassImage.src = process.env.PUBLIC_URL + "/assets/rugby/grass.png";
             grassImage.onload = () => {
                 this.fieldPattern = ctx.createPattern(grassImage, "repeat");
                 this.drawField();
@@ -524,7 +524,7 @@ export default class AppLogic {
 
         const { ctx, canvas } = this;
         const backgroundImage = new Image();
-        backgroundImage.src = process.env.PUBLIC_URL + "/assets/football/stade.png";
+        backgroundImage.src = process.env.PUBLIC_URL + "/assets/rugby/stade.png";
 
         backgroundImage.onload = () => {
             ctx.globalAlpha = 0.5;
