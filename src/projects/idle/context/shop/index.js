@@ -1,3 +1,1 @@
-import {useShop, ShopProvider} from "./context"
-
-export { useShop, ShopProvider}
+export {useShop, ShopProvider} from './context';

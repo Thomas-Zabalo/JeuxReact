@@ -1,48 +1,48 @@
 import React from 'react';
-import { Link } from 'react-router-dom';  // Importation du composant Link
+import { Link } from 'react-router-dom'; // Importation du composant Link
 
 function Card() {
     const dataCard = [
         {
-            name: "Idle Game",
-            image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/project/idle-app",
+            name: 'Idle Game',
+            image: 'https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png',
+            link: '/project/idle-app',
             collaborators: [
-                { name: "Evan" },
-                { name: "Thomas Cerquiera" }
-            ],
+                { name: 'Evan' },
+                { name: 'Thomas Cerquiera' }
+            ]
         },
         {
-            name: "RugbyDash",
-            image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/project/rugby-app",
-            collaborators: ["Lisa", "Clement", "Lucas"],
+            name: 'RugbyDash',
+            image: 'https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png',
+            link: '/project/rugby-app',
+            collaborators: ['Lisa', 'Clement', 'Lucas']
         },
         {
-            name: "Sonic",
-            image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/project/sonic-app",
-            collaborators: ["Elias", "Théo", "Maxime"],
+            name: 'Sonic',
+            image: 'https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png',
+            link: '/project/sonic-app',
+            collaborators: ['Elias', 'Théo', 'Maxime']
         },
         {
-            name: "SubwaySurfer",
-            image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/project/SubwaySurfer-app",
-            collaborators: ["Ogene", "Mohammed", "Thomas ZABALO"],
+            name: 'SubwaySurfer',
+            image: 'https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png',
+            link: '/project/SubwaySurfer-app',
+            collaborators: ['Ogene', 'Mohammed', 'Thomas ZABALO']
         },
         {
-            name: "Application Dessin",
-            image: "https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png",
-            link: "/project/coloring-app",
-            collaborators: ["Safwa"],
+            name: 'Application Dessin',
+            image: 'https://zbt4714a.mmiweb.iut-tlse3.fr/wp-content/uploads/2024/11/347976466-7d594da9-68e7-43e4-8856-300fc5cb70df.png',
+            link: '/project/coloring-app',
+            collaborators: ['Safwa']
         }
     ];
 
     const avatars = [
-        { src: "https://www.gravatar.com/avatar/1d7d586c9f650fcd16f43f8c915f97ff?s=96&d=retro&r=g" },
-        { src: "https://www.gravatar.com/avatar/d18d4b8b0735b6637731d2f2a2ab7a1c?s=96&d=retro&r=g" },
-        { src: "https://www.gravatar.com/avatar/33c6d5cb43cf68de1f68a3c3428c4574?s=96&d=retro&r=g" },
-        { src: "https://www.gravatar.com/avatar/8c0c672881a5f8395e56f46a4163e3b4?s=96&d=retro&r=g" }
+        { src: 'https://www.gravatar.com/avatar/1d7d586c9f650fcd16f43f8c915f97ff?s=96&d=retro&r=g' },
+        { src: 'https://www.gravatar.com/avatar/d18d4b8b0735b6637731d2f2a2ab7a1c?s=96&d=retro&r=g' },
+        { src: 'https://www.gravatar.com/avatar/33c6d5cb43cf68de1f68a3c3428c4574?s=96&d=retro&r=g' },
+        { src: 'https://www.gravatar.com/avatar/8c0c672881a5f8395e56f46a4163e3b4?s=96&d=retro&r=g' }
     ];
 
     return (

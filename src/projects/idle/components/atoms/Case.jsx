@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 const Money = ({ img, number }) => {
     return (
@@ -10,8 +10,8 @@ const Money = ({ img, number }) => {
                 <p className='text-white pl-2 font-bold'>{number}</p>
             </div>
         </div>
-    )
-}
+    );
+};
 
 const Damage = ({ img, number }) => {
     return (
@@ -23,7 +23,7 @@ const Damage = ({ img, number }) => {
                 <p className='text-white pl-2 font-bold'>{number}</p>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export { Money, Damage }
+export { Money, Damage };

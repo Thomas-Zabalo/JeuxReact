@@ -3,9 +3,9 @@ import { useMoney } from '../money';
 import { useInventory } from '../inventory';
 
 const ProductionContext = createContext({
-    Tap: (value) => { },
+    Tap: (value) => { void(value); },
     totalCoinsPerSeconds: 0,
-    totalFoodPerSeconds: 0, // Nouveau state pour le total de nourriture
+    totalFoodPerSeconds: 0 // Nouveau state pour le total de nourriture
 });
 
 export function ProductionProvider({ children }) {
@@ -25,23 +25,23 @@ export function ProductionProvider({ children }) {
     useEffect(() => {
         const calculateTotalCoins = () => {
             return inventory.reduce((sum, item) => {
-                if (item.category === "dragon" && item.hungerState > 0) {
+                if (item.category === 'dragon' && item.hungerState > 0) {
                     const gain = item.gainCoins * Math.pow(1 + item.tauxGainCoins, item.level);
                     if (item.hungerState > 0) {
                         const foodConsume = item.hungerState - (item.hunger - item.tauxHunger);
-                        item.hungerState = foodConsume
+                        item.hungerState = foodConsume;
                     }
 
                     return sum + gain;
                 }
-                item.hungerState = 0
+                item.hungerState = 0;
                 return sum;
             }, 0);
         };
 
         const calculateTotalCrystals = () => {
             return inventory.reduce((sum, item) => {
-                if (item.category === "dragon" && item.hungerState > 0) {
+                if (item.category === 'dragon' && item.hungerState > 0) {
                     const gain = item.gainCrystals * Math.pow(1 + item.tauxGainCrystals, item.level);
                     return sum + gain;
                 }
@@ -51,7 +51,7 @@ export function ProductionProvider({ children }) {
 
         const calculateTotalFood = () => {
             return inventory.reduce((sum, item) => {
-                if (item.category === "farm") {
+                if (item.category === 'farm') {
                     const gain = item.gainFood * Math.pow(1 + item.tauxGainFood, item.level);
                     return sum + gain;
                 }
@@ -65,11 +65,11 @@ export function ProductionProvider({ children }) {
             const totalFood = calculateTotalFood();
 
             setTotalDragonPerSeconds(totalCoins); // Mise à jour pour les dragons
-            setTotalFoodPerSeconds(totalFood);    // Mise à jour pour les fermes
+            setTotalFoodPerSeconds(totalFood); // Mise à jour pour les fermes
 
             addCoin(totalCoins);
             addCrystals(totalCrystals);
-            addFood(totalFood)
+            addFood(totalFood);
         }, 1000);
 
         return () => clearInterval(interval);
@@ -100,7 +100,7 @@ export function ProductionProvider({ children }) {
                 Tap,
                 setTapMultiplier,
                 totalCoinsPerSeconds,
-                totalFoodPerSeconds, // Exposer le gain de nourriture par seconde
+                totalFoodPerSeconds // Exposer le gain de nourriture par seconde
             }}
         >
             {children}

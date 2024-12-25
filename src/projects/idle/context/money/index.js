@@ -1,3 +1,3 @@
-import {useMoney, MoneyProvider} from "./context"
+import {useMoney, MoneyProvider} from './context';
 
-export { useMoney, MoneyProvider}
+export { useMoney, MoneyProvider};

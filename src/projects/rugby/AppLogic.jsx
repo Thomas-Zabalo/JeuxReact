@@ -10,28 +10,28 @@ export default class AppLogic {
         this.drawStartScreen = this.drawStartScreen.bind(this);
         this.gameLoop = this.gameLoop.bind(this);
 
-        document.body.style.margin = "0";
-        document.body.style.padding = "0";
-        document.body.style.overflow = "hidden";
-        this.canvas.style.display = "block";
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
+        document.body.style.overflow = 'hidden';
+        this.canvas.style.display = 'block';
 
         this.isMobile = window.innerWidth < 600;
 
         // Zone "try" adaptée selon mobile ou non
         this.tryZone = this.isMobile
-            ? {x: 0, y: 0, width: this.canvas.width, height: 100, color: "green"}
-            : {x: 0, y: 0, width: 100, height: this.canvas.height, color: "green"};
+            ? {x: 0, y: 0, width: this.canvas.width, height: 100, color: 'green'}
+            : {x: 0, y: 0, width: 100, height: this.canvas.height, color: 'green'};
 
         this.resizeCanvas();
-        window.addEventListener("resize", this.resizeCanvas);
+        window.addEventListener('resize', this.resizeCanvas);
 
         this.fieldImage = new Image();
-        this.fieldImage.src = "field.png";
+        this.fieldImage.src = 'field.png';
 
         this.goalpostImage = new Image();
         this.goalpostImage.src = this.isMobile
-            ? process.env.PUBLIC_URL + "/assets/rugby/potovertical.png"
-            : process.env.PUBLIC_URL + "/assets/rugby/goalpost.png";
+            ? process.env.PUBLIC_URL + '/assets/rugby/potovertical.png'
+            : process.env.PUBLIC_URL + '/assets/rugby/goalpost.png';
 
 
         this.goalPosts = this.isMobile
@@ -48,11 +48,11 @@ export default class AppLogic {
             vy: 0,
             maxSpeed: 5,
             friction: 0.9,
-            color: "blue",
+            color: 'blue',
             frames: [],
             currentFrame: 0,
             frameCount: 22,
-            facingRight: true,
+            facingRight: true
         };
 
         for (let i = 0; i < this.player.frameCount; i++) {
@@ -82,15 +82,15 @@ export default class AppLogic {
             startX: 0,
             startY: 0,
             deltaX: 0,
-            deltaY: 0,
+            deltaY: 0
         };
 
-        this.startSound = new Audio(process.env.PUBLIC_URL + "/assets/rugby/start_game.mp3");
+        this.startSound = new Audio(process.env.PUBLIC_URL + '/assets/rugby/start_game.mp3');
         this.startSound.volume = 0.5;
         this.startSound.load();
 
         this.backgroundMusic = new Audio(
-            process.env.PUBLIC_URL + "/assets/rugby/background_music.mp3"
+            process.env.PUBLIC_URL + '/assets/rugby/background_music.mp3'
         );
         this.backgroundMusic.loop = true;
         this.backgroundMusic.volume = 0.3;
@@ -108,7 +108,7 @@ export default class AppLogic {
                 y: 0,
                 width: this.canvas.width,
                 height: 100,
-                color: "green",
+                color: 'green'
             };
         } else {
             this.tryZone = {
@@ -116,7 +116,7 @@ export default class AppLogic {
                 y: 0,
                 width: 100,
                 height: this.canvas.height,
-                color: "green",
+                color: 'green'
             };
         }
     }
@@ -127,19 +127,19 @@ export default class AppLogic {
             this.createStartButton();
             this.initJoystick(); // Initialisation du joystick sur mobile
         } else {
-            document.addEventListener("keydown", (e) => {
+            document.addEventListener('keydown', (e) => {
                 this.keys[e.key.toLowerCase()] = true;
-                if (!this.gameStarted && e.key === "Enter") this.startGame();
-                if (this.gameOver && e.key === "r") {
+                if (!this.gameStarted && e.key === 'Enter') this.startGame();
+                if (this.gameOver && e.key === 'r') {
                     this.resetAll();
                     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                     this.drawStartScreen();
                     this.startSound.currentTime = 0;
-                    this.startSound.play().catch((err) => console.warn("Lecture bloquée.", err));
+                    this.startSound.play().catch((err) => console.warn('Lecture bloquée.', err));
                 }
             });
 
-            document.addEventListener("keyup", (e) => {
+            document.addEventListener('keyup', (e) => {
                 this.keys[e.key.toLowerCase()] = false;
             });
         }
@@ -148,29 +148,29 @@ export default class AppLogic {
     }
 
     createStartButton() {
-        const existingButton = document.getElementById("start-button");
+        const existingButton = document.getElementById('start-button');
         if (existingButton) return;
 
-        const startButton = document.createElement("button");
-        startButton.id = "start-button";
-        startButton.innerText = "Démarrer";
-        startButton.style.position = "absolute";
-        startButton.style.top = "50%";
-        startButton.style.left = "50%";
-        startButton.style.transform = "translate(-50%, -50%)";
-        startButton.style.padding = "15px 30px";
-        startButton.style.fontSize = "20px";
-        startButton.style.backgroundColor = "#4CAF50";
-        startButton.style.color = "white";
-        startButton.style.border = "none";
-        startButton.style.borderRadius = "5px";
-        startButton.style.cursor = "pointer";
-        startButton.style.zIndex = "1000";
-        startButton.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+        const startButton = document.createElement('button');
+        startButton.id = 'start-button';
+        startButton.innerText = 'Démarrer';
+        startButton.style.position = 'absolute';
+        startButton.style.top = '50%';
+        startButton.style.left = '50%';
+        startButton.style.transform = 'translate(-50%, -50%)';
+        startButton.style.padding = '15px 30px';
+        startButton.style.fontSize = '20px';
+        startButton.style.backgroundColor = '#4CAF50';
+        startButton.style.color = 'white';
+        startButton.style.border = 'none';
+        startButton.style.borderRadius = '5px';
+        startButton.style.cursor = 'pointer';
+        startButton.style.zIndex = '1000';
+        startButton.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
 
         document.body.appendChild(startButton);
 
-        startButton.addEventListener("click", () => {
+        startButton.addEventListener('click', () => {
             this.startGame();
             startButton.remove();
         });
@@ -178,21 +178,21 @@ export default class AppLogic {
 
     initJoystick() {
         // Activation des événements tactiles
-        this.canvas.addEventListener("touchstart", (e) => {
+        this.canvas.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
             this.joystick.isActive = true;
             this.joystick.startX = touch.clientX;
             this.joystick.startY = touch.clientY;
         });
 
-        this.canvas.addEventListener("touchmove", (e) => {
+        this.canvas.addEventListener('touchmove', (e) => {
             if (!this.joystick.isActive) return;
             const touch = e.touches[0];
             this.joystick.deltaX = touch.clientX - this.joystick.startX;
             this.joystick.deltaY = touch.clientY - this.joystick.startY;
         });
 
-        this.canvas.addEventListener("touchend", () => {
+        this.canvas.addEventListener('touchend', () => {
             this.joystick.isActive = false;
             this.joystick.deltaX = 0;
             this.joystick.deltaY = 0;
@@ -211,7 +211,7 @@ export default class AppLogic {
 
         // On lance la musique de fond même sur mobile car l'utilisateur a cliqué
         this.backgroundMusic.currentTime = 0;
-        this.backgroundMusic.play().catch(err => console.warn("Lecture musique fond bloquée sur mobile:", err));
+        this.backgroundMusic.play().catch(err => console.warn('Lecture musique fond bloquée sur mobile:', err));
 
         requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
     }
@@ -219,31 +219,31 @@ export default class AppLogic {
 
     createReturnButton() {
         // Vérifiez si un bouton existe déjà
-        const existingButton = document.getElementById("return-button");
+        const existingButton = document.getElementById('return-button');
         if (existingButton) return;
 
         // Crée le bouton "Retour"
-        const returnButton = document.createElement("button");
-        returnButton.id = "return-button";
-        returnButton.innerText = "Retour";
-        returnButton.style.position = "absolute";
-        returnButton.style.top = "70%";
-        returnButton.style.left = "50%";
-        returnButton.style.transform = "translate(-50%, -50%)";
-        returnButton.style.padding = "10px 20px";
-        returnButton.style.fontSize = "18px";
-        returnButton.style.backgroundColor = "#FF5722";
-        returnButton.style.color = "white";
-        returnButton.style.border = "none";
-        returnButton.style.borderRadius = "5px";
-        returnButton.style.cursor = "pointer";
-        returnButton.style.zIndex = "1000";
-        returnButton.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+        const returnButton = document.createElement('button');
+        returnButton.id = 'return-button';
+        returnButton.innerText = 'Retour';
+        returnButton.style.position = 'absolute';
+        returnButton.style.top = '70%';
+        returnButton.style.left = '50%';
+        returnButton.style.transform = 'translate(-50%, -50%)';
+        returnButton.style.padding = '10px 20px';
+        returnButton.style.fontSize = '18px';
+        returnButton.style.backgroundColor = '#FF5722';
+        returnButton.style.color = 'white';
+        returnButton.style.border = 'none';
+        returnButton.style.borderRadius = '5px';
+        returnButton.style.cursor = 'pointer';
+        returnButton.style.zIndex = '1000';
+        returnButton.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
 
         document.body.appendChild(returnButton);
 
         // Ajouter l'événement de clic pour retourner au menu principal
-        returnButton.addEventListener("click", () => {
+        returnButton.addEventListener('click', () => {
             this.resetAll(); // Réinitialise le jeu
             returnButton.remove(); // Supprime le bouton après utilisation
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -252,19 +252,19 @@ export default class AppLogic {
     }
 
     getLevel() {
-        if (this.score < 5) return "Facile";
-        else if (this.score < 10) return "Intermédiaire";
-        else return "Difficile";
+        if (this.score < 5) return 'Facile';
+        else if (this.score < 10) return 'Intermédiaire';
+        else return 'Difficile';
     }
 
     getDifficultyParameters() {
         const level = this.getLevel();
         switch (level) {
-            case "Facile":
+            case 'Facile':
                 return {enemySpeedBase: 2, spawnInterval: 2000, enemiesPerSpawn: 1};
-            case "Intermédiaire":
+            case 'Intermédiaire':
                 return {enemySpeedBase: 3, spawnInterval: 1700, enemiesPerSpawn: 2};
-            case "Difficile":
+            case 'Difficile':
                 return {enemySpeedBase: 4, spawnInterval: 1200, enemiesPerSpawn: 3};
             default:
                 return {enemySpeedBase: 2, spawnInterval: 2000, enemiesPerSpawn: 1};
@@ -281,7 +281,7 @@ export default class AppLogic {
     resetGame() {
         this.enemies.length = 0;
         this.gameOver = false;
-        this.player.color = "blue";
+        this.player.color = 'blue';
 
         if (this.isMobile) {
             this.player.x = 100;
@@ -303,7 +303,7 @@ export default class AppLogic {
         this.enemies = [];
 
         // Supprime le bouton "Retour" s'il existe
-        const returnButton = document.getElementById("return-button");
+        const returnButton = document.getElementById('return-button');
         if (returnButton) returnButton.remove();
 
         // Réaffiche le bouton "Démarrer" sur mobile
@@ -317,7 +317,7 @@ export default class AppLogic {
 
         if (!this.isMobile) {
             this.startSound.currentTime = 0;
-            this.startSound.play().catch(err => console.warn("Lecture bloquée.", err));
+            this.startSound.play().catch(err => console.warn('Lecture bloquée.', err));
         }
     }
 
@@ -333,10 +333,10 @@ export default class AppLogic {
             ay = joystick.deltaY / 50;
         } else {
             // Contrôles clavier
-            if (keys["z"] || keys["arrowup"]) ay = -0.5;
-            if (keys["s"] || keys["arrowdown"]) ay = 0.5;
-            if (keys["q"] || keys["arrowleft"]) ax = -0.5;
-            if (keys["d"] || keys["arrowright"]) ax = 0.5;
+            if (keys['z'] || keys['arrowup']) ay = -0.5;
+            if (keys['s'] || keys['arrowdown']) ay = 0.5;
+            if (keys['q'] || keys['arrowleft']) ax = -0.5;
+            if (keys['d'] || keys['arrowright']) ax = 0.5;
         }
 
         player.vx += ax;
@@ -383,12 +383,12 @@ export default class AppLogic {
                     y: 0,
                     width: 80,
                     height: 80,
-                    color: "red",
+                    color: 'red',
                     speed: enemySpeedBase + Math.random(),
                     frames: this.enemyFrames,
                     currentFrame: 0,
                     frameCount: 24,
-                    facingRight: false,
+                    facingRight: false
                 };
             } else {
                 enemy = {
@@ -396,12 +396,12 @@ export default class AppLogic {
                     y: Math.random() * (this.canvas.height - 80),
                     width: 80,
                     height: 80,
-                    color: "red",
+                    color: 'red',
                     speed: enemySpeedBase + Math.random(),
                     frames: this.enemyFrames,
                     currentFrame: 0,
                     frameCount: 24,
-                    facingRight: false,
+                    facingRight: false
                 };
             }
             this.enemies.push(enemy);
@@ -468,7 +468,7 @@ export default class AppLogic {
 
         if (!this.gameOver) {
             // Si collision rectangulaire, on affiche le rouge, sinon bleu
-            player.color = rectCollisionOccurred ? "red" : "blue";
+            player.color = rectCollisionOccurred ? 'red' : 'blue';
         }
     }
 
@@ -523,9 +523,9 @@ export default class AppLogic {
         }
         ctx.restore();
 
-        if (player.color === "red") {
+        if (player.color === 'red') {
             ctx.save();
-            ctx.fillStyle = "rgba(255,0,0,0.3)";
+            ctx.fillStyle = 'rgba(255,0,0,0.3)';
             ctx.fillRect(player.x, player.y, player.width, player.height);
             ctx.restore();
         }
@@ -535,9 +535,9 @@ export default class AppLogic {
         const {ctx, canvas} = this;
         if (!this.fieldPattern) {
             const grassImage = new Image();
-            grassImage.src = process.env.PUBLIC_URL + "/assets/rugby/grass.png";
+            grassImage.src = process.env.PUBLIC_URL + '/assets/rugby/grass.png';
             grassImage.onload = () => {
-                this.fieldPattern = ctx.createPattern(grassImage, "repeat");
+                this.fieldPattern = ctx.createPattern(grassImage, 'repeat');
                 this.drawField();
             };
             return;
@@ -579,7 +579,7 @@ export default class AppLogic {
         ctx.fillStyle = tryZone.color;
         ctx.fillRect(tryZone.x, tryZone.y, tryZone.width, tryZone.height);
 
-        ctx.strokeStyle = "white";
+        ctx.strokeStyle = 'white';
         ctx.lineWidth = 5;
         ctx.beginPath();
 
@@ -604,17 +604,17 @@ export default class AppLogic {
     drawScore() {
         const {ctx, score} = this;
 
-        ctx.fillStyle = "white";
-        ctx.font = "bold 28px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        ctx.shadowColor = "black";
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 28px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.shadowColor = 'black';
         ctx.shadowBlur = 3;
 
         if (this.isMobile) {
             ctx.fillText(`Score : ${score}`, this.canvas.width / 2, this.tryZone.height + 10);
         } else {
-            ctx.textAlign = "left";
+            ctx.textAlign = 'left';
             ctx.fillText(`Score : ${score}`, 40, 10);
         }
 
@@ -622,21 +622,21 @@ export default class AppLogic {
         let levelColor;
 
         switch (level) {
-            case "Facile":
-                levelColor = "#87d9ff";
+            case 'Facile':
+                levelColor = '#87d9ff';
                 break;
-            case "Intermédiaire":
-                levelColor = "#FF9800";
+            case 'Intermédiaire':
+                levelColor = '#FF9800';
                 break;
-            case "Difficile":
-                levelColor = "#F44336";
+            case 'Difficile':
+                levelColor = '#F44336';
                 break;
             default:
-                levelColor = "#9E9E9E";
+                levelColor = '#9E9E9E';
         }
 
         const levelText = `Niveau : ${level}`;
-        ctx.font = "bold 24px Arial";
+        ctx.font = 'bold 24px Arial';
         ctx.fillStyle = levelColor;
         ctx.globalAlpha = 0.8;
         const levelTextWidth = ctx.measureText(levelText).width;
@@ -646,19 +646,19 @@ export default class AppLogic {
             const rectY = this.tryZone.height + 50;
             ctx.fillRect(rectX, rectY, levelTextWidth + 20, 40);
             ctx.globalAlpha = 1;
-            ctx.fillStyle = "white";
-            ctx.shadowColor = "transparent";
-            ctx.textAlign = "center";
+            ctx.fillStyle = 'white';
+            ctx.shadowColor = 'transparent';
+            ctx.textAlign = 'center';
             ctx.fillText(levelText, this.canvas.width / 2, rectY + 10);
         } else {
             ctx.globalAlpha = 0.8;
-            ctx.textAlign = "left";
+            ctx.textAlign = 'left';
             const rectX = 10;
             const rectY = 50;
             ctx.fillRect(rectX, rectY, levelTextWidth + 20, 40);
             ctx.globalAlpha = 1;
-            ctx.fillStyle = "white";
-            ctx.shadowColor = "transparent";
+            ctx.fillStyle = 'white';
+            ctx.shadowColor = 'transparent';
             ctx.fillText(levelText, rectX + 10, rectY + 10);
         }
     }
@@ -668,7 +668,7 @@ export default class AppLogic {
 
         const {ctx, canvas} = this;
         const backgroundImage = new Image();
-        backgroundImage.src = process.env.PUBLIC_URL + "/assets/rugby/stade.png";
+        backgroundImage.src = process.env.PUBLIC_URL + '/assets/rugby/stade.png';
 
         backgroundImage.onload = () => {
             ctx.globalAlpha = 0.5;
@@ -691,7 +691,7 @@ export default class AppLogic {
         const popupY = (canvas.height - popupHeight) / 2;
         const borderRadius = 50;
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
         ctx.beginPath();
         ctx.moveTo(popupX + borderRadius, popupY);
         ctx.lineTo(popupX + popupWidth - borderRadius, popupY);
@@ -705,39 +705,39 @@ export default class AppLogic {
         ctx.closePath();
         ctx.fill();
 
-        ctx.strokeStyle = "white";
+        ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-        ctx.textAlign = "center";
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.textAlign = 'center';
 
-        ctx.font = "21px 'Roboto', sans-serif";
-        ctx.fillText("Appuyez sur ENTRÉE pour commencer", canvas.width / 2, popupY + (popupHeight / 2) - 30);
+        ctx.font = '21px \'Roboto\', sans-serif';
+        ctx.fillText('Appuyez sur ENTRÉE pour commencer', canvas.width / 2, popupY + (popupHeight / 2) - 30);
 
-        ctx.font = "15px 'Roboto', sans-serif";
-        ctx.fillText("Contrôles : Z = haut, S = bas, Q = gauche, D = droite", canvas.width / 2, popupY + (popupHeight / 2) + 10);
-        ctx.fillText("But : Atteindre la zone verte sans toucher les ennemis", canvas.width / 2, popupY + (popupHeight / 2) + 40);
+        ctx.font = '15px \'Roboto\', sans-serif';
+        ctx.fillText('Contrôles : Z = haut, S = bas, Q = gauche, D = droite', canvas.width / 2, popupY + (popupHeight / 2) + 10);
+        ctx.fillText('But : Atteindre la zone verte sans toucher les ennemis', canvas.width / 2, popupY + (popupHeight / 2) + 40);
     }
 
 
     drawGameOver() {
         const {ctx, canvas, isMobile} = this;
         const backgroundImage2 = new Image();
-        backgroundImage2.src = process.env.PUBLIC_URL + "/assets/rugby/gameover.gif";
+        backgroundImage2.src = process.env.PUBLIC_URL + '/assets/rugby/gameover.gif';
 
         backgroundImage2.onload = () => {
             // Dessin de l'image de fond
             ctx.drawImage(backgroundImage2, 0, 0, canvas.width, canvas.height);
 
             // Overlay semi-transparent
-            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "white";
-            ctx.font = "20px Arial";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
 
             if (isMobile) {
                 // Sur mobile : bouton retour, pas de popup
@@ -759,7 +759,7 @@ export default class AppLogic {
         const borderRadius = 50;
 
         // Fond de la popup
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         ctx.beginPath();
         ctx.moveTo(popupX + borderRadius, popupY);
         ctx.lineTo(popupX + popupWidth - borderRadius, popupY);
@@ -774,17 +774,17 @@ export default class AppLogic {
         ctx.fill();
 
         // Bordure de la popup
-        ctx.strokeStyle = "white";
+        ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
         ctx.stroke();
 
         // Texte dans la popup
-        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-        ctx.textAlign = "center";
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.textAlign = 'center';
 
         // Texte principal (pas de "Game Over!", juste les instructions)
-        ctx.font = "21px 'Roboto', sans-serif";
-        ctx.fillText("Appuyez sur 'R' pour rejouer", canvas.width / 2, popupY + (popupHeight / 2) - 10);
+        ctx.font = '21px \'Roboto\', sans-serif';
+        ctx.fillText('Appuyez sur \'R\' pour rejouer', canvas.width / 2, popupY + (popupHeight / 2) - 10);
     }
 
     gameLoop(timestamp) {
@@ -832,10 +832,10 @@ export default class AppLogic {
 
         // Réinitialiser les styles globaux si le canvas est défini
         if (this.canvas) {
-            document.body.style.margin = "";
-            document.body.style.padding = "";
-            document.body.style.overflow = "";
-            this.canvas.style.display = "";
+            document.body.style.margin = '';
+            document.body.style.padding = '';
+            document.body.style.overflow = '';
+            this.canvas.style.display = '';
         }
     }
 

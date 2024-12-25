@@ -1,7 +1,7 @@
 import HomePage from './HomePage.jsx';
 
 const Pages = {
-  HomePage,
+    HomePage
 };
 
 export default Pages;

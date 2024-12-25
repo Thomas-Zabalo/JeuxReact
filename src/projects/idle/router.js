@@ -1,7 +1,7 @@
 import React from 'react';
 import Pages from './pages/index.js';
 
-import { Money, Shop, Inventory, Production } from "./context"
+import { Money, Shop, Inventory, Production } from './context';
 
 const Router = () => {
     return (

@@ -1,4 +1,5 @@
-import Images from '../../assets'
+import React from 'react';
+import { Crystals, Coin } from '../../assets';
 import { Button } from '../atoms';
 
 const ShopDragon = ({ dragons, onBuyDragon, crystals }) => {
@@ -10,13 +11,13 @@ const ShopDragon = ({ dragons, onBuyDragon, crystals }) => {
                     key={index}
                     className="flex flex-col border-[10px] w-full border-zinc-200 bg-zinc-200 z-20"
                     style={{
-                        clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)',
+                        clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)'
                     }}
                 >
                     <div
                         className="flex flex-col h-full w-full px-4 py-2 bg-neutral-900"
                         style={{
-                            clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)',
+                            clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)'
                         }}
                     >
                         <div className="flex flex-col lg:flex-row h-full w-full items-center">
@@ -32,7 +33,7 @@ const ShopDragon = ({ dragons, onBuyDragon, crystals }) => {
                                 </p>
                                 <div className="flex items-center gap-1 text-center">
                                     <p className="text-white text-sm">Prix: {dragon.priceUpdate}</p>
-                                    <img src={Images.Crystals} alt="Crystal" className="w-5 h-5" />
+                                    <img src={Crystals} alt="Crystal" className="w-5 h-5" />
                                 </div>
                                 <Button.Primary
                                     disabled={crystals < dragon.priceUpdate}
@@ -57,13 +58,13 @@ const ShopFarm = ({ farms, onBuyFarm, coin }) => {
                     key={index}
                     className="flex flex-col border-[10px] w-full border-zinc-200 bg-zinc-200 z-20"
                     style={{
-                        clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)',
+                        clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)'
                     }}
                 >
                     <div
                         className="flex flex-col h-full w-full px-4 py-2 bg-neutral-900"
                         style={{
-                            clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)',
+                            clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)'
                         }}
                     >
                         <div className="flex flex-col lg:flex-row h-full w-full items-center">
@@ -79,7 +80,7 @@ const ShopFarm = ({ farms, onBuyFarm, coin }) => {
                                 </p>
                                 <div className="flex items-center gap-1 text-center">
                                     <p className="text-white text-sm">Prix: {farm.priceBase}</p>
-                                    <img src={Images.Coin} alt="Coin" className="w-5 h-5" />
+                                    <img src={Coin} alt="Coin" className="w-5 h-5" />
                                 </div>
                                 <Button.Primary disabled={coin < farm.priceBase} onClick={() => onBuyFarm(farm)}>Acheter</Button.Primary>
                             </div>
@@ -91,4 +92,4 @@ const ShopFarm = ({ farms, onBuyFarm, coin }) => {
     );
 };
 
-export { ShopDragon, ShopFarm }
+export { ShopDragon, ShopFarm };

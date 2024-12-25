@@ -1,4 +1,5 @@
-import Images from '../../assets'
+import React from 'react';
+import { Crystals, Coin } from '../../assets';
 import { useInventory } from '../../context/inventory';
 import { Button } from '../atoms';
 
@@ -14,14 +15,14 @@ const InventoryDragon = ({ dragons, crystals, food }) => {
                     className="flex flex-col border-[10px] w-full border-zinc-200 bg-zinc-200 z-20"
                     style={{
                         clipPath:
-                            "polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)",
+                            'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)'
                     }}
                 >
                     <div
                         className="flex flex-col h-full w-full px-4 py-2 bg-neutral-900"
                         style={{
                             clipPath:
-                                "polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)",
+                                'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)'
                         }}
                     >
                         <div className="flex lg:flex-row h-full w-full items-center">
@@ -38,7 +39,7 @@ const InventoryDragon = ({ dragons, crystals, food }) => {
                                 </p>
                                 <div className="flex items-center gap-1 text-center">
                                     <p className="text-white text-sm">Prix: {dragon.upgrade}</p>
-                                    <img src={Images.Crystals} alt="Crystal" className="w-5 h-5" />
+                                    <img src={Crystals} alt="Crystal" className="w-5 h-5" />
                                 </div>
                                 {dragon.level < 20 ? (
                                     <Button.Primary
@@ -67,7 +68,7 @@ const InventoryDragon = ({ dragons, crystals, food }) => {
                                             width: `${Math.min(
                                                 (dragon.hungerState / dragon.maxHunger) * 100,
                                                 100
-                                            )}%`,
+                                            )}%`
                                         }}
                                     ></div>
                                 </div>
@@ -109,7 +110,7 @@ const InventoryDragon = ({ dragons, crystals, food }) => {
 
 const InventoryFarm = ({ farms, coin }) => {
 
-    const { upgradeFarm } = useInventory()
+    const { upgradeFarm } = useInventory();
     return (
         <div className='flex flex-col space-y-4 pb-8 w-full'>
             {farms.map((farm, index) => (
@@ -117,13 +118,13 @@ const InventoryFarm = ({ farms, coin }) => {
                     key={index}
                     className="flex flex-col border-[10px] w-full border-zinc-200 bg-zinc-200 z-20"
                     style={{
-                        clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)',
+                        clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)'
                     }}
                 >
                     <div
                         className="flex flex-col h-full w-full px-4 py-2 bg-neutral-900"
                         style={{
-                            clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)',
+                            clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)'
                         }}
                     >
                         <div className="flex flex-col lg:flex-row h-full w-full items-center">
@@ -142,7 +143,7 @@ const InventoryFarm = ({ farms, coin }) => {
                                 </p>
                                 <div className="flex items-center gap-1 text-center">
                                     <p className="text-white text-sm">Prix: {farm.upgrade}</p>
-                                    <img src={Images.Coin} alt="Coin" className="w-5 h-5" />
+                                    <img src={Coin} alt="Coin" className="w-5 h-5" />
                                 </div>
                                 {farm.level < 20 ? (
                                     <Button.Primary disabled={coin < farm.upgrade} onClick={() => upgradeFarm(index)}>Améliorer</Button.Primary>
@@ -158,4 +159,4 @@ const InventoryFarm = ({ farms, coin }) => {
     );
 };
 
-export { InventoryDragon, InventoryFarm }
+export { InventoryDragon, InventoryFarm };

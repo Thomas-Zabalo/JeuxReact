@@ -1,4 +1,4 @@
-import kaplay from "kaplay";
+import kaplay from 'kaplay/dist/kaplay.cjs';
 
 const k = kaplay({
     width: 3640,
@@ -9,12 +9,12 @@ const k = kaplay({
     touchToMouse: true,
     buttons : {
         jump: {
-            keyboard: ["space"],
-            mouse: "left",
-        },
+            keyboard: ['space'],
+            mouse: 'left'
+        }
     },
     debug: true,
-    debugKey: "k",
+    debugKey: 'k'
 });
 
 

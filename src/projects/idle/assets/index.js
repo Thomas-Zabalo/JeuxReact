@@ -1,13 +1,13 @@
-import Bank from './bank.png'
-import Chicken from './chicken.png'
-import Clock from './clock.png'
-import Coin from './coin.png'
-import Crystals from './crystals.png'
-import GoldIngot from './goldIngot.png'
-import MountainBg from './mountainbg.png'
-import Sword from './sword.png'
-import DragonIcon from './dragonIcon.png'
-import FarmIcon from './farmIcon.png'
+import Bank from './bank.png';
+import Chicken from './chicken.png';
+import Clock from './clock.png';
+import Coin from './coin.png';
+import Crystals from './crystals.png';
+import GoldIngot from './goldIngot.png';
+import MountainBg from './mountainbg.png';
+import Sword from './sword.png';
+import DragonIcon from './dragonIcon.png';
+import FarmIcon from './farmIcon.png';
 import { Dragon } from './dragon/index.js';
 import { Farm } from './farm/index.js';
 

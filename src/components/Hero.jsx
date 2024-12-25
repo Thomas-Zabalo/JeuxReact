@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 function Hero() {
     return (
@@ -27,8 +27,8 @@ function Hero() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
-export default Hero
+export default Hero;
 

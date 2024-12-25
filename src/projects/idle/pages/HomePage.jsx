@@ -1,13 +1,12 @@
-import React from "react";
-import { Production } from "../context/index.js";
-import Images from '../assets';
-import Bank from "../components/organisms/Bank";
-import Inventory from "../components/organisms/Inventory";
-import Shop from "../components/organisms/Shop";
+import React from 'react';
+// import { Production } from '../context/index.js';
+import { MountainBg } from '../assets';
+import Bank from '../components/organisms/Bank';
+import Inventory from '../components/organisms/Inventory';
+import Shop from '../components/organisms/Shop';
 
-export default function HomePage() {
-    const { Tap } = Production.useProduction();
-
+function HomePage() {
+    // const { Tap } = Production.useProduction();
     return (
         <div className="flex flex-col h-screen w-full bg-gray-800 relative overflow-hidden">
             <div className="flex h-full w-full z-10">
@@ -24,8 +23,10 @@ export default function HomePage() {
                 </div>
             </div>
             <div className="absolute bottom-0 z-0 w-full">
-                <img className="h-full w-full" src={Images.MountainBg} alt="Background montagne" />
+                <img className="h-full w-full" src={MountainBg} alt="Background montagne" />
             </div>
         </div>
     );
 }
+
+export default HomePage;
