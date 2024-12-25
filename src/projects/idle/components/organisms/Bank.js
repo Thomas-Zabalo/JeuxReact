@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Bank as BankMolecule } from "../molecules";
-import { Production, Money, Inventory } from "../../context";
+import { Bank as BankMolecule } from "../molecules/index.js";
+import { Production, Money, Inventory } from "../../context/index.js";
 import Images from '../../assets';
 import { motion } from 'framer-motion';
 

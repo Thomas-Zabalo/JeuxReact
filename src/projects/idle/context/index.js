@@ -1,6 +1,4 @@
-import * as Money from './money'
-import * as Shop from './shop'
-import * as Inventory from './inventory'
-import * as Production from './production'
-
-export { Money, Shop, Inventory, Production }
+export * as Money from './money'
+export * as Shop from './shop'
+export * as Inventory from './inventory'
+export * as Production from './production'

@@ -1,5 +1,5 @@
 import React from "react";
-import { Production } from "../context";
+import { Production } from "../context/index.js";
 import Images from '../assets';
 import Bank from "../components/organisms/Bank";
 import Inventory from "../components/organisms/Inventory";

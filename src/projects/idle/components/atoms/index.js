@@ -1,4 +1,2 @@
-import * as Case from './Case'
-import * as Button from "./Button"
-
-export { Case, Button }
+export * as Case from './Case.jsx'
+export * as Button from './Button.jsx'

@@ -1,6 +1,6 @@
 import React from 'react'
-import { Case } from '../atoms'
-import Images from '../../assets';
+import { Case } from '../atoms/index.js'
+import * as Images from '../../assets/index.js';
 
 const MoneyBar = ({ coin, food, crystals, goldIngot }) => {
     return (

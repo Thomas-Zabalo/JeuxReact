@@ -8,10 +8,10 @@ import MountainBg from './mountainbg.png'
 import Sword from './sword.png'
 import DragonIcon from './dragonIcon.png'
 import FarmIcon from './farmIcon.png'
-import { Dragon } from './dragon';
-import { Farm } from './farm';
+import { Dragon } from './dragon/index.js';
+import { Farm } from './farm/index.js';
 
-export default {
+export {
     Bank,
     Chicken,
     Clock,
