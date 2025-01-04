@@ -1,6 +1,4 @@
-import k from '../kaplayCtx.js';
-
-export function makeRing(pos){
+export function makeRing(k, pos){
     return k.add([
         k.sprite('ring', {anim: 'spin'}),
         k.area({shape: new k.Rect(k.vec2(-5, 0), 32, 32)}),

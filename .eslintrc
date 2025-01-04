@@ -29,6 +29,7 @@
             }
         ],
         "array-callback-return": "warn",
+        "no-unused-vars": "warn",
         "comma-dangle": ["error", "never"],
         "import/no-unresolved": ["error", { "ignore": ["^!!url-loader"] }],
         "indent": ["error", 4, { "SwitchCase": 1 }],

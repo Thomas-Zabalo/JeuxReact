@@ -1,6 +1,4 @@
-import k from '../kaplayCtx.js';
-
-export function makefish(pos){
+export function makeFish(k, pos){
     return k.add([
         k.sprite('fish', {anim: 'fishing'}),
         k.area({shape: new k.Rect(k.vec2(-5, 0), 32, 32)}),

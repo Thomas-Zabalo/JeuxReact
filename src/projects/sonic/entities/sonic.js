@@ -1,6 +1,4 @@
-import k from '../kaplayCtx.js';
-
-export function makeSonic(pos){
+export function makeSonic(k, pos){
     const sonic = k.add([
         k.sprite('sonic', {anim: 'run'}),
         k.scale(4),

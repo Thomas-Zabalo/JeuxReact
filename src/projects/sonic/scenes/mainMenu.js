@@ -1,7 +1,6 @@
-import k from '../kaplayCtx.js';
-import { makeSonic } from '../entities/sonic.js';
+import { makeSonic } from '../entities/index.js';
 
-export default function mainMenu(){
+export function mainMenu (k) {
     if (!k.getData('best-score')) k.setData('best-score', 0);
     k.onButtonPress('jump', ()=> k.go('game'));
     const bgPieceWidth = 1920;
@@ -36,7 +35,7 @@ export default function mainMenu(){
         k.anchor('center')
     ]);
 
-    makeSonic(k.vec2(200, 1050));
+    makeSonic(k, k.vec2(200, 1050));
 
     k.onUpdate(()=>{
         if(bgPieces[1].pos.x <0) {

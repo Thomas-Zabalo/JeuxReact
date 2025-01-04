@@ -1,10 +1,6 @@
-import { makeMotobug } from '../entities/motobug.js';
-import { makeRing } from '../entities/rings.js';
-import { makeSonic} from '../entities/sonic.js';
-import k from '../kaplayCtx.js';
+import { makeMotobug, makeRing, makeSonic } from '../entities/index.js';
 
-
-export default function game(){
+export function playGame (k) {
 
     k.setGravity(3100);
 
@@ -37,7 +33,7 @@ export default function game(){
         k.pos(20, 20)
     ]); 
 
-    const sonic = makeSonic(k.vec2(200, 1050));
+    const sonic = makeSonic(k, k.vec2(200, 1050));
     sonic.setControls();
     sonic.setEvents();
     sonic.onCollide('enemy', (enemy) => {
@@ -75,7 +71,7 @@ export default function game(){
     });
 
     const spawnMotoBug = () => {
-        const motobug = makeMotobug(k.vec2(1950, 1080));
+        const motobug = makeMotobug(k, k.vec2(1950, 1080));
         motobug.onUpdate(()=> {
             if (gameSpeed < 3000){
                 motobug.move(-(gameSpeed+300), 0 );
@@ -94,7 +90,7 @@ export default function game(){
 
 
     const spawnRing =() => {
-        const ring = makeRing(k.vec2(1950, 1080));
+        const ring = makeRing(k, k.vec2(1950, 1080));
         ring.onUpdate(()=> {
             ring.move(-gameSpeed, 0);
         });

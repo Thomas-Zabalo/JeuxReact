@@ -1,6 +1,4 @@
-import k from '../kaplayCtx.js';
-
-export function makeSonicexe(pos){
+export function makeSonicexe(k, pos){
     return k.add([
         k.sprite('sonicexe', {anim: 'idles'}),
         k.area({shape: new k.Rect(k.vec2(-5, 0), 32, 32)}),

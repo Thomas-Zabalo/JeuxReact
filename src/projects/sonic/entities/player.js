@@ -1,11 +1,9 @@
-import k from '../kaplayCtx.js';
-
 const SPEED = 2500;
 const JUMP_FORCE = 2000;
 const MAX_SPEED = 5000;
 const FALL_DEATH = 3500;
 
-export function makeplayer(){
+export function makePlayer(k){
     const player =k.add([
         k.sprite('sonic'),
         k.scale(4),
@@ -142,7 +140,6 @@ export function makeplayer(){
             collision.preventResolution(); 
         }
     });
-
 
     return player;
 }
