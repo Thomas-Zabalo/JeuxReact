@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import main from './main';
 import './App.css';
 
 function App() {
-    return <p>{'Projects/Sonic/App.jsx'}</p>;
+    useEffect(() => {
+        main();
+    });
+    return <p>{'Sonic Game'}</p>;
 }
 
 export default App;

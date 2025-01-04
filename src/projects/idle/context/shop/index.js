@@ -1,1 +1,1 @@
-export {useShop, ShopProvider} from './context';
+export {useShop, ShopProvider} from './context.jsx';

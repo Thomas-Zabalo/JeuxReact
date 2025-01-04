@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useInventory } from '../../context/inventory';
-import { useMoney } from '../../context/money';
-import { Inventory as InventoryMolecule } from '../molecules';
+import { useInventory } from '../../context/inventory/index.js';
+import { useMoney } from '../../context/money/index.js';
+import { Inventory as InventoryMolecule } from '../molecules/index.js';
 
 export default function Inventory() {
     const { inventory } = useInventory();

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Bank as BankMolecule } from '../molecules/index.js';
 import { Production, Money, Inventory } from '../../context/index.js';
-import { Coin, GoldIngot } from '../../assets';
+import { Coin, GoldIngot, Bank as BankImg } from '../../assets/index.js';
 import { motion } from 'framer-motion';
 
 export default function Bank() {
@@ -54,7 +54,7 @@ export default function Bank() {
             <div className='flex w-full justify-center bank-center p-8 relative'>
                 <div className='flex w-56 h-56 cursor-pointer z-20'>
                     <img
-                        src={Bank}
+                        src={BankImg}
                         draggable="false"
                         style={{
                             transition: 'transform 150ms ease-in-out',

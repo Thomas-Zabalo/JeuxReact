@@ -1,4 +1,4 @@
-import k from '../kaplayCtx';
+import k from '../kaplayCtx.js';
 
 export function makeMotobug(pos){
     return k.add([
@@ -8,6 +8,8 @@ export function makeMotobug(pos){
         k.anchor('center'),
         k.pos(pos),
         k.offscreen(),
-        'enemy'
+        k.animate(),
+        'enemy',
+        {z: 10}
     ]);
 }

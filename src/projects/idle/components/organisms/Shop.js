@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useMoney } from '../../context/money';
-import { useInventory } from '../../context/inventory';
-import { Shop as ShopMolecule } from '../molecules';
-import { Dragon, Farm } from '../../assets';
-import { useShop } from '../../context/shop';
+import { useMoney } from '../../context/money/index.js';
+import { useInventory } from '../../context/inventory/index.js';
+import { Shop as ShopMolecule } from '../molecules/index.js';
+import { Dragon, Farm } from '../../assets/index.js';
+import { useShop } from '../../context/shop/index.js';
 
 export default function Shop() {
     const { crystals, removeCrystals, coin, removeCoin } = useMoney();

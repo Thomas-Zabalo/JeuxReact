@@ -1,4 +1,4 @@
-import k from '../kaplayCtx';
+import k from '../kaplayCtx.js';
 
 export function makeSonic(pos){
     const sonic = k.add([

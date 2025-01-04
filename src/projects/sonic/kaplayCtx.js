@@ -1,4 +1,4 @@
-import kaplay from 'kaplay/dist/kaplay.cjs';
+import kaplay from 'kaplay';
 
 const k = kaplay({
     width: 3640,
@@ -16,8 +16,5 @@ const k = kaplay({
     debug: true,
     debugKey: 'k'
 });
-
-
-
 
 export default k;

@@ -14,6 +14,7 @@ import SubwaySurferApp from './projects/SubwaySurfer/Subway';
 // import SonicApp from './projects/sonic/Sonic'
 import IdleApp from './projects/idle/router';
 import Card from './components/Card';
+import SonicApp from './projects/sonic/App.jsx';
 
 function App() {
     return (
@@ -51,7 +52,7 @@ function AppContent() {
                 <Route path="/project/coloring-app" element={<ColoringApp />} />
                 <Route path="/project/rugby-app" element={<FootballApp />} />
                 <Route path="/project/SubwaySurfer-app" element={<SubwaySurferApp />} />
-                {/* <Route path="/project/sonic-app" element={<SonicApp />} /> */}
+                <Route path="/project/sonic-app" element={<SonicApp />} />
                 <Route path="/project/idle-app" element={<IdleApp />} />
             </Routes>
 

@@ -1,3 +1,1 @@
-import {useMoney, MoneyProvider} from './context';
-
-export { useMoney, MoneyProvider};
+export {useMoney, MoneyProvider} from './context.jsx';

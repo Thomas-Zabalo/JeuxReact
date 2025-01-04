@@ -1,3 +1,1 @@
-import {useInventory, InventoryProvider} from './context';
-
-export { useInventory, InventoryProvider};
+export {useInventory, InventoryProvider} from './context.jsx';

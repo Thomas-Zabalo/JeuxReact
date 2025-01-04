@@ -1,8 +1,9 @@
-import k from '../kaplayCtx';
+import k from '../kaplayCtx.js';
 
 const SPEED = 2500;
 const JUMP_FORCE = 2000;
 const MAX_SPEED = 5000;
+const FALL_DEATH = 3500;
 
 export function makeplayer(){
     const player =k.add([
@@ -12,7 +13,7 @@ export function makeplayer(){
         k.anchor('center'),
         k.pos(500,k.height()),
         k.body(),
-        { speed: SPEED, maxSpeed: MAX_SPEED, z: 10 },
+        { speed: SPEED, maxSpeed: MAX_SPEED, z: 10, jumpforce: JUMP_FORCE},
         'player'
     ]);
 
@@ -29,7 +30,7 @@ export function makeplayer(){
         if (player.isGrounded()){
             player.jump(JUMP_FORCE),
             player.play('jump');
-            // k.play("jump", {volume: 0.5});
+            k.play('jump', {volume: 0.5});
         }
     });
   
@@ -63,27 +64,30 @@ export function makeplayer(){
         });
     });
 
-    const getInfo = () =>
-        `
-  Anim: ${player.curAnim()}
-  Frame: ${player.frame}
-  `.trim();
+    // const getInfo = () =>
+    //   `
+    // Anim: ${player.curAnim()}
+    // Frame: ${player.frame}
+    // `.trim();
   
-    // Add some text to show the current animation
-    const label = k.add([
-        k.text(getInfo(), { size: 100 }),
-        k.color(0, 0, 0),
-        k.pos(500,k.height()),
-        {z:10}
-    ]);
+
+    // const label = k.add([
+    //   k.text(getInfo(), { size: 100 }),
+    //   k.color(0, 0, 0),
+    //   k.pos(500,k.height()),
+    //   {z:10},
+    // ]);
   
-    label.onUpdate(() => {
-        label.text = getInfo();
-    });
+    // label.onUpdate(() => {
+    //   label.text = getInfo();
+    // });
 
 
     player.onUpdate(() => {
 
+        if (!player.manualCamera) {
+            k.setCamPos(player.worldPos()); 
+        }
         if (player.speed > MAX_SPEED) {
             player.speed = MAX_SPEED;
         }
@@ -96,6 +100,23 @@ export function makeplayer(){
     });
 
 
+    let isReloading = false;  
+
+    player.onUpdate(() => {
+        k.camPos(player.pos);
+  
+        if (player.pos.y >= FALL_DEATH && !isReloading) {
+            isReloading = true;
+
+            k.play('AHHHH', {volume: 0.7});
+    
+            setTimeout(() => {
+                k.go('mainGame');
+            }, 500);
+        }
+    });
+
+
     //   k.onFixedUpdate(() => {
     //     console.log(`Vitesse actuelle : ${player.speed}`);
     // });
@@ -104,6 +125,21 @@ export function makeplayer(){
     k.onUpdate(() => {
         if (!player.isGrounded()) {
             player.isPropelled = false;
+        }
+    });
+
+
+    player.onBeforePhysicsResolve(collision => {
+        if (collision.target.is('passthroughPlatform') && player.isJumping()) {
+            collision.preventResolution();
+        }
+    });
+
+    player.onBeforePhysicsResolve(collision => {
+        if (collision.target.is('passthroughPlatform') 
+    && (player.isJumping() || k.isKeyDown('down')))
+        {
+            collision.preventResolution(); 
         }
     });
 

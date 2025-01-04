@@ -68,7 +68,8 @@
         "propWrapperFunctions": ["forbidExtraProps"],
         "import/resolver": {
             "node": {
-                "extensions": [".js", ".jsx", ".mjs", ".cjs"]
+                "extensions": [".js", ".jsx", ".mjs", ".cjs"],
+                "paths": ["src"]
             }
         }
     }

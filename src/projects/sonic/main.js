@@ -1,10 +1,10 @@
-import { makeplayer } from './entities/player';
-import k from './kaplayCtx';
-import mainMenu from './scenes/mainMenu';
-import { makeMotobug } from './entities/motobug';
-import { makefish } from './entities/fish';
-import { makeplatformsaut } from './entities/platformdesaut';
-import { makeSonicexe } from './entities/sonicexe';
+import { makeplayer } from './entities/player.js';
+import k from './kaplayCtx.js';
+import mainMenu from './scenes/mainMenu.js';
+import { makeMotobug } from './entities/motobug.js';
+import { makefish } from './entities/fish.js';
+import { makeplatformsaut } from './entities/platformdesaut.js';
+import { makeSonicexe } from './entities/sonicexe.js';
 // import { makeSonicexe2 } from './entities/sonicexe2';
 
 // let isReloading = false;
@@ -15,11 +15,11 @@ import { makeSonicexe } from './entities/sonicexe';
 
 k.scene('introDialog', () => {
   
-    k.loadSprite('sonic', 'graphics/sonictalking.gif');
-    k.loadSprite('tails', 'graphics/tails.png');
-    k.loadSound('sonic_voice', 'sounds/talking.mp3' );
+    k.loadSprite('sonic', '/graphics/sonictalking.gif');
+    k.loadSprite('tails', '/graphics/tails.png');
+    k.loadSound('sonic_voice', '/sounds/talking.mp3' );
     // k.loadSound("tails_voice", "examples/sounds/tails_voice.wav");
-    k.loadFont('mania','fonts/mania.ttf');
+    k.loadFont('mania','/fonts/mania.ttf');
 
     const characters = {
         'sonic': {
@@ -98,8 +98,6 @@ k.scene('introDialog', () => {
         }
     });
 });
-
-k.go('introDialog');
 
 
 
@@ -2506,7 +2504,6 @@ k.add([
 
 
 
-k.scene('main-menu', mainMenu);
 
 // k.go("main-menu")
 
@@ -2582,3 +2579,10 @@ k.scene("gameover", ()=> {
 k.go("main-menu")
 
 */
+
+function main () {
+    k.scene('main-menu', mainMenu);
+    k.go('introDialog');
+}
+
+export default main;

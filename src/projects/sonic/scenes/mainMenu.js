@@ -1,5 +1,5 @@
-import k from '../kaplayCtx';
-import { makeSonic } from '../entities/sonic';
+import k from '../kaplayCtx.js';
+import { makeSonic } from '../entities/sonic.js';
 
 export default function mainMenu(){
     if (!k.getData('best-score')) k.setData('best-score', 0);

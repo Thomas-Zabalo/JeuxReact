@@ -1,6 +1,6 @@
 import React from 'react';
 import { Crystals, Coin } from '../../assets';
-import { useInventory } from '../../context/inventory';
+import { useInventory } from '../../context/inventory/index.js';
 import { Button } from '../atoms';
 
 const InventoryDragon = ({ dragons, crystals, food }) => {

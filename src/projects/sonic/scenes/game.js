@@ -1,7 +1,7 @@
-import { makeMotobug } from '../entities/motobug';
-import { makeRing } from '../entities/rings';
-import { makeSonic} from '../entities/sonic';
-import k from '../kaplayCtx';
+import { makeMotobug } from '../entities/motobug.js';
+import { makeRing } from '../entities/rings.js';
+import { makeSonic} from '../entities/sonic.js';
+import k from '../kaplayCtx.js';
 
 
 export default function game(){
